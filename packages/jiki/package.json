@@ -1,0 +1,53 @@
+{
+  "name": "jiki",
+  "version": "0.1.0",
+  "description": "Lightweight browser-based Node.js runtime with virtual filesystem, npm support, and dev servers.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "vite build && tsc --project tsconfig.build.json",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "acorn": "^8.14.0",
+    "acorn-jsx": "^5.3.2",
+    "comlink": "^4.4.2",
+    "esbuild-wasm": "^0.27.3",
+    "pako": "^2.1.0",
+    "resolve.exports": "^2.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pako": "^2.0.3",
+    "typescript": "^5.7.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
+  }
+}

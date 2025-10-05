@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Vite cache
+.vite/
+
+# Inner docs
+/docs/
+
+# Turbo cache
+.turbo/
+
+# Test & coverage
+coverage/
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code / agent skills
+.agents/
+.claude/
+skills-lock.json
+
+# Reference repos (not part of the project)
+refs/
+test-results/
+.superpowers/

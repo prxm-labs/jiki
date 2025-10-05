@@ -1,0 +1,23 @@
+{
+  "name": "jiki-root",
+  "private": true,
+  "version": "0.0.0",
+  "description": "jiki — browser-based Node.js runtime",
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.8.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "test": "turbo test",
+    "type-check": "turbo type-check",
+    "dev": "turbo dev",
+    "format": "turbo format"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "prettier": "3.8.1"
+  }
+}
