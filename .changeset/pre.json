@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@run0/jiki": "0.0.0"
+  },
+  "changesets": [
+    "beta-1-virtual-filesystem"
+  ]
+}
