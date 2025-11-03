@@ -13,6 +13,9 @@ export type {
 } from "./memfs";
 export { createNodeError } from "./memfs";
 
+export { Kernel, Runtime } from "./kernel";
+export type { Module, RuntimeOptions, RequireFunction } from "./kernel";
+export type { AutoInstallProvider } from "./module-resolver";
 export type {
   IRuntime,
   IExecuteResult,
@@ -21,7 +24,33 @@ export type {
   VFSFileEntry,
 } from "./runtime-interface";
 
+export {
+  registerBuiltin,
+  registerBuiltins,
+  unregisterBuiltin,
+  listBuiltins,
+} from "./builtins";
+
+export {
+  initTranspiler,
+  transpile,
+  transpileSync,
+  bundle,
+  stopTranspiler,
+  needsTranspilation,
+  setWasmURL,
+  hasSyncSupport,
+} from "./transpiler";
+export type {
+  TranspileOptions,
+  BundleOptions,
+  BundleResult,
+  InitOptions,
+} from "./transpiler";
+
 export * as pathShim from "./polyfills/path";
 export { EventEmitter } from "./polyfills/events";
 export { createProcess } from "./polyfills/process";
 export type { Process, ProcessEnv } from "./polyfills/process";
+export { createFsShim } from "./polyfills/fs";
+export type { FsShim } from "./polyfills/fs";
