@@ -48,6 +48,25 @@ export type {
   InitOptions,
 } from "./transpiler";
 
+export { PackageManager, NpmLayout } from "./npm/index";
+export type {
+  LayoutStrategy,
+  InstallOptions,
+  InstallResult,
+} from "./npm/index";
+export { PnpmLayout } from "./npm/pnpm";
+
+export { PackageCache } from "./npm/cache";
+export type { PackageCacheOptions } from "./npm/cache";
+
+export {
+  discoverWorkspaces,
+  resolveWorkspaceDep,
+  isWorkspaceProtocol,
+  linkWorkspaces,
+} from "./npm/workspaces";
+export type { WorkspacePackage } from "./npm/workspaces";
+
 export * as pathShim from "./polyfills/path";
 export { EventEmitter } from "./polyfills/events";
 export { createProcess } from "./polyfills/process";

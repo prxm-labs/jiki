@@ -12,7 +12,6 @@ export default defineConfig({
       external: [
         "acorn",
         "acorn-jsx",
-        "comlink",
         "esbuild-wasm",
         "pako",
         "resolve.exports",
