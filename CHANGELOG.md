@@ -1,5 +1,11 @@
 # @run0/jiki
 
+## 0.0.1-beta.3
+
+### Patch Changes
+
+- Package management with npm registry client, semver dependency resolution, tarball extraction, and package caching. pnpm content-addressable store layout. Lockfile-aware installation from package-lock.json. Monorepo workspace discovery and linking with support for workspace: protocol.
+
 ## 0.0.1-beta.2
 
 ### Patch Changes
