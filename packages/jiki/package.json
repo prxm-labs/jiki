@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "acorn": "^8.14.0",
+    "comlink": "^4.4.2",
     "acorn-jsx": "^5.3.2",
     "esbuild-wasm": "^0.27.3",
     "pako": "^2.1.0",

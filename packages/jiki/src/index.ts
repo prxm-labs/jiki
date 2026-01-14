@@ -24,6 +24,9 @@ export type {
   VFSFileEntry,
 } from "./runtime-interface";
 
+export { Container, boot, createContainer, registerPlugin } from "./container";
+export type { ContainerOptions, RunResult } from "./container";
+
 export {
   registerBuiltin,
   registerBuiltins,
@@ -66,6 +69,23 @@ export {
   linkWorkspaces,
 } from "./npm/workspaces";
 export type { WorkspacePackage } from "./npm/workspaces";
+
+export { Shell, ShellHistory, createShell } from "./shell";
+export type {
+  ShellOptions,
+  ShellProcess,
+  ShellContext,
+  CommandHandler,
+  ShellResult,
+} from "./shell";
+
+export {
+  parseError,
+  formatErrorText,
+  formatErrorHtml,
+  errorOverlayScript,
+} from "./errors";
+export type { ContainerError, ErrorCategory } from "./errors";
 
 export * as pathShim from "./polyfills/path";
 export { EventEmitter } from "./polyfills/events";
