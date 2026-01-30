@@ -79,6 +79,37 @@ export type {
   ShellResult,
 } from "./shell";
 
+export { NextDevServer } from "./frameworks/next-dev-server";
+export type { NextDevServerOptions } from "./frameworks/next-dev-server";
+export { ViteDevServer } from "./frameworks/vite-dev-server";
+export type { ViteDevServerOptions } from "./frameworks/vite-dev-server";
+export { SvelteKitDevServer } from "./frameworks/sveltekit-dev-server";
+export type { SvelteKitDevServerOptions } from "./frameworks/sveltekit-dev-server";
+export { RemixDevServer } from "./frameworks/remix-dev-server";
+export type {
+  RemixDevServerOptions,
+  RemixRoute,
+} from "./frameworks/remix-dev-server";
+export { DevServer } from "./dev-server";
+export type { DevServerOptions, HMRUpdate, ResponseData } from "./dev-server";
+
+export {
+  ServerBridge,
+  getServerBridge,
+  resetServerBridge,
+} from "./server-bridge";
+export type {
+  IVirtualServer,
+  VirtualServer,
+  BridgeOptions,
+  InitServiceWorkerOptions,
+} from "./server-bridge";
+
+export {
+  setServerListenCallback,
+  setServerCloseCallback,
+} from "./polyfills/http";
+
 export {
   parseError,
   formatErrorText,
