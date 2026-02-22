@@ -1,6 +1,6 @@
 {
   "name": "@run0/jiki",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-beta.4",
   "description": "Lightweight browser-based Node.js runtime with virtual filesystem, npm support, and dev servers.",
   "type": "module",
   "license": "MIT",

@@ -7,6 +7,7 @@
   "changesets": [
     "beta-1-virtual-filesystem",
     "beta-2-module-system",
-    "beta-3-package-management"
+    "beta-3-package-management",
+    "beta-4-shell-devservers"
   ]
 }
