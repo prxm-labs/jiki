@@ -9,7 +9,6 @@ export type {
   WatchListener,
   FSWatcher,
   NodeError,
-  MemFSOptions,
 } from "./memfs";
 export { createNodeError } from "./memfs";
 
@@ -34,6 +33,88 @@ export {
   listBuiltins,
 } from "./builtins";
 
+export { PluginRegistry } from "./plugin";
+
+export { IndexedDBAdapter, InMemoryAdapter } from "./persistence";
+export type {
+  PersistenceAdapter,
+  PersistedEntry,
+  IndexedDBAdapterOptions,
+} from "./persistence";
+export type { MemFSOptions } from "./memfs";
+export type {
+  JikiPlugin,
+  PluginHooks,
+  OnResolveArgs,
+  OnResolveResult,
+  OnResolveCallback,
+  OnLoadArgs,
+  OnLoadResult,
+  OnLoadCallback,
+  OnTransformArgs,
+  OnTransformResult,
+  OnTransformCallback,
+  OnInstallCallback,
+  OnBootCallback,
+} from "./plugin";
+
+export { PackageManager, NpmLayout } from "./npm/index";
+export type {
+  LayoutStrategy,
+  InstallOptions,
+  InstallResult,
+} from "./npm/index";
+export { PnpmLayout } from "./npm/pnpm";
+
+export { PackageCache } from "./npm/cache";
+export type { PackageCacheOptions } from "./npm/cache";
+
+export { shouldUseWorker } from "./worker-runtime";
+export type { WorkerMode, WorkerRuntimeConfig } from "./worker-runtime";
+
+export { SandboxGuard } from "./sandbox";
+export type {
+  SandboxOptions,
+  SandboxLimits,
+  SandboxNetwork,
+  SandboxFs,
+} from "./sandbox";
+
+export { Metrics } from "./metrics";
+export type { MetricsSnapshot } from "./metrics";
+
+export {
+  NetworkInterceptor,
+  mockResponseToFetchResponse,
+} from "./network-interceptor";
+export type { MockResponse, FetchHandler } from "./network-interceptor";
+
+export {
+  discoverWorkspaces,
+  resolveWorkspaceDep,
+  isWorkspaceProtocol,
+  linkWorkspaces,
+} from "./npm/workspaces";
+export type { WorkspacePackage } from "./npm/workspaces";
+
+export { TypeChecker } from "./type-checker";
+export type { Diagnostic, TypeCheckerOptions } from "./type-checker";
+
+export {
+  Worker as WorkerThread,
+  MessageChannel,
+  MessagePort,
+} from "./polyfills/worker-threads";
+
+export { Shell, ShellHistory, createShell } from "./shell";
+export type {
+  ShellOptions,
+  ShellProcess,
+  ShellContext,
+  CommandHandler,
+  ShellResult,
+} from "./shell";
+
 export {
   initTranspiler,
   transpile,
@@ -50,34 +131,6 @@ export type {
   BundleResult,
   InitOptions,
 } from "./transpiler";
-
-export { PackageManager, NpmLayout } from "./npm/index";
-export type {
-  LayoutStrategy,
-  InstallOptions,
-  InstallResult,
-} from "./npm/index";
-export { PnpmLayout } from "./npm/pnpm";
-
-export { PackageCache } from "./npm/cache";
-export type { PackageCacheOptions } from "./npm/cache";
-
-export {
-  discoverWorkspaces,
-  resolveWorkspaceDep,
-  isWorkspaceProtocol,
-  linkWorkspaces,
-} from "./npm/workspaces";
-export type { WorkspacePackage } from "./npm/workspaces";
-
-export { Shell, ShellHistory, createShell } from "./shell";
-export type {
-  ShellOptions,
-  ShellProcess,
-  ShellContext,
-  CommandHandler,
-  ShellResult,
-} from "./shell";
 
 export { NextDevServer } from "./frameworks/next-dev-server";
 export type { NextDevServerOptions } from "./frameworks/next-dev-server";
@@ -109,6 +162,15 @@ export {
   setServerListenCallback,
   setServerCloseCallback,
 } from "./polyfills/http";
+
+export {
+  bundlePackageForBrowser,
+  generateRequireScript,
+  scanBareImports,
+  preprocessImports,
+  extractPackageName,
+} from "./browser-bundle";
+export type { BrowserBundle, BundleError } from "./browser-bundle";
 
 export {
   parseError,
