@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/demo.tsx","./src/lessons.ts","./src/main.tsx","./src/vite-env.d.ts","./src/components/header.tsx","./src/components/instructionpanel.tsx","./src/components/lessonlist.tsx","./src/hooks/usetutorialcontainer.ts"],"version":"5.9.3"}
