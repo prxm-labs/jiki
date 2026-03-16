@@ -1,0 +1,13 @@
+---
+title: Custom polyfill authoring
+description: registerPolyfill() is briefly mentioned — needs a guide on creating and registering custom Node.js polyfills.
+status: planned
+priority: low
+order: 51
+touchedAreas:
+  - plugin
+  - kernel
+  - module-resolver
+internalNotes: |
+  Guide for creating custom polyfills and registering them with jiki. Cover: (1) the plugin onLoad hook for intercepting module loads, (2) registerBuiltin() API for adding new built-in modules, (3) overriding existing polyfills (e.g., replacing the crypto polyfill with a more complete one), (4) best practices (lazy loading, matching Node.js API surface, error handling). Target audience: advanced users who need to extend jiki's Node.js compatibility. Include a complete example: creating a custom `dns` polyfill that uses DNS-over-HTTPS. Reference: plugin.ts (PluginHooks), builtins.ts (registerBuiltin).
+---

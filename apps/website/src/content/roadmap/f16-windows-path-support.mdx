@@ -1,0 +1,14 @@
+---
+title: Windows path support
+description: path.win32 implementation for cross-platform path handling.
+status: planned
+priority: low
+order: 16
+touchedAreas:
+  - memfs
+  - module-resolver
+  - polyfills/fs
+  - shell
+internalNotes: |
+  Support backslash separators and drive letters (C:\) in path operations. The internal path helpers (pops object in memfs.ts) assume POSIX. Need: (1) path.win32 methods in the path polyfill, (2) normalize backslashes to forward slashes at MemFS boundary, (3) module-resolver must handle both separators. Key files: memfs.ts (path normalization), module-resolver.ts (resolve with backslashes). Low priority because the browser runtime is inherently POSIX-like. Mainly needed for compatibility with Windows-authored npm packages that hardcode backslash paths.
+---

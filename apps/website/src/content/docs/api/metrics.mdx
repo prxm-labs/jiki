@@ -1,0 +1,59 @@
+---
+title: "Metrics"
+description: "Metrics API reference — measure boot time, install duration, transpile speed, and other performance counters in jiki containers."
+section: "api"
+order: 15
+---
+
+The `Metrics` class tracks timing and counts for key operations. Every container has a `metrics` instance.
+
+## Quick start
+
+```ts
+const container = boot();
+container.writeFile("/test.js", 'console.log("hi")');
+container.readFile("/test.js");
+await container.run("echo hello");
+
+const m = container.getMetrics();
+console.log(m.vfsWriteCount); // 1
+console.log(m.vfsReadCount); // 1
+console.log(m.commandCount); // 1
+```
+
+## `MetricsSnapshot`
+
+```ts
+interface MetricsSnapshot {
+  resolveCount: number;
+  resolveTimeMs: number;
+  transpileCount: number;
+  transpileTimeMs: number;
+  vfsReadCount: number;
+  vfsWriteCount: number;
+  cacheHits: number;
+  cacheMisses: number;
+  cacheHitRate: number; // 0–1
+  commandCount: number;
+  installCount: number;
+  installTimeMs: number;
+  startedAt: number;
+  uptimeMs: number;
+}
+```
+
+## Methods
+
+| Method                      | Description                 |
+| --------------------------- | --------------------------- |
+| `container.getMetrics()`    | Returns a `MetricsSnapshot` |
+| `container.metrics.reset()` | Reset all counters          |
+
+## What gets tracked
+
+| Operation               | Metric                          |
+| ----------------------- | ------------------------------- |
+| `container.writeFile()` | `vfsWriteCount`                 |
+| `container.readFile()`  | `vfsReadCount`                  |
+| `container.run()`       | `commandCount`                  |
+| `container.install()`   | `installCount`, `installTimeMs` |

@@ -1,0 +1,48 @@
+---
+title: "RemixDevServer"
+description: "RemixDevServer API reference — run Remix applications with flat file routing and loaders in the browser via jiki."
+section: "api"
+order: 14
+---
+
+The `RemixDevServer` extends `ViteDevServer` with Remix's flat file routing conventions.
+
+## Constructor
+
+```ts
+import { RemixDevServer } from "jiki";
+
+const server = new RemixDevServer(vfs, {
+  port: 3000,
+  root: "/",
+  routesDir: "/app/routes",
+  appDir: "/app",
+});
+```
+
+### Options
+
+Inherits all [ViteDevServer options](/docs/api/vite-dev-server) plus:
+
+| Option      | Type     | Default         | Description      |
+| ----------- | -------- | --------------- | ---------------- |
+| `routesDir` | `string` | `"/app/routes"` | Routes directory |
+| `appDir`    | `string` | `"/app"`        | App directory    |
+
+## Routing conventions
+
+Remix uses flat file routing with dot-delimited nesting:
+
+| File                            | Route                 |
+| ------------------------------- | --------------------- |
+| `routes/_index.tsx`             | `/`                   |
+| `routes/about.tsx`              | `/about`              |
+| `routes/dashboard.settings.tsx` | `/dashboard/settings` |
+| `routes/dashboard._index.tsx`   | `/dashboard`          |
+
+## Route discovery
+
+```ts
+const routes = server.discoverRoutes();
+// [{ route: '/', filePath: '/app/routes/_index.tsx', isLayout: false }]
+```

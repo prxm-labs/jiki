@@ -1,0 +1,35 @@
+---
+title: Prettier
+description: Run Prettier in the browser — format code with configurable rules and see before/after diffs via jiki.
+category: tools
+features:
+  - Prettier code formatting
+  - Before/after diff display
+  - Configurable formatting rules
+  - Multiple language support
+---
+
+import { Demo } from "../../../../../examples/prettier/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Prettier code formatting demo that formats intentionally messy code and shows before/after diffs. Supports JavaScript, HTML, Markdown, and JSON with a configurable `.prettierrc`.
+
+## How it works
+
+- The real Prettier formatting engine runs in the browser
+- A diff view shows side-by-side or before/after formatting changes
+- A `.prettierrc` file controls formatting rules
+- JS, HTML, Markdown, and JSON files can all be formatted
+
+## Try it yourself
+
+1. Select a file and click format to see the before/after diff
+2. Edit `.prettierrc` to change formatting rules (tabs, semicolons, etc.)
+3. Write intentionally messy code and format it
+
+</div>

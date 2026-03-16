@@ -1,0 +1,35 @@
+---
+title: "Virtual Filesystem"
+description: "Explore jiki's MemFS — an in-memory virtual filesystem with Node.js-compatible read, write, watch, and snapshot operations running in the browser."
+section: "core-concepts"
+order: 1
+---
+
+MemFS is jiki's in-memory filesystem with Node.js-compatible semantics. It supports file operations, directories, symlinks, file watching, and snapshot serialization.
+
+Because all file data lives in memory, reads and writes are fast. The API surface matches the standard Node.js `fs` module, which is what allows jiki to run Node.js-like toolchains without access to a real disk.
+
+## Basic usage
+
+```ts
+import { boot } from "jiki";
+
+const container = await boot();
+
+// Write a file
+await container.fs.writeFile("/index.js", 'console.log("Hello, jiki!")');
+
+// Read a file
+const content = await container.fs.readFile("/index.js", "utf-8");
+console.log(content); // 'console.log("Hello, jiki!")'
+
+// Create directories
+await container.fs.mkdir("/src", { recursive: true });
+
+// List directory contents
+const files = await container.fs.readdir("/");
+```
+
+## Supported operations
+
+The filesystem covers the operations you'd expect from a Node.js `fs` module: reading, writing, appending, renaming, copying, and deleting files. You can create and remove directories recursively, create and resolve symbolic links, and watch files or directories for changes. The entire filesystem state can also be serialized to a snapshot and restored later.

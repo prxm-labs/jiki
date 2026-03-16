@@ -1,0 +1,12 @@
+---
+title: DNS resolution
+description: Move beyond hardcoded 127.0.0.1 — resolve against a configurable hostname map for dev server scenarios.
+status: planned
+priority: medium
+order: 28
+touchedAreas:
+  - polyfills/dns
+  - network-interceptor
+internalNotes: |
+  dns.resolve/dns.lookup are currently stubs. In a browser context, real DNS resolution isn't possible. Options: (1) use DNS-over-HTTPS (DoH) via fetch to a public resolver like 1.1.1.1 or 8.8.8.8, (2) maintain a local hostname→IP cache for known hosts, (3) dns.lookup always resolves to the actual fetch target (passthrough). Key files: polyfills/dns.ts (implement resolve/lookup/resolve4/resolve6). DoH approach: fetch(`https://1.1.1.1/dns-query?name=${hostname}&type=A`, {headers: {'Accept': 'application/dns-json'}}). Risk: DoH adds latency and requires network access. For offline use, cache results.
+---

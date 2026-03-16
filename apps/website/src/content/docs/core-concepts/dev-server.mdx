@@ -1,0 +1,22 @@
+---
+title: "Dev Server"
+description: "Serve and hot-reload browser-based apps with jiki's Service Worker dev server — React, Vue, Next.js, and more with no backend required."
+section: "core-concepts"
+order: 6
+---
+
+jiki includes a dev server that serves files from the virtual filesystem over HTTP. Frameworks like React, Vue, and Next.js can run their dev servers inside jiki, with MIME type detection, cache control headers, and hot module replacement (HMR) handled automatically.
+
+The dev server communicates with the browser tab through a Service Worker bridge. When a framework's dev server starts listening on a port, jiki intercepts HTTP requests via the Service Worker and routes them to the in-memory server. The preview appears in an iframe as if it were served from a real backend.
+
+## Features
+
+- Serves files with correct MIME types and status codes
+- Configurable caching headers
+- Supports HMR protocols used by Vite, webpack, and other bundlers
+- Routes browser requests to the in-memory server via the Service Worker
+- Run multiple dev servers on different ports at the same time
+
+## How it works
+
+When a framework like Vite calls `server.listen(3000)`, jiki's network layer intercepts the call and registers the server on that port. The Service Worker then routes any requests to `localhost:3000` from the preview iframe to the registered handler. No real network traffic is involved.

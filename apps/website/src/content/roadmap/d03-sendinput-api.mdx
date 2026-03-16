@@ -1,0 +1,14 @@
+---
+title: Container.sendInput() API
+description: Interactive stdin is shipped but sendInput() is not documented in the Container API reference.
+status: planned
+priority: medium
+order: 50
+touchedAreas:
+  - shell
+  - polyfills/readline
+  - polyfills/process
+  - polyfills/stream
+internalNotes: |
+  Document the Container.sendInput() API for programmatically sending input to running processes. Cover: (1) API signature and usage, (2) how input flows from sendInput → process.stdin → readline, (3) use cases (automating CLI prompts, testing interactive programs, building terminal UIs), (4) current limitations (no raw mode, buffering behavior, timing issues), (5) integration with the jiki-ui Terminal component. Target audience: developers building interactive experiences with jiki. Include examples: answering npm init prompts, feeding input to a Node.js readline script, automating y/n confirmations.
+---

@@ -1,0 +1,58 @@
+---
+title: "ViteDevServer"
+description: "ViteDevServer API reference — run Vite-based apps with HMR, CSS injection, and JSX transforms in the browser via jiki."
+section: "api"
+order: 12
+---
+
+The `ViteDevServer` serves files as ES modules with on-the-fly esbuild transpilation, CSS injection, and HMR updates. It extends the `DevServer` base class.
+
+## Constructor
+
+```ts
+import { ViteDevServer } from "jiki";
+
+const server = new ViteDevServer(vfs, options);
+```
+
+### Options
+
+| Option            | Type     | Default         | Description                                  |
+| ----------------- | -------- | --------------- | -------------------------------------------- |
+| `port`            | `number` | (required)      | Port number                                  |
+| `root`            | `string` | `"/"`           | Root directory                               |
+| `entry`           | `string` | `"/index.html"` | Entry HTML file                              |
+| `framework`       | `string` | `"react"`       | `react`, `vue`, `svelte`, `solid`, `vanilla` |
+| `jsxImportSource` | `string` | `"react"`       | JSX import source                            |
+
+## Request handling
+
+The server handles these URL patterns:
+
+| URL Pattern                      | Behaviour                                  |
+| -------------------------------- | ------------------------------------------ |
+| `/` or `*.html`                  | Serves HTML with HMR client injected       |
+| `*.js`, `*.ts`, `*.tsx`, `*.jsx` | Transforms via esbuild and serves as ESM   |
+| `*.css`                          | Serves as JS module that injects `<style>` |
+| `/@modules/<pkg>`                | Resolves bare import from node_modules     |
+| `/@vite/client`                  | Serves the HMR client script               |
+| Other files                      | Served as static with correct MIME type    |
+
+## HMR events
+
+```ts
+server.on("hmr-update", update => {
+  // update.type: "update" | "full-reload"
+  // update.path: string
+  // update.timestamp: number
+});
+```
+
+- JS/TS/CSS changes emit `type: "update"`
+- HTML changes emit `type: "full-reload"`
+
+## Also see
+
+- [SvelteKitDevServer](/docs/api/sveltekit-dev-server): extends ViteDevServer with SvelteKit routing
+- [RemixDevServer](/docs/api/remix-dev-server): extends ViteDevServer with Remix routing
+- [Vite App Guide](/docs/guides/vite-app): step-by-step usage

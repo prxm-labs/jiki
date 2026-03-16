@@ -1,0 +1,88 @@
+---
+import MarketingLayout from "../../layouts/MarketingLayout.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import { getCollection, render } from "astro:content";
+
+const entries = await getCollection("changelog");
+const sorted = entries.sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const rendered = await Promise.all(
+  sorted.map(async entry => {
+    const { Content } = await render(entry);
+    return { entry, Content };
+  }),
+);
+
+const breadcrumbLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://jiki.sh/",
+    },
+    { "@type": "ListItem", position: 2, name: "Changelog" },
+  ],
+};
+---
+
+<MarketingLayout
+  title="Changelog | jiki"
+  description="Version history and release notes for jiki."
+  jsonLd={breadcrumbLd}>
+  <section class="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="mb-12">
+      <SectionHeading label="Changelog" as="h1" size="large">
+        <em>What's new</em>
+      </SectionHeading>
+      <p class="mt-4 text-lg text-zinc-400">
+        Version history and release notes.
+      </p>
+      <a
+        href="/roadmap"
+        class="mt-1 inline-flex items-center gap-1 text-sm text-accent hover:underline">
+        View roadmap for upcoming features
+      </a>
+    </div>
+
+    <div class="space-y-16">
+      {
+        rendered.map(({ entry, Content }) => (
+          <article class="relative border-l-2 border-zinc-800 pl-8">
+            <div class="absolute -left-[9px] top-0 h-4 w-4 rounded-full border-2 border-accent bg-zinc-950" />
+            <div class="mb-4 flex flex-wrap items-center gap-3">
+              <span class="rounded-md bg-accent/10 px-3 py-1 font-mono text-sm font-semibold text-accent">
+                v{entry.data.version}
+              </span>
+              <time
+                datetime={entry.data.date.toISOString()}
+                class="font-mono text-sm text-zinc-500">
+                {entry.data.date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+            </div>
+            {entry.data.highlights && (
+              <div class="mb-6 flex flex-wrap gap-2">
+                {entry.data.highlights.slice(0, 4).map((h: string) => (
+                  <span class="rounded border border-zinc-800 bg-zinc-900/50 px-2 py-0.5 text-xs text-zinc-400">
+                    {h}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div class="prose-article prose-li:text-zinc-400">
+              <Content />
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</MarketingLayout>

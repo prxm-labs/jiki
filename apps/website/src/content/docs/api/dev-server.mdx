@@ -1,0 +1,35 @@
+---
+title: "DevServer"
+description: "DevServer API reference — start, stop, and configure the Service Worker dev server for browser-based app previews in jiki."
+section: "api"
+order: 6
+---
+
+The `DevServer` class manages HTTP server instances running inside a jiki container. When a framework like Vite or Next.js starts a development server, the DevServer intercepts the `listen()` call and registers the server handler so that requests can be routed to it through the Service Worker bridge.
+
+DevServer tracks all active server instances and their ports. Your application can listen for when a server is ready and route preview iframe traffic to the correct handler. It also manages HMR WebSocket connections for live reloading.
+
+## Methods
+
+| Method                | Description                          |
+| --------------------- | ------------------------------------ |
+| `on(event, callback)` | Listen for server lifecycle events   |
+| `getUrl(port)`        | Get the preview URL for a given port |
+
+## Events
+
+| Event     | Description                              |
+| --------- | ---------------------------------------- |
+| `"port"`  | Fired when a new server starts listening |
+| `"close"` | Fired when a server stops                |
+
+## Example
+
+```ts
+container.devServer.on("port", (port, url) => {
+  console.log(`Server ready at ${url}`);
+  iframe.src = url;
+});
+
+await container.shell.spawn("npm", ["run", "dev"]);
+```

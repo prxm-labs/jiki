@@ -1,0 +1,12 @@
+---
+title: Hard link support
+description: fs.linkSync() / fs.link() alongside existing symlink support.
+status: planned
+priority: low
+order: 14
+touchedAreas:
+  - memfs
+  - polyfills/fs
+internalNotes: |
+  Add fs.linkSync() and fs.link() to create hard links. In MemFS, hard links mean multiple directory entries pointing to the same FSNode (same inode). Need to track reference counts (nlink in stat). Unlinking should decrement nlink and only free the node when nlink reaches 0. Key files: memfs.ts (linkSync implementation, update rmSync to check nlink), polyfills/fs.ts (expose link/linkSync). Currently the FSNode has an `ino` field — leverage this for hard link identity.
+---

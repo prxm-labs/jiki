@@ -1,0 +1,14 @@
+---
+title: IPC channels
+description: Real inter-process communication between spawned child processes via stdio 'ipc' and child.send().
+status: planned
+priority: medium
+order: 12
+touchedAreas:
+  - polyfills/child_process
+  - polyfills/process
+  - polyfills/worker-threads
+  - kernel
+internalNotes: |
+  Node.js IPC allows parent-child process communication via process.send() and process.on('message'). The child_process polyfill already uses MessagePort/Comlink for forked workers. Need to: (1) expose process.send() in child contexts, (2) wire up the 'message' event on both parent and child process objects, (3) support serialization of complex objects (structured clone). Key files: polyfills/child_process.ts (fork() IPC setup), polyfills/process.ts (process.send, process.on('message')). Currently fork() creates a Kernel — need MessageChannel bridging between parent and child kernels.
+---

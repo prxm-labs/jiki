@@ -1,0 +1,14 @@
+---
+title: Astro guide
+description: Astro is a supported framework with an example but has no dedicated guide (React, Next.js, Vue, Vite all have guides).
+status: planned
+priority: medium
+order: 48
+touchedAreas:
+  - frameworks/vite-dev-server
+  - transpiler
+  - npm/resolver
+  - kernel
+internalNotes: |
+  Write a guide for running Astro projects in jiki. Astro uses Vite under the hood, so the Vite dev server integration is the primary dependency. Cover: (1) setting up an Astro project in jiki (install astro, create project structure), (2) running the dev server, (3) building static output, (4) limitations (no SSR/SSG output writing — Astro in dev mode only). Target audience: developers who want to experiment with Astro in the browser. Include code snippets showing Container.boot() → install → run dev. Note that Astro's island architecture works in dev mode since it's Vite-based, but the build step may need filesystem write support for output.
+---

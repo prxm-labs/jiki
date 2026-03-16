@@ -1,0 +1,16 @@
+---
+title: Fastify server
+description: Fastify with schema validation, serialization, and plugin system.
+status: planned
+priority: low
+order: 47
+touchedAreas:
+  - polyfills/http
+  - server-bridge
+  - kernel
+  - npm/resolver
+  - polyfills/net
+  - polyfills/stream
+internalNotes: |
+  Run a Fastify HTTP server inside jiki. Fastify uses Node.js http.createServer under the hood — the polyfills/http shim routes this through server-bridge. Example structure: create a Fastify app with routes, middleware (hooks), JSON schema validation, and serve it. Make requests from the browser or a second script. Key challenge: Fastify checks for http2 support and uses various net/stream features — may need stubs for features like keep-alive and pipelining. Demonstrates jiki's HTTP server fidelity.
+---

@@ -1,0 +1,33 @@
+{
+  "name": "website",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro dev",
+    "format": "prettier --write .",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^5.0.3",
+    "@astrojs/react": "^5.0.2",
+    "@astrojs/sitemap": "^3.7.2",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@fontsource/instrument-serif": "^5.2.8",
+    "@tailwindcss/typography": "^0.5.19",
+    "astro": "^6.1.1",
+    "autoprefixer": "^10.4.20",
+    "jiki": "workspace:*",
+    "jiki-ui": "workspace:*",
+    "lucide-react": "^1.7.0",
+    "postcss": "^8.4.49",
+    "react": "^19",
+    "react-dom": "^19",
+    "remark-directive": "^4.0.0",
+    "tailwindcss": "^3.4"
+  }
+}

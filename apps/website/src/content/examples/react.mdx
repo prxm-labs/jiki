@@ -1,0 +1,36 @@
+---
+title: React
+description: Run a multi-page React app in the browser with JSX transpilation, Tailwind CSS, client-side routing, and live preview powered by jiki.
+category: frameworks
+features:
+  - JSX transpilation with esbuild-wasm
+  - Live preview with browser navigation
+  - npm package installation from terminal
+  - Multi-page client-side routing
+---
+
+import { Demo } from "../../../../../examples/react/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A multi-page React 18 application running in the browser. It includes Tailwind CSS for styling, client-side routing between pages, and a virtual filesystem with editable components.
+
+## How it works
+
+- React components are compiled on the fly with esbuild-wasm
+- You can install real packages like `lucide-react` directly from the terminal
+- File changes are reflected immediately in the browser preview
+- Client-side routing lets you navigate between Home, About, Icons, and Contact pages
+
+## Try it yourself
+
+1. Select a file in the explorer and edit it in the code editor
+2. Press Ctrl+S to save and see changes in the preview
+3. Open the terminal and run `npm install lucide-react`
+4. Use the browser navigation to move between pages
+
+</div>

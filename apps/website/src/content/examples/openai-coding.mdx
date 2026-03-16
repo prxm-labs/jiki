@@ -1,0 +1,45 @@
+---
+title: OpenAI Coding
+description: Generate an Astro multi-page website with React islands using GPT-5.4 Mini — real .astro pages, layouts, slots, and interactive components via jiki.
+category: agentic
+features:
+  - GPT-5.4 Mini integration
+  - Real .astro pages with frontmatter
+  - Astro layouts and slots
+  - React islands with client:load
+  - File-based routing
+  - Streaming response rendering
+  - Chat history persistence
+  - Element inspection
+---
+
+import { Demo } from "../../../../../examples/openai-coding/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+An AI-powered code generator that uses OpenAI's GPT-5.4 Mini model to build real Astro websites with React islands. The AI generates `.astro` pages with frontmatter, layouts with `<slot />`, and `.tsx` React components hydrated via `client:load`. Navigation between pages uses Astro's file-based routing.
+
+## Details
+
+- Token-by-token streaming from the OpenAI Chat Completions API directly in the browser
+- The AI generates real `.astro` files with frontmatter (`layout`, `pageTitle`) and Tailwind-styled HTML
+- Layouts use `<slot />` for content injection and inline `<Navbar />` / `<Footer />` components
+- React islands (`.tsx`) are hydrated with `client:load`, `client:visible`, or `client:idle` directives
+- File-based routing: `/src/pages/index.astro` maps to `/`, `/src/pages/about.astro` maps to `/about`
+- Navigate between pages using the browser URL bar or in-page links
+- Conversation history is stored in IndexedDB across sessions
+
+## Explore
+
+1. Enter your OpenAI API key when prompted (get one at platform.openai.com)
+2. The preview starts with a two-page Astro site — click "About" in the nav to navigate
+3. Ask for changes like "Add a Contact page with a form" or "Make the hero section dark themed"
+4. The AI outputs only the files it changes — pages, components, or layouts
+5. Use the file explorer to inspect `.astro` pages, the layout, and the React Counter island
+6. Edit files directly in the code editor and hit save to see changes instantly
+
+</div>

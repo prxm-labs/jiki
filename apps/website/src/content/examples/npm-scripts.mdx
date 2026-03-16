@@ -1,0 +1,35 @@
+---
+title: npm Scripts
+description: Run npm scripts in the browser — install packages, execute package.json scripts, and track real-time install progress via jiki.
+category: runtime
+features:
+  - npm package installation
+  - Script execution from package.json
+  - Quick install buttons for popular packages
+  - Real-time install progress
+---
+
+import { Demo } from "../../../../../examples/npm-scripts/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+npm package management in the browser. Install real packages, run scripts defined in `package.json`, and use installed packages in your code. Quick-install buttons make it easy to add popular packages.
+
+## What's inside
+
+- Install real npm packages like lodash and date-fns
+- Run scripts defined in `package.json`
+- One-click buttons for popular packages (lodash, pluralize, uuid, ms, minimist)
+- Real-time terminal output during installation
+
+## Try it yourself
+
+1. Click a quick install button to add a package
+2. Edit `index.js` to use the installed package
+3. Run `npm start` to execute your code
+
+</div>

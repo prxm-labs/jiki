@@ -1,0 +1,1563 @@
+# jiki — Full Documentation for AI Assistants
+
+> A lightweight, browser-based Node.js runtime. Write files, install npm packages, run shell commands, and start dev servers — all in the browser without a backend.
+
+## What You Can Build
+
+- Interactive coding tutorials with real code execution and validation
+- Online playgrounds for React, Vue, Svelte, or any npm package
+- Documentation with runnable code snippets
+- Browser-based IDEs with editor, terminal, and preview
+- AI coding assistants that can read/write files and run code in a safe sandbox
+- Testing sandboxes that run Jest or Vitest in the browser
+
+## How It Works
+
+jiki runs entirely in the browser. It uses esbuild-wasm for TypeScript/JSX transpilation, Service Workers to intercept fetch requests and route them to virtual HTTP servers, and Web Workers for isolated code execution. A custom module resolver implements the Node.js resolution algorithm so `require()` and `import` work as expected.
+
+| Feature            | Description                                                                    |
+| ------------------ | ------------------------------------------------------------------------------ |
+| Virtual filesystem | In-memory FS with directories, symlinks, file watching, and persistence        |
+| Package manager    | Install packages from npm with full dependency resolution and caching          |
+| Shell              | Pipes, logical operators, recursive globs, tab completion, and background jobs |
+| Transpiler         | TypeScript and JSX via esbuild-wasm with source maps                           |
+| Dev server         | Vite, Next.js, SvelteKit, and Remix with HMR                                  |
+| Plugin system      | 6 hook types for extensibility                                                 |
+| Sandboxing         | Resource limits for memory, files, network, and paths                          |
+| Snapshots          | Serialize and restore the entire container state                               |
+
+---
+
+## Installation
+
+jiki can be installed via the npm registry:
+
+```bash
+npm install jiki
+```
+
+### Requirements
+
+- A modern browser with support for Service Workers and Web Workers
+- Node.js 18+ for build tooling (Vite, webpack, etc.)
+
+### Vite Setup
+
+```typescript
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  optimizeDeps: {
+    exclude: ["jiki"],
+  },
+  worker: {
+    format: "es",
+  },
+});
+```
+
+### Service Worker
+
+jiki uses a Service Worker to intercept HTTP requests and route them to virtual servers running in the browser:
+
+```typescript
+import { boot } from "jiki";
+
+// The service worker is automatically registered when you boot the container
+const container = boot();
+```
+
+### TypeScript
+
+jiki includes TypeScript declarations by default. No `@types/` package is needed.
+
+### UI Components
+
+For the UI components (CodeEditor, Terminal, BrowserWindow, FileExplorer), install the companion package:
+
+```bash
+npm install jiki-ui
+```
+
+These components are React-based and require React 19+.
+
+---
+
+## Quick Start
+
+### Boot a container
+
+The `boot()` function creates a new container with a virtual filesystem, shell, and package manager:
+
+```typescript
+import { boot } from "jiki";
+
+const container = boot({
+  cwd: "/",
+  env: {
+    NODE_ENV: "development",
+  },
+});
+```
+
+### Write files
+
+```typescript
+container.writeFile(
+  "/index.js",
+  `
+  const greeting = process.env.NODE_ENV === 'development'
+    ? 'Hello, developer!'
+    : 'Hello, world!';
+
+  console.log(greeting);
+`,
+);
+```
+
+### Run code
+
+```typescript
+const result = await container.run("node index.js");
+console.log(result.stdout); // "Hello, developer!\n"
+console.log(result.exitCode); // 0
+```
+
+### Install packages
+
+```typescript
+await container.install("is-number");
+
+container.writeFile(
+  "/check.js",
+  `
+  const isNumber = require('is-number');
+  console.log(isNumber(42));    // true
+  console.log(isNumber('foo')); // false
+`,
+);
+
+const result = await container.run("node check.js");
+```
+
+### Use snapshots
+
+```typescript
+// Save
+const snapshot = container.toSnapshot();
+localStorage.setItem("my-snapshot", JSON.stringify(snapshot));
+
+// Restore
+const saved = JSON.parse(localStorage.getItem("my-snapshot"));
+const restored = Container.fromSnapshot(saved);
+```
+
+### Add a UI
+
+```tsx
+import { CodeEditor, Terminal } from "jiki-ui";
+
+function App() {
+  return (
+    <div className="flex h-screen">
+      <CodeEditor
+        filename="index.js"
+        content={code}
+        onSave={(path, content) => {
+          container.writeFile(path, content);
+        }}
+      />
+      <Terminal lines={output} onCommand={cmd => container.run(cmd)} />
+    </div>
+  );
+}
+```
+
+---
+
+## Limitations
+
+jiki is not Node.js. It's a browser-based simulation that reimplements parts of the Node.js API using Service Workers, Web Workers, the Fetch API, and esbuild-wasm. It's not WinterTC (TC55) compliant, doesn't target the WinterCG minimum API surface, and makes no claims of spec conformance.
+
+### Runtime
+
+- **No native addons.** `.node` files, N-API, and node-gyp builds are not supported. Any package that compiles C/C++ during `npm install` will fail.
+- **No `.wasm` module loading.** `WebAssembly.instantiate()` works for raw buffers, but there's no WASI layer, no Emscripten filesystem bridge, and no automatic `.wasm` resolution in `require()`.
+- **No `worker_threads` with `SharedArrayBuffer`.** The browser requires cross-origin isolation headers (`COOP`/`COEP`) which most embedding contexts don't set.
+- **Simulated `child_process`.** `fork()` creates a new Kernel instance in the same thread. `spawn()` and `exec()` route to the shell. No OS processes are created.
+- **`process.exit()` doesn't terminate the tab.** It throws an internal error that the shell catches.
+- **No signal handling.** `SIGTERM`, `SIGINT`, `SIGUSR1`, and all other signals are no-ops.
+
+### Standards Compliance
+
+- **Not WinterTC (TC55) compliant.**
+- **No `AsyncLocalStorage`.** The `async_hooks` module is stubbed.
+- **No `CompressionStream` / `DecompressionStream`.** Compression uses pako (zlib polyfill).
+- **Partial `crypto`.** `randomBytes`, `createHash`, and `createHmac` work. Key derivation, `sign`/`verify`, and `KeyObject` are missing.
+- **`vm` is a thin wrapper.** `vm.runInThisContext()` calls `eval()`. No V8 isolates.
+- **Event loop differences.** Microtask ordering and `setImmediate` may differ from Node.js.
+
+### Networking
+
+- **No TCP/UDP sockets.** `net.createServer()` and `net.connect()` are stubs.
+- **No real WebSocket.** The `ws` module is stubbed. The browser's native `WebSocket` API works.
+- **No DNS resolution.** `dns.lookup()` and `dns.resolve()` are no-ops.
+- **Virtual HTTP servers only.** `http.createServer()` registers a handler with the ServerBridge. Requests route through a Service Worker at `/__virtual__/{port}/`.
+- **No HTTPS/TLS.** The `tls` module is a stub.
+- **No `http2`.**
+
+### Filesystem
+
+- **In-memory only.** All files live in RAM. Closing the tab loses everything unless you enable persistence or use snapshots.
+- **No host filesystem access.** jiki can't read or write files on the user's machine.
+- **Partial `fs.promises`.** Some async methods are missing.
+- **No file permission enforcement.** `chmod()` and `chown()` accept calls without error but don't change behavior.
+- **No hard links.** Symlinks work (with a 20-hop cycle limit).
+
+### Package Management
+
+- **No `npm install -g`.** Global installs not supported.
+- **Minimal `npx`.** Installs and runs. No version specifiers, no `--yes` flag.
+- **Missing npm subcommands.** `uninstall`, `ls`, `outdated`, `link`, `update`, `view`, `cache` not implemented.
+- **No yarn.** Only npm and pnpm layouts.
+- **Packages with native bindings won't work.** `bcrypt`, `sharp`, `canvas`, `better-sqlite3`, `fsevents`, etc.
+
+### Shell
+
+- **No interactive stdin for child processes.**
+- **No job control.** `&` runs background, but `fg`, `bg`, `jobs` not implemented.
+- **No system utilities.** `grep`, `sed`, `awk`, `curl`, `wget`, `tar`, `git` not built in.
+- **Basic variable expansion.** `$VAR` and `${VAR}` work. `${VAR:-default}` and other bash forms not supported.
+- **No heredocs.** `<<EOF` syntax not parsed.
+
+### Performance
+
+- **Registry fetches on every boot** unless you use the package cache or snapshots.
+- **Memory pressure.** Large dependency trees (500+ packages) can exhaust the browser tab's memory.
+- **Slower transpilation.** esbuild-wasm is roughly 3-10x slower than native esbuild.
+- **Module cache cap.** LRU cache holds 4000 entries.
+- **No parallel I/O.** The virtual filesystem is synchronous and single-threaded.
+
+---
+
+## Core Concepts
+
+### Virtual Filesystem
+
+MemFS is jiki's in-memory filesystem with Node.js-compatible semantics. It supports file operations, directories, symlinks, file watching, and snapshot serialization.
+
+Because all file data lives in memory, reads and writes are fast. The API surface matches the standard Node.js `fs` module.
+
+```ts
+import { boot } from "jiki";
+
+const container = await boot();
+
+await container.fs.writeFile("/index.js", 'console.log("Hello, jiki!")');
+const content = await container.fs.readFile("/index.js", "utf-8");
+await container.fs.mkdir("/src", { recursive: true });
+const files = await container.fs.readdir("/");
+```
+
+The filesystem covers: reading, writing, appending, renaming, copying, deleting files. You can create and remove directories recursively, create and resolve symbolic links, and watch files or directories for changes. The entire filesystem state can be serialized to a snapshot and restored later.
+
+### Kernel
+
+The kernel is jiki's execution engine. It runs JavaScript and TypeScript code in the browser, handles module caching and code transformation, and implements the `require`/module system with Node.js-compatible resolution.
+
+What it does:
+- Implements Node.js-compatible `require()` with relative paths, `node_modules` lookup, and `package.json` entry points
+- Transpiles TypeScript, JSX, and TSX files before execution
+- Caches compiled modules to avoid redundant transpilation
+- Sets up `process`, `__dirname`, `__filename`, and other Node.js globals
+
+When you call `container.run()` or `container.execute()`, the kernel resolves the entry file, transpiles it if necessary, and executes it within a sandboxed context. Any `require()` calls trigger the same pipeline recursively.
+
+### Shell
+
+jiki includes a shell that supports pipes, logical operators, glob patterns, variable expansion, command history, tab completion, and background jobs.
+
+**Built-in commands:**
+
+| Command   | Description                          |
+| --------- | ------------------------------------ |
+| `ls`      | List directory contents              |
+| `cat`     | Display file contents                |
+| `cd`      | Change working directory             |
+| `pwd`     | Print working directory              |
+| `mkdir`   | Create directories                   |
+| `rm`      | Remove files and directories         |
+| `echo`    | Print text to stdout                 |
+| `export`  | Set environment variables            |
+| `history` | Show command history                 |
+| `jobs`    | List background jobs                 |
+| `fg`      | Bring a background job to foreground |
+
+**Shell operators:**
+
+- `|` — redirect stdout of one command to stdin of the next
+- `&&` — run the next command only if the previous one succeeds
+- `||` — run the next command only if the previous one fails
+- `;` — run commands sequentially regardless of exit status
+- `&` — run command in the background
+- `>` / `>>` — redirect stdout to a file (overwrite / append)
+
+**Glob patterns:** `*.js`, `**/*.ts`, `?`, `{a,b}`
+
+**Command history:**
+
+```ts
+shell.history.up();       // previous command
+shell.history.down();     // next command
+shell.history.getAll();   // all commands
+```
+
+**Tab completion:**
+
+```ts
+const candidates = shell.complete("ec");
+// ['echo'] — matches commands, .bin/ binaries, and file paths
+```
+
+### Package Manager
+
+jiki has a built-in package manager that supports both npm and pnpm. It resolves dependencies, fetches packages from the npm registry, and installs them into the virtual filesystem.
+
+Packages are downloaded concurrently and cached to minimize network requests.
+
+Features:
+- Use either npm or pnpm commands
+- Resolves the full dependency tree including peer dependencies
+- Fetches multiple packages in parallel
+- Caches downloaded packages to speed up repeated installs
+- Reads `package-lock.json` and `pnpm-lock.yaml` for deterministic installs
+
+```ts
+await container.install();
+// Or via shell:
+await container.shell.execute("npm install");
+```
+
+### Transpiler
+
+jiki uses esbuild-wasm to transpile TypeScript, JSX, and TSX files on the fly. The esbuild WebAssembly binary is loaded lazily on first use.
+
+The transpiler has synchronous mode (used internally by `require()`) and async mode (for explicit bundling and transformation).
+
+Features:
+- Lazy esbuild WASM loading
+- Synchronous transforms for `require()`, async for explicit bundling
+- Bundle multiple files with tree-shaking and minification
+- Generate source maps
+
+Supported formats: `.ts`, `.tsx`, `.jsx`, `.mts`, `.cts`
+
+### Dev Server
+
+jiki's dev server serves files from the virtual filesystem over HTTP. Framework dev servers run inside jiki with MIME type detection, cache control headers, and HMR.
+
+The dev server communicates through a Service Worker bridge. When a framework's dev server starts listening on a port, jiki intercepts HTTP requests via the Service Worker and routes them to the in-memory server.
+
+Features:
+- Correct MIME types and status codes
+- Configurable caching headers
+- HMR protocols (Vite, webpack)
+- Multiple dev servers on different ports
+
+### Plugins
+
+Plugins let you intercept and extend jiki's behaviour at key points in the runtime lifecycle. The plugin API mirrors esbuild's conventions.
+
+Each container gets its own plugin registry, so plugins registered on one container never leak into another.
+
+**What plugins can do:**
+- Intercept module specifiers and redirect them to custom paths (resolve hooks)
+- Provide virtual file contents without writing to the filesystem (load hooks)
+- Modify source code before execution (transform hooks)
+- Register custom shell commands
+- React to boot and package install events
+
+**Hook execution semantics:**
+
+| Hook          | Semantics                                                                            |
+| ------------- | ------------------------------------------------------------------------------------ |
+| `onResolve`   | First match wins — first callback to return a result stops the chain                 |
+| `onLoad`      | First match wins                                                                     |
+| `onTransform` | Pipeline — all matching callbacks run in registration order                          |
+| `onCommand`   | Later registrations for the same name override earlier ones                          |
+| `onInstall`   | All callbacks called after packages are installed                                    |
+| `onBoot`      | All callbacks called after `container.init()`                                        |
+
+**Example:**
+
+```ts
+import { boot, type JikiPlugin } from "jiki";
+
+const envPlugin: JikiPlugin = {
+  name: "env-injector",
+  setup(hooks) {
+    hooks.onResolve(/^@env$/, () => ({ path: "/__env__.js" }));
+    hooks.onLoad(/^\/__env__\.js$/, () => ({
+      contents: `module.exports = ${JSON.stringify({
+        NODE_ENV: "development",
+        API_URL: "https://api.example.com",
+      })};`,
+    }));
+  },
+};
+
+const container = boot({ plugins: [envPlugin] });
+container.writeFile("/app.js", `
+  const env = require("@env");
+  console.log(env.API_URL);
+`);
+container.runFile("/app.js");
+```
+
+### Persistence
+
+By default, jiki's virtual filesystem lives entirely in memory. The persistence layer automatically synchronises filesystem mutations to a storage backend (IndexedDB by default).
+
+**How it works:**
+1. When a file is created, updated, deleted, renamed, or symlinked, the mutation is queued.
+2. Queued mutations are flushed to IndexedDB in batches (~100 ms).
+3. Calling `container.init()` loads all persisted entries back into memory.
+
+```ts
+import { boot, IndexedDBAdapter } from "jiki";
+
+const adapter = new IndexedDBAdapter({ dbName: "my-project" });
+const container = boot({ persistence: adapter });
+await container.init();
+container.writeFile("/app/index.js", 'console.log("persisted!");');
+```
+
+**Adapters:**
+- `IndexedDBAdapter` — Browser-compatible, uses a single IndexedDB object store
+- `InMemoryAdapter` — For testing and server-side environments
+- Custom adapters implementing the `PersistenceAdapter` interface
+
+**What gets persisted:** `writeFile`, `symlinkSync`, `unlinkSync`, `rmdirSync` (recursive), `renameSync`. Directories are recreated on hydration from file paths.
+
+### Package Cache
+
+The package cache keeps previously-fetched data in memory so repeat installs are near-instant. Manifests are cached with a configurable TTL (default 1 hour). Tarballs are cached indefinitely (content-addressed).
+
+```ts
+import { boot, PackageCache } from "jiki";
+
+const cache = new PackageCache({
+  manifestTtlMs: 5 * 60 * 1000,
+  maxManifests: 1000,
+  maxTarballs: 500,
+});
+```
+
+**Diagnostics:**
+
+```ts
+cache.manifestCount;   // number of cached manifests
+cache.tarballCount;    // number of cached tarballs
+cache.tarballBytes;    // total bytes of cached tarballs
+```
+
+**Cache eviction:**
+
+| Store        | Default limit | Eviction                  |
+| ------------ | ------------- | ------------------------- |
+| Manifests    | 500 entries   | Oldest by insertion order |
+| Tarballs     | 200 entries   | Oldest by insertion order |
+| Manifest TTL | 1 hour        | Re-fetched on next access |
+
+### Worker Isolation
+
+The `worker` option offloads CPU-intensive transpilation to a Web Worker via esbuild-wasm, preventing UI freezes during compilation.
+
+```ts
+const container = boot({ worker: true });
+```
+
+| Mode     | Behaviour                                                         |
+| -------- | ----------------------------------------------------------------- |
+| `false`  | Everything on the main thread (default)                           |
+| `true`   | Transpilation runs in a Web Worker                                |
+| `'auto'` | Use workers when `Worker` is available (browser), skip in Node.js |
+
+Currently offloads esbuild-wasm transpilation only. Module resolution, code execution, and VFS operations continue on the main thread.
+
+---
+
+## API Reference
+
+### boot()
+
+Creates a new jiki container.
+
+```ts
+import { boot } from "jiki";
+
+const container = await boot(options?: BootOptions);
+```
+
+**Options:**
+
+| Option        | Type                     | Default     | Description                             |
+| ------------- | ------------------------ | ----------- | --------------------------------------- |
+| `cwd`         | `string`                 | `"/"`       | Initial working directory               |
+| `env`         | `Record<string, string>` | `{}`        | Environment variables                   |
+| `snapshot`    | `Uint8Array`             | `undefined` | Restore from a previously saved snapshot |
+| `plugins`     | `JikiPlugin[]`           | `[]`        | Plugins to register                     |
+| `persistence` | `PersistenceAdapter`     | `undefined` | Persistence adapter                     |
+
+Returns a `Promise<Container>`.
+
+```ts
+const container = await boot({
+  cwd: "/app",
+  env: { NODE_ENV: "development" },
+});
+
+await container.fs.writeFile("/app/index.js", 'console.log("ready")');
+await container.shell.execute("node index.js");
+```
+
+### Container
+
+The main interface for a jiki instance.
+
+**File operations:**
+
+| Method                      | Description                |
+| --------------------------- | -------------------------- |
+| `writeFile(path, content)`  | Write content to a file    |
+| `readFile(path, encoding?)` | Read a file's contents     |
+| `mkdir(path, options?)`     | Create a directory         |
+| `readdir(path)`             | List directory contents    |
+| `exists(path)`              | Check if a path exists     |
+| `rm(path, options?)`        | Remove a file or directory |
+
+**Execution:**
+
+| Method          | Description                      |
+| --------------- | -------------------------------- |
+| `execute(code)` | Execute a string of JavaScript   |
+| `runFile(path)` | Run a JavaScript/TypeScript file |
+| `run(command)`  | Run a shell command              |
+
+**Package management:**
+
+| Method      | Description                              |
+| ----------- | ---------------------------------------- |
+| `install()` | Install dependencies from `package.json` |
+
+**Snapshots:**
+
+| Method               | Description                        |
+| -------------------- | ---------------------------------- |
+| `toSnapshot()`       | Serialize the container state      |
+| `fromSnapshot(data)` | Restore from a serialized snapshot |
+
+**Plugins:**
+
+| Property / Method                 | Description                    |
+| --------------------------------- | ------------------------------ |
+| `plugins`                         | The PluginRegistry             |
+| `registerPolyfill(name, factory)` | Register a custom polyfill     |
+| `registerPolyfills(map)`          | Register multiple polyfills    |
+
+**Sandboxing:**
+
+| Property  | Description                       |
+| --------- | --------------------------------- |
+| `sandbox` | The SandboxGuard enforcing limits |
+
+**Metrics:**
+
+| Method / Property  | Description             |
+| ------------------ | ----------------------- |
+| `getMetrics()`     | Returns MetricsSnapshot |
+| `metrics`          | The Metrics instance    |
+
+**Network mocking:**
+
+| Method / Property              | Description                      |
+| ------------------------------ | -------------------------------- |
+| `mockFetch(pattern, response)` | Mock a fetch URL                 |
+| `onFetch(handler)`             | Register a dynamic interceptor   |
+| `network`                      | The NetworkInterceptor instance  |
+
+```ts
+const container = await boot();
+await container.writeFile("/index.js", 'console.log("hello")');
+const result = await container.runFile("/index.js");
+const snapshot = await container.toSnapshot();
+```
+
+### MemFS
+
+Low-level filesystem API. Implements a Node.js-compatible `fs` interface in memory.
+
+| Method                            | Description                           |
+| --------------------------------- | ------------------------------------- |
+| `writeFile(path, data, options?)` | Write data to a file                  |
+| `readFile(path, options?)`        | Read a file's contents                |
+| `unlink(path)`                    | Delete a file                         |
+| `mkdir(path, options?)`           | Create a directory                    |
+| `rmdir(path, options?)`           | Remove a directory                    |
+| `readdir(path)`                   | List directory entries                |
+| `stat(path)`                      | Get file metadata                     |
+| `lstat(path)`                     | Get file metadata (no symlink follow) |
+| `symlink(target, path)`           | Create a symbolic link                |
+| `readlink(path)`                  | Read the target of a symbolic link    |
+| `watch(path, callback)`           | Watch a file or directory for changes |
+| `rename(oldPath, newPath)`        | Rename or move a file                 |
+
+**Snapshot serialization:**
+
+```ts
+const snapshot = container.fs.toSnapshot();
+const container2 = await boot({ snapshot });
+```
+
+### Shell
+
+Runs shell commands within a jiki container.
+
+| Method                            | Description                    |
+| --------------------------------- | ------------------------------ |
+| `execute(command)`                | Execute a shell command string |
+| `spawn(command, args?, options?)` | Spawn a long-running process   |
+
+**Execute result:**
+
+```ts
+interface ShellResult {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+}
+```
+
+**Spawn (for long-running processes like dev servers):**
+
+```ts
+const proc = await container.shell.spawn("npm", ["run", "dev"]);
+proc.stdout.on("data", chunk => console.log(chunk));
+await proc.exit;
+```
+
+### Transpiler
+
+Handles TypeScript, JSX, and TSX transpilation using esbuild-wasm.
+
+| Method                      | Description                           |
+| --------------------------- | ------------------------------------- |
+| `transform(code, options?)` | Transform a single file's code        |
+| `build(options)`            | Bundle multiple files into one output |
+| `initialize()`              | Eagerly load the esbuild WASM binary  |
+
+**Transform options:**
+
+```ts
+interface TransformOptions {
+  loader?: "ts" | "tsx" | "jsx" | "js";
+  sourcemap?: boolean | "inline";
+  minify?: boolean;
+  target?: string;
+  jsx?: "transform" | "preserve" | "automatic";
+}
+```
+
+```ts
+const result = await container.transpiler.transform(
+  `const greet = (name: string): string => \`Hello, \${name}\`;`,
+  { loader: "ts", sourcemap: true },
+);
+console.log(result.code);
+// 'const greet = (name) => `Hello, ${name}`;\n'
+```
+
+### DevServer
+
+Manages HTTP server instances running inside a jiki container.
+
+| Method                | Description                          |
+| --------------------- | ------------------------------------ |
+| `on(event, callback)` | Listen for server lifecycle events   |
+| `getUrl(port)`        | Get the preview URL for a given port |
+
+**Events:**
+
+| Event     | Description                              |
+| --------- | ---------------------------------------- |
+| `"port"`  | Fired when a new server starts listening |
+| `"close"` | Fired when a server stops                |
+
+```ts
+container.devServer.on("port", (port, url) => {
+  console.log(`Server ready at ${url}`);
+  iframe.src = url;
+});
+await container.shell.spawn("npm", ["run", "dev"]);
+```
+
+### ViteDevServer
+
+Serves files as ES modules with on-the-fly esbuild transpilation, CSS injection, and HMR updates.
+
+```ts
+import { ViteDevServer } from "jiki";
+
+const server = new ViteDevServer(vfs, options);
+```
+
+**Options:**
+
+| Option            | Type     | Default         | Description                                  |
+| ----------------- | -------- | --------------- | -------------------------------------------- |
+| `port`            | `number` | (required)      | Port number                                  |
+| `root`            | `string` | `"/"`           | Root directory                               |
+| `entry`           | `string` | `"/index.html"` | Entry HTML file                              |
+| `framework`       | `string` | `"react"`       | `react`, `vue`, `svelte`, `solid`, `vanilla` |
+| `jsxImportSource` | `string` | `"react"`       | JSX import source                            |
+
+**Request handling:**
+
+| URL Pattern                      | Behaviour                                  |
+| -------------------------------- | ------------------------------------------ |
+| `/` or `*.html`                  | Serves HTML with HMR client injected       |
+| `*.js`, `*.ts`, `*.tsx`, `*.jsx` | Transforms via esbuild and serves as ESM   |
+| `*.css`                          | Serves as JS module that injects `<style>` |
+| `/@modules/<pkg>`                | Resolves bare import from node_modules     |
+| `/@vite/client`                  | Serves the HMR client script               |
+| Other files                      | Served as static with correct MIME type    |
+
+**HMR events:**
+
+```ts
+server.on("hmr-update", update => {
+  // update.type: "update" | "full-reload"
+  // update.path: string
+  // update.timestamp: number
+});
+```
+
+### SvelteKitDevServer
+
+Extends ViteDevServer with SvelteKit's file-based routing.
+
+```ts
+import { SvelteKitDevServer } from "jiki";
+
+const server = new SvelteKitDevServer(vfs, {
+  port: 5173,
+  root: "/",
+  routesDir: "/src/routes",
+});
+```
+
+**Additional option:** `routesDir` (default: `"/src/routes"`)
+
+**Routing conventions:**
+
+| File             | Purpose                                    |
+| ---------------- | ------------------------------------------ |
+| `+page.svelte`   | Page component                             |
+| `+layout.svelte` | Layout wrapper (inherited by child routes) |
+| `+server.ts`     | API endpoint                               |
+| `+error.svelte`  | Error page                                 |
+
+```ts
+const routes = server.discoverRoutes();
+// [{ route: '/', pagePath: '/src/routes/+page.svelte', ... }]
+```
+
+### RemixDevServer
+
+Extends ViteDevServer with Remix's flat file routing.
+
+```ts
+import { RemixDevServer } from "jiki";
+
+const server = new RemixDevServer(vfs, {
+  port: 3000,
+  root: "/",
+  routesDir: "/app/routes",
+  appDir: "/app",
+});
+```
+
+**Additional options:** `routesDir` (default: `"/app/routes"`), `appDir` (default: `"/app"`)
+
+**Routing conventions:**
+
+| File                            | Route                 |
+| ------------------------------- | --------------------- |
+| `routes/_index.tsx`             | `/`                   |
+| `routes/about.tsx`              | `/about`              |
+| `routes/dashboard.settings.tsx` | `/dashboard/settings` |
+| `routes/dashboard._index.tsx`   | `/dashboard`          |
+
+```ts
+const routes = server.discoverRoutes();
+// [{ route: '/', filePath: '/app/routes/_index.tsx', isLayout: false }]
+```
+
+### ServerBridge
+
+The networking layer connecting in-memory HTTP servers to the browser's request pipeline via Service Worker.
+
+```ts
+import { registerServiceWorker } from "jiki/sw";
+await registerServiceWorker("/sw.js");
+```
+
+| Method                    | Description                              |
+| ------------------------- | ---------------------------------------- |
+| `register(port, handler)` | Register a server handler for a port     |
+| `unregister(port)`        | Remove a server handler                  |
+| `isRegistered(port)`      | Check if a port has a registered handler |
+
+### Errors
+
+Structured error types for container operation failures.
+
+**Error types:**
+
+| Error Class         | Code        | Description                                    |
+| ------------------- | ----------- | ---------------------------------------------- |
+| `FileNotFoundError` | `ENOENT`    | File or directory does not exist               |
+| `FileExistsError`   | `EEXIST`    | File or directory already exists at the path   |
+| `PermissionError`   | `EACCES`    | Insufficient permissions                       |
+| `ProcessError`      | `PROCESS`   | Shell command exited with non-zero code        |
+| `TranspileError`    | `TRANSPILE` | esbuild failed to transform the code           |
+| `NetworkError`      | `NETWORK`   | Package download or registry request failed    |
+
+**Error fix suggestions:**
+
+```ts
+import { parseError } from "jiki";
+
+const err = parseError("runtime", new Error("Cannot find module 'react'"));
+console.log(err.suggestions); // ["Run: npm install react"]
+```
+
+| Error Pattern                    | Suggestion                                |
+| -------------------------------- | ----------------------------------------- |
+| `Cannot find module 'X'`        | `Run: npm install X`                      |
+| `X is not defined` (capitalized) | `Did you forget to import X?`            |
+| `Transpiler not initialized`     | `Call await container.init()`            |
+| Sandbox path violations          | `Add the path to sandbox.fs.allowedPaths` |
+| Network failures during install  | `Check your internet connection`          |
+
+**ContainerError interface:**
+
+```ts
+interface ContainerError {
+  id: string;
+  category: "build" | "runtime" | "bundle" | "install" | "filesystem";
+  title: string;
+  message: string;
+  file?: string;
+  line?: number;
+  column?: number;
+  stack?: string;
+  suggestions?: string[];
+  timestamp: number;
+}
+```
+
+```ts
+import { FileNotFoundError } from "jiki";
+
+try {
+  await container.readFile("/missing.txt");
+} catch (err) {
+  if (err instanceof FileNotFoundError) {
+    console.log("File not found:", err.path);
+  }
+}
+```
+
+### Plugins API
+
+**`JikiPlugin` interface:**
+
+```ts
+interface JikiPlugin {
+  name: string;
+  setup(hooks: PluginHooks): void;
+}
+```
+
+**`PluginHooks`:**
+
+#### `hooks.onResolve(filter, callback)`
+
+Intercept module resolution. First matching callback wins.
+
+```ts
+hooks.onResolve(filter: RegExp, callback: OnResolveCallback): void;
+```
+
+`OnResolveArgs`: `{ path: string, resolveDir: string }`
+`OnResolveResult`: `{ path: string }` — return null to pass through.
+
+#### `hooks.onLoad(filter, callback)`
+
+Intercept module loading. First matching callback wins.
+
+```ts
+hooks.onLoad(filter: RegExp, callback: OnLoadCallback): void;
+```
+
+`OnLoadArgs`: `{ path: string }`
+`OnLoadResult`: `{ contents: string }` — return null to fall through to VFS.
+
+#### `hooks.onTransform(filter, callback)`
+
+Transform source code. Runs as a pipeline — all matching callbacks execute.
+
+```ts
+hooks.onTransform(filter: RegExp, callback: OnTransformCallback): void;
+```
+
+`OnTransformArgs`: `{ path: string, contents: string }`
+`OnTransformResult`: `{ contents: string }` — return null to skip.
+
+#### `hooks.onCommand(name, handler)`
+
+Register a custom shell command.
+
+```ts
+hooks.onCommand(name: string, handler: (args: string[], ctx: ShellContext) => ShellResult): void;
+```
+
+#### `hooks.onInstall(callback)`
+
+Called after packages are installed: `(packages: string[]) => void`
+
+#### `hooks.onBoot(callback)`
+
+Called after container is fully initialised: `() => void`
+
+**PluginRegistry (exposed as `container.plugins`):**
+
+| Property / Method          | Description                              |
+| -------------------------- | ---------------------------------------- |
+| `hasPlugins`               | `true` if any hooks are registered       |
+| `resolveHookCount`         | Number of registered resolve hooks       |
+| `loadHookCount`            | Number of registered load hooks          |
+| `transformHookCount`       | Number of registered transform hooks     |
+| `register(plugin)`         | Register a plugin's hooks                |
+| `runResolve(path, dir)`    | Execute resolve hooks (first-match-wins) |
+| `runLoad(path)`            | Execute load hooks (first-match-wins)    |
+| `runTransform(path, code)` | Execute transform pipeline               |
+| `runInstall(packages)`     | Notify install hooks                     |
+| `runBoot()`                | Notify boot hooks                        |
+
+**Register plugin after construction:**
+
+```ts
+import { boot, registerPlugin } from "jiki";
+
+const container = boot();
+registerPlugin(container, myPlugin);
+```
+
+**Imports:**
+
+```ts
+import {
+  boot,
+  registerPlugin,
+  PluginRegistry,
+  type JikiPlugin,
+  type PluginHooks,
+  type OnResolveArgs,
+  type OnResolveResult,
+  type OnLoadArgs,
+  type OnLoadResult,
+  type OnTransformArgs,
+  type OnTransformResult,
+  type OnInstallCallback,
+  type OnBootCallback,
+} from "jiki";
+```
+
+### Persistence API
+
+**`PersistenceAdapter` interface:**
+
+```ts
+interface PersistenceAdapter {
+  save(entry: PersistedEntry): void;
+  delete(path: string): void;
+  loadAll(): Promise<PersistedEntry[]>;
+  clear(): Promise<void>;
+  flush(): Promise<void>;
+}
+```
+
+**`PersistedEntry`:**
+
+```ts
+interface PersistedEntry {
+  path: string;
+  type: "file" | "directory" | "symlink";
+  content?: Uint8Array;
+  target?: string;
+  mtime: number;
+}
+```
+
+**`IndexedDBAdapter`:**
+
+```ts
+import { IndexedDBAdapter } from "jiki";
+
+const adapter = new IndexedDBAdapter({
+  dbName: "jiki-vfs",      // default
+  storeName: "files",       // default
+  flushIntervalMs: 100,     // default
+});
+```
+
+**`InMemoryAdapter`:**
+
+```ts
+import { InMemoryAdapter } from "jiki";
+const adapter = new InMemoryAdapter();
+adapter.size; // number of stored entries
+```
+
+**MemFS persistence methods:**
+
+```ts
+const count = await vfs.hydrate();           // rehydrate from adapter
+await vfs.flushPersistence();                // force pending writes
+```
+
+**Imports:**
+
+```ts
+import {
+  IndexedDBAdapter,
+  InMemoryAdapter,
+  type PersistenceAdapter,
+  type PersistedEntry,
+  type IndexedDBAdapterOptions,
+  type MemFSOptions,
+} from "jiki";
+```
+
+### Metrics
+
+Tracks timing and counts for key operations.
+
+```ts
+const m = container.getMetrics();
+```
+
+**`MetricsSnapshot`:**
+
+```ts
+interface MetricsSnapshot {
+  resolveCount: number;
+  resolveTimeMs: number;
+  transpileCount: number;
+  transpileTimeMs: number;
+  vfsReadCount: number;
+  vfsWriteCount: number;
+  cacheHits: number;
+  cacheMisses: number;
+  cacheHitRate: number; // 0-1
+  commandCount: number;
+  installCount: number;
+  installTimeMs: number;
+  startedAt: number;
+  uptimeMs: number;
+}
+```
+
+| Method                      | Description                 |
+| --------------------------- | --------------------------- |
+| `container.getMetrics()`    | Returns a MetricsSnapshot   |
+| `container.metrics.reset()` | Reset all counters          |
+
+### NetworkInterceptor
+
+Intercepts and mocks outgoing `fetch()` calls.
+
+```ts
+container.mockFetch("/api/users", { json: [{ name: "Alice" }] });
+
+container.onFetch(url => {
+  if (url.includes("/health")) return { json: { ok: true } };
+  return null; // pass through
+});
+```
+
+**`MockResponse`:**
+
+```ts
+interface MockResponse {
+  status?: number;                  // default: 200
+  headers?: Record<string, string>;
+  body?: string;
+  json?: unknown;                   // auto-serialized, overrides body
+}
+```
+
+| Method / Property                | Description                             |
+| -------------------------------- | --------------------------------------- |
+| `mockFetch(pattern, response)`   | Register static mock (string or RegExp) |
+| `onFetch(handler)`               | Register dynamic handler                |
+| `network.clear()`               | Remove all rules and handlers           |
+| `network.ruleCount`             | Number of static rules                  |
+| `network.handlerCount`          | Number of dynamic handlers              |
+
+**Matching order:**
+1. Static rules checked first (first match wins)
+2. Dynamic handlers in registration order
+3. If nothing matches, passes through to real network
+
+**Helper:**
+
+```ts
+import { mockResponseToFetchResponse } from "jiki";
+const resp = mockResponseToFetchResponse({ json: { ok: true } });
+await resp.json(); // { ok: true }
+```
+
+### Workspaces
+
+Monorepo workspace support.
+
+```ts
+import { discoverWorkspaces, linkWorkspaces } from "jiki";
+
+const workspaces = discoverWorkspaces(container.vfs, "/");
+// [{ name: '@app/utils', path: '/packages/utils', version: '1.0.0' }]
+
+linkWorkspaces(container.vfs, "/", workspaces);
+// Creates symlinks: /node_modules/@app/utils -> /packages/utils
+```
+
+**Workspace protocol resolution:**
+
+```ts
+import { isWorkspaceProtocol, resolveWorkspaceDep } from "jiki";
+
+isWorkspaceProtocol("workspace:*"); // true
+resolveWorkspaceDep("@app/utils", workspaces);
+// { name: '@app/utils', path: '/packages/utils', version: '1.0.0' }
+```
+
+**`WorkspacePackage`:**
+
+```ts
+interface WorkspacePackage {
+  name: string;
+  path: string;
+  version: string;
+}
+```
+
+### TypeChecker
+
+Heuristic-based type checking for TypeScript files in the VFS.
+
+```ts
+import { boot, TypeChecker } from "jiki";
+
+const container = boot();
+container.writeFile("/src/app.ts", `
+  const x: any = 42;
+  function greet(name) {
+    return "Hello " + name;
+    console.log("unreachable");
+  }
+`);
+
+const checker = new TypeChecker(container.vfs);
+const diagnostics = checker.checkAll("/src");
+
+for (const d of diagnostics) {
+  console.log(`${d.file}:${d.line} [${d.severity}] ${d.message}`);
+}
+```
+
+**Constructor options:**
+
+| Option           | Type      | Default | Description                |
+| ---------------- | --------- | ------- | -------------------------- |
+| `strict`         | `boolean` | `true`  | Enable strict checks       |
+| `noUnusedLocals` | `boolean` | `false` | Check for unused variables |
+| `noImplicitAny`  | `boolean` | `true`  | Warn on `any` usage        |
+
+**Methods:**
+- `checker.check(files)` — Check specific files, returns `Diagnostic[]`
+- `checker.checkAll(dir?)` — Discover and check all `.ts`/`.tsx` files (default: `/src`)
+
+**`Diagnostic`:**
+
+```ts
+interface Diagnostic {
+  file: string;
+  line: number;
+  column: number;
+  message: string;
+  severity: "error" | "warning" | "info";
+  code?: string;
+}
+```
+
+**Detects:** explicit `any` usage, unreachable code, missing return type annotations on exported functions, duplicate variable declarations, missing files.
+
+---
+
+## Guides
+
+### React App
+
+jiki can host a full React development environment in the browser. Components are editable, previews update with hot module replacement, and there's no separate server involved.
+
+Under the hood, Vite runs as the build tool inside the jiki container. Its dev server operates in-memory, and the preview renders in an iframe through jiki's Service Worker bridge.
+
+A typical setup includes a code editor, a file explorer, and a live preview that reflects file changes. The container can boot with a pre-installed React + Vite template, bringing dev server startup down to seconds.
+
+### Next.js App
+
+Next.js can run in the browser through jiki. Server-side rendering, API routes, and the App Router all work — jiki's in-memory HTTP server and kernel handle the server-side parts that Next.js expects.
+
+jiki provides the Node.js APIs that Next.js depends on: the filesystem, `http` module, and `child_process` stubs.
+
+Next.js is more resource-intensive than simpler frameworks. The initial `npm install` pulls a larger dependency tree, and the dev server startup involves compiling pages. Filesystem snapshots can help — pre-installing dependencies keeps boot times reasonable.
+
+### Vue App
+
+Vue's single-file component format works with jiki — `.vue` files are compiled on the fly inside the container, and Vite's HMR keeps the preview up to date.
+
+The setup follows the same pattern as a React project but uses Vue's Vite template. jiki's transpiler handles Vue SFC compilation through `@vitejs/plugin-vue`.
+
+Pre-installing dependencies via a filesystem snapshot can cut the boot time from several seconds to under one second.
+
+### Vite App
+
+jiki's `ViteDevServer` serves files as ES modules with on-the-fly transpilation, CSS injection, and HMR updates. Works with React, Vue, Svelte, SolidJS, and vanilla JavaScript.
+
+```ts
+import { boot, ViteDevServer } from "jiki";
+
+const container = boot();
+
+container.writeFile("/index.html", `<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>`);
+
+container.writeFile("/src/main.jsx", `
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+function App() {
+  return <h1>Hello from Vite!</h1>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+`);
+
+const server = new ViteDevServer(container.vfs, {
+  port: 3000,
+  root: "/",
+  framework: "react",
+});
+server.start();
+```
+
+**How it works:**
+1. HTML: The server injects an HMR client script. If no HTML file exists, it generates one.
+2. JS/TS/JSX/TSX: Transformed with esbuild on each request. Bare imports rewritten to `/@modules/<pkg>`.
+3. CSS: Served as JavaScript modules that inject `<style>` tags at runtime.
+4. Bare imports: Resolved from `node_modules` via `main` or `module` field.
+5. HMR: File changes emit `hmr-update` events.
+
+### Testing
+
+jiki can run JavaScript test suites directly in the browser using Jest or Vitest. Test results come back in real time.
+
+Both runners rely on jiki's kernel for module resolution and transpilation. Test files are discovered on the virtual filesystem, transpiled as needed, and executed inside the container.
+
+Vitest tends to be a better fit because it shares Vite's module transformation pipeline — startup is faster and the dependency footprint is smaller. Jest works too but needs more configuration for TypeScript and ESM.
+
+### Writing Plugins
+
+**Virtual modules:** Resolve a custom specifier to a virtual path, then provide contents via `onLoad`:
+
+```ts
+const configPlugin: JikiPlugin = {
+  name: "virtual-config",
+  setup(hooks) {
+    hooks.onResolve(/^virtual:config$/, () => ({ path: "/__virtual__/config.js" }));
+    hooks.onLoad(/^\/__virtual__\/config\.js$/, () => ({
+      contents: `module.exports = ${JSON.stringify({ apiUrl: "https://api.example.com", debug: true })};`,
+    }));
+  },
+};
+```
+
+**CSS module stub:**
+
+```ts
+const cssStubPlugin: JikiPlugin = {
+  name: "css-stub",
+  setup(hooks) {
+    hooks.onLoad(/\.css$/, () => ({ contents: "module.exports = {};" }));
+  },
+};
+```
+
+**Code instrumentation via onTransform:**
+
+```ts
+const timingPlugin: JikiPlugin = {
+  name: "timing",
+  setup(hooks) {
+    hooks.onTransform(/\.js$/, args => ({
+      contents: `const __start = Date.now();\n${args.contents}\nconsole.log("${args.path}:", Date.now() - __start, "ms");`,
+    }));
+  },
+};
+```
+
+**Custom shell commands:**
+
+```ts
+const toolsPlugin: JikiPlugin = {
+  name: "tools",
+  setup(hooks) {
+    hooks.onCommand("now", () => ({
+      stdout: new Date().toISOString() + "\n",
+      stderr: "",
+      exitCode: 0,
+    }));
+
+    hooks.onCommand("count", (args, ctx) => {
+      const dir = args[0] || ctx.cwd;
+      const entries = ctx.vfs.readdirSync(dir);
+      return { stdout: `${entries.length} entries\n`, stderr: "", exitCode: 0 };
+    });
+  },
+};
+```
+
+**Lifecycle hooks:**
+
+```ts
+const lifecyclePlugin: JikiPlugin = {
+  name: "lifecycle",
+  setup(hooks) {
+    hooks.onBoot(() => console.log("Container is ready"));
+    hooks.onInstall(packages => console.log("Installed:", packages.join(", ")));
+  },
+};
+```
+
+**Composing plugins:**
+
+```ts
+const container = boot({
+  plugins: [configPlugin, cssStubPlugin, timingPlugin, toolsPlugin, lifecyclePlugin],
+});
+```
+
+For `onResolve` and `onLoad`, the first plugin to return a result wins. For `onTransform`, all matching plugins run in order.
+
+**Register after boot:**
+
+```ts
+import { boot, registerPlugin } from "jiki";
+const container = boot();
+registerPlugin(container, myPlugin);
+```
+
+**Tips:**
+- Use specific filters (`/^virtual:/`) over broad ones (`/./`) for performance
+- `onResolve` and `onLoad` work as a pair for virtual modules
+- Transforms are cumulative — ordering matters
+- Plugins are isolated per container
+
+---
+
+## AI
+
+### Overview
+
+jiki is a natural fit for AI-powered development tools. A sandboxed browser runtime that can write files, install packages, and run code is exactly what an AI coding assistant needs to turn generated code into a live, running application.
+
+Two use cases:
+- **Building AI apps with jiki** — stream LLM responses, inject code into a container, render live preview with error recovery
+- **Using AI tools with jiki** — structured context files (llms.txt, llm.txt, llm-full.txt) so AI assistants can help developers use jiki effectively
+
+Working examples: Claude Coding (Anthropic Claude Opus 4.6), OpenAI Coding (GPT-5.4 Mini), Mistral Coding (Codestral).
+
+### Building an AI Coding Assistant
+
+Architecture: User prompt -> LLM API (streaming) -> Code extraction -> container.writeFile() -> Live preview. Errors are caught and fed back to the LLM for correction.
+
+**Streaming LLM responses** — all providers use fetch + ReadableStream with Server-Sent Events:
+
+```typescript
+const response = await fetch(apiUrl, {
+  method: "POST",
+  headers: { "Content-Type": "application/json", ...authHeaders },
+  body: JSON.stringify({ model, messages, stream: true }),
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+let buffer = "";
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  buffer += decoder.decode(value, { stream: true });
+  const lines = buffer.split("\n");
+  buffer = lines.pop() || "";
+  for (const line of lines) {
+    if (!line.startsWith("data: ")) continue;
+    const data = line.slice(6).trim();
+    if (data === "[DONE]") break;
+    const event = JSON.parse(data);
+    // Anthropic: event.delta.text
+    // OpenAI/Mistral: event.choices[0].delta.content
+    const text = event.delta?.text ?? event.choices?.[0]?.delta?.content;
+    if (text) onToken(text);
+  }
+}
+```
+
+**Code extraction** — extract code from markdown fences:
+
+```typescript
+function extractAppCode(text: string): string | null {
+  const regex = /```(\w*)\n([\s\S]*?)```/g;
+  const blocks = [];
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    blocks.push({ lang: match[1], code: match[2].trim() });
+  }
+  // Prefer blocks with function App
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    if (/function\s+App\s*\(/.test(blocks[i].code)) return blocks[i].code;
+  }
+  return blocks.length ? blocks[blocks.length - 1].code : null;
+}
+```
+
+**Writing to container:**
+
+```typescript
+const code = extractAppCode(llmResponse);
+if (code) {
+  container.writeFile("/src/App.jsx", code);
+  // If using ViteDevServer with HMR, preview updates automatically
+}
+```
+
+**Error recovery** — inject an error overlay in the preview iframe that posts errors to the parent via postMessage. The parent adds the error to chat history, and the LLM generates corrected code.
+
+**Chat persistence** — store messages in IndexedDB with a timestamp index. On startup, restore messages and the last generated code.
+
+### Using jiki with AI Tools
+
+Context files for AI consumption:
+- `llms.txt` (~0.5KB) — spec-compliant index
+- `llm.txt` (~12KB) — summary with skills and code snippets
+- `llm-full.txt` (~50KB) — complete API, guides, examples
+
+**Claude Code** — add to CLAUDE.md: "This project uses jiki. Full API: https://jiki.sh/llm-full.txt"
+
+**Cursor** — add llm-full.txt URL to .cursorrules or project docs context.
+
+**Tips:** Always include the limitations page to prevent hallucination. Use llm.txt for quick questions, llm-full.txt for implementation help.
+
+### Provider Setup
+
+**Anthropic** — Messages API with `anthropic-dangerous-direct-browser-access: "true"` header for browser-direct calls. Model: `claude-opus-4-6`. Stream events: `content_block_delta` with `delta.text`.
+
+**OpenAI** — Chat Completions API with `Authorization: Bearer` header. Model: `gpt-5.4-mini`. Stream events: `choices[0].delta.content`.
+
+**Mistral** — OpenAI-compatible endpoint at `api.mistral.ai`. Model: `codestral-latest`. Requires proxy for CORS.
+
+**Common patterns:** Prompt user for API key, store in localStorage. Support AbortController for cancellation. System prompt should specify output format ("single JSX code block" or "labeled files with filename=").
+
+---
+
+## Examples
+
+### Frameworks
+
+- **React** — Multi-page app with Tailwind CSS, client-side routing, and live preview. React components compiled on the fly with esbuild-wasm. Install real packages like `lucide-react` from the terminal.
+- **Next.js** — Next.js 14 with App Router, HMR, TypeScript, and file-based routing. Nested layout composition using `layout.tsx` files.
+- **Vue** — Vue 3 Composition API with reactive state, component composition, and client-side routing. Tailwind CSS styling.
+- **Svelte** — Svelte 4 with reactive declarations (`$:`), scoped CSS, animations, and transitions.
+- **Astro** — Astro 5 static site with Markdown blog, React and Vue component islands, and file-based routing.
+- **Nuxt** — Nuxt 3 with auto-imported composables, file-based routing, server API routes, layouts, and middleware.
+- **SolidJS** — SolidJS reactive primitives.
+- **Remix** — Remix flat file routing.
+- **React + Radix** — React 18 with Radix UI accessible compound components bundled from npm.
+- **Vue + Radix** — Vue 3 with Radix Vue headless components and VueUse composables.
+- **Web Components** — Native web components.
+
+### Testing
+
+- **Vitest** — ESM-first testing with formatted results and pass/fail counts.
+- **Jest** — Custom Jest-like framework with `describe`/`it`/`expect`, result parsing, and visual display.
+
+### Servers
+
+- **Express** — REST API with middleware chains and an interactive API explorer.
+- **Hono** — Lightweight web framework with logger, CORS middleware, and request context API.
+
+### AI Coding Assistants
+
+- **Claude** — Generate React components with Claude Opus 4.6. Streaming responses, live preview, error recovery, and conversation history in IndexedDB.
+- **OpenAI** — Build Astro websites with React islands using GPT-5.4 Mini. Real `.astro` pages with frontmatter, layouts with `<slot />`, and file-based routing.
+- **Mistral** — Generate React code with Codestral. Streaming AI responses, live preview, and chat history.
+
+### Build Tools
+
+- **Vite** — Vite + React + TypeScript with fast HMR and Tailwind CSS.
+- **esbuild** — Interactive bundler config, bundle size analysis, and multiple output formats.
+- **TypeScript** — Compile and run TypeScript with interfaces, type definitions, and module imports.
+- **Prettier** — Code formatting with configurable rules and before/after diffs.
+
+### Advanced
+
+- **pnpm Workspaces** — Monorepo with workspace discovery, symlink-based linking, and cross-package `require()`.
+- **Persistence** — IndexedDB filesystem persistence with automatic saves on writes.
+- **Plugin System** — Virtual module resolution, CSS import stubbing, and code transformation hooks.
+- **Shell Scripting** — Command execution, file manipulation, text processing, and pipe chaining.
+- **Sandbox** — File count limits, memory caps, and path-based access controls.
+- **Interactive Tutorial** — 7 guided coding lessons with task validation and progress tracking.
+- **Error Overlay** — Runtime error display with formatted stack traces.
+- **npm Scripts** — Package management, script execution, and real-time install progress.
+- **Node.js** — Built-in modules (`os`, `path`), CommonJS `require`, and ESM support.
+- **Crypto** — SHA-256 hashing, HMAC signatures, and secure random generation.
+
+---
+
+## Changelog
+
+### v0.1.0 (2026-04-02)
+
+First stable release. Includes all core features: Container, MemFS, Shell, Package Manager, Transpiler, DevServer (Vite, Next.js, SvelteKit, Remix), Plugins, Persistence, Network Interception, Metrics, TypeChecker, and Workspaces.

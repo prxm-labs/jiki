@@ -1,0 +1,14 @@
+---
+title: Next.js Server Actions
+description: Support "use server" directive for form handling and server mutations — major gap in Next.js compatibility.
+status: planned
+priority: high
+order: 5
+touchedAreas:
+  - frameworks/next-dev-server
+  - frameworks/code-transforms
+  - server-bridge
+  - code-transform
+internalNotes: |
+  Server Actions use the "use server" directive. The Next.js dev server must: (1) detect "use server" in source files during transform, (2) generate client-side stubs that POST to a virtual endpoint, (3) handle the POST on the server-bridge side and execute the server function. Code-transform pipeline needs a new pass to extract server action functions and replace them with fetch calls. Key files: frameworks/next-dev-server.ts (action endpoint routing), frameworks/code-transforms.ts (new "use server" transform). Risk: Server Actions rely on React's flight protocol for serialization — may need a simplified version.
+---

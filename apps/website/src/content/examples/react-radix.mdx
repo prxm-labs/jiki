@@ -1,0 +1,35 @@
+---
+title: React + Radix
+description: Run React with Radix UI accessible components in the browser — compound components and npm bundling via jiki.
+category: frameworks
+features:
+  - Radix UI compound components
+  - npm package bundling for browser
+  - Accessible UI patterns
+  - React 18 with JSX runtime
+---
+
+import { Demo } from "../../../../../examples/react-radix/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A React 18 application using Radix UI primitives, bundled directly from npm for the browser. This shows how jiki can bundle and run real npm packages, including complex compound component libraries.
+
+## Details
+
+- Radix UI packages are bundled from npm with `bundlePackageForBrowser()`
+- Includes Avatar, Dialog, and other Radix UI compound component patterns
+- Radix UI's built-in accessible behavior and ARIA support work out of the box
+- The React JSX runtime is shimmed for browser execution
+
+## Try it yourself
+
+1. Edit the component files to try different Radix UI primitives
+2. Open dialogs and interact with the accessible components
+3. Modify styles while keeping Radix behavior intact
+
+</div>

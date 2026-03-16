@@ -1,0 +1,74 @@
+---
+title: "TypeChecker"
+description: "TypeChecker API reference — run TypeScript diagnostics, surface error messages, and suggest fixes inside jiki containers."
+section: "api"
+order: 11
+---
+
+The `TypeChecker` provides on-demand type checking for TypeScript files in the VFS using heuristic-based analysis. It catches common errors without requiring the full TypeScript compiler.
+
+## Quick start
+
+```ts
+import { boot, TypeChecker } from "jiki";
+
+const container = boot();
+container.writeFile(
+  "/src/app.ts",
+  `
+  const x: any = 42;
+  function greet(name) {
+    return "Hello " + name;
+    console.log("unreachable");
+  }
+`,
+);
+
+const checker = new TypeChecker(container.vfs);
+const diagnostics = checker.checkAll("/src");
+
+for (const d of diagnostics) {
+  console.log(`${d.file}:${d.line} [${d.severity}] ${d.message}`);
+}
+```
+
+## API
+
+### `new TypeChecker(vfs, options?)`
+
+| Option           | Type      | Default         | Description                |
+| ---------------- | --------- | --------------- | -------------------------- |
+| `strict`         | `boolean` | `true`          | Enable strict checks       |
+| `noUnusedLocals` | `boolean` | `false`         | Check for unused variables |
+| `noImplicitAny`  | `boolean` | `true` (strict) | Warn on `any` usage        |
+
+### `checker.check(files)`
+
+Check specific files. Returns `Diagnostic[]` sorted by file and line.
+
+### `checker.checkAll(dir?)`
+
+Discover all `.ts`/`.tsx` files in a directory and check them. Default: `/src`.
+
+### `Diagnostic`
+
+```ts
+interface Diagnostic {
+  file: string;
+  line: number;
+  column: number;
+  message: string;
+  severity: "error" | "warning" | "info";
+  code?: string;
+}
+```
+
+## What it detects
+
+- Explicit `any` usage (when `noImplicitAny` is enabled)
+- Unreachable code after `return`/`throw`
+- Missing return type annotations on exported functions
+- Duplicate variable declarations in the same scope
+- Missing files
+
+For full type checking, install TypeScript and run `npx tsc --noEmit` via the shell.

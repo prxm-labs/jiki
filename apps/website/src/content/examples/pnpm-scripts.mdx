@@ -1,0 +1,35 @@
+---
+title: pnpm Scripts
+description: Run pnpm scripts in the browser — efficient package management, script execution, and dependency installation via jiki.
+category: runtime
+features:
+  - pnpm package manager
+  - Efficient disk usage
+  - Script execution
+  - Package installation
+---
+
+import { Demo } from "../../../../../examples/pnpm-scripts/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+The pnpm package manager running in the browser. Install packages, run scripts, and manage dependencies with pnpm's efficient content-addressable storage approach.
+
+## About this demo
+
+- Fast, disk-efficient package management via pnpm
+- Packages install using pnpm's linking strategy
+- Scripts run from `package.json` with `pnpm run`
+- Strict dependency resolution prevents phantom dependencies
+
+## Try it yourself
+
+1. Install packages using the quick install buttons or terminal
+2. Run `pnpm start` to execute your code
+3. Compare the installation output with the npm scripts example
+
+</div>

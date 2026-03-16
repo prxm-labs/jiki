@@ -1,0 +1,68 @@
+---
+title: "pnpm add -g, pnpm dlx, and precise pnpm support"
+description: "Global installs, full pnpm dlx lifecycle, pnpm exec, pnpm why, pnpm prune, and better flag/workspace handling."
+status: planned
+priority: high
+order: 8
+touchedAreas:
+  - shell-commands
+  - npm/index
+  - npm/pnpm
+  - npm/resolver
+  - memfs
+  - polyfills/process
+  - kernel
+internalNotes: |
+  ## Goal
+  Bring pnpm support to parity with real pnpm behavior: global installs (`pnpm add -g`), `pnpm dlx` (equivalent to npx), `pnpm exec`, and commonly expected subcommands that are currently missing.
+
+  ## Current State (shell-commands.ts, pnpmCmd ~line 544)
+  - `pnpm install/i/add` handles local installs with `-D`/`--save-dev` and `--no-save`. No `-g`/`--global` support.
+  - `pnpm run` resolves scripts from package.json — basic but functional.
+  - `pnpm ls` exists but delegates to `npm ls` (which itself is unimplemented).
+  - No `pnpm dlx` (the pnpm equivalent of npx).
+  - No `pnpm exec` (run a command from node_modules/.bin).
+  - Missing subcommands: `pnpm remove`, `pnpm why`, `pnpm prune`, `pnpm outdated`, `pnpm update`, `pnpm link`, `pnpm store`.
+  - Workspace support exists in npm/workspaces.ts but `pnpm -w` / `--filter` flags are not parsed.
+
+  ## Codebase Impact Analysis
+  - **shell-commands.ts** (pnpmCmd, ~line 544): Must detect `-g`/`--global` flag and route to global prefix. Add `dlx`, `exec`, `remove`, `why`, `outdated`, `update`, `link`, `prune` subcommands.
+  - **npm/pnpm.ts** (PnpmLayout): Content-addressable store with symlinks. Global installs should use a separate global store path (e.g., `/usr/local/lib/pnpm/global`). Bin stubs go to `/usr/local/bin`.
+  - **npm/index.ts** (PackageManager): Needs `installGlobal()` with pnpm layout support. The pnpm store (`.pnpm`) should be shared between local and global installs for deduplication.
+  - **npm/resolver.ts**: `pnpm why` needs reverse dependency resolution — trace why a package is installed by walking the dependency graph.
+  - **memfs.ts**: Symlink support already exists (20-hop limit) — critical for pnpm's content-addressable layout. No changes needed.
+  - **kernel.ts**: Module resolution must follow symlinks in pnpm's `.pnpm` structure. Currently works but edge cases with nested peer deps may fail.
+
+  ## pnpm dlx Spec
+  ```
+  pnpm dlx <pkg>[@version] [args...]
+  pnpm dlx --package <pkg> -c "<command>"
+  ```
+  1. Create temp directory for install
+  2. Install package with pnpm layout
+  3. Run binary from temp node_modules/.bin
+  4. Clean up temp directory after execution
+  5. Support `--package` flag for multiple packages
+
+  ## Missing pnpm Subcommands (priority order)
+  1. `pnpm remove` / `pnpm rm` — remove packages and update lockfile
+  2. `pnpm dlx` — download and execute a package (like npx)
+  3. `pnpm exec` — run a binary from local node_modules/.bin
+  4. `pnpm outdated` — list outdated packages
+  5. `pnpm why` — show why a package is installed (reverse deps)
+  6. `pnpm update` — update packages to latest matching semver
+  7. `pnpm prune` — remove extraneous packages
+  8. `pnpm link` — symlink a local package
+  9. `pnpm store status/prune` — manage content-addressable store
+
+  ## Workspace Flags
+  - `--filter <pattern>` — run command in matching workspace packages
+  - `-w` / `--workspace-root` — run in workspace root
+  - `--recursive` / `-r` — run across all workspace packages
+  These are parsed but not acted on — need integration with npm/workspaces.ts.
+
+  ## Risks
+  - pnpm's content-addressable store relies heavily on symlinks — MemFS symlink resolution must be robust under deep nesting.
+  - `pnpm why` requires building a full reverse dependency graph — expensive for large dependency trees.
+  - Workspace filter patterns use micromatch-style globs — need a glob matcher or simplified subset.
+---

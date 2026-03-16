@@ -1,0 +1,49 @@
+---
+title: pnpm Workspaces
+description: Run pnpm workspaces in the browser — workspace discovery, symlink-based package linking, and cross-package imports via jiki.
+category: runtime
+features:
+  - pnpm-workspace.yaml parsing
+  - Automatic workspace package discovery
+  - Symlink-based cross-package linking
+  - workspace:* protocol resolution
+---
+
+import { Demo } from "../../../../../examples/pnpm-workspaces/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A complete pnpm monorepo running in the browser. Workspace discovery, automatic symlink-based package linking, and cross-package `require()` calls all work, powered by jiki's workspace APIs.
+
+## How it works
+
+- `pnpm-workspace.yaml` glob patterns (`packages/*`, `apps/*`) are parsed to find all local packages
+- `node_modules` symlinks are created so packages can `require()` each other by name
+- `"@monorepo/utils": "workspace:*"` dependencies resolve to local paths
+- `@monorepo/` scoped package names get proper directory nesting
+- `@monorepo/logger` depends on `@monorepo/utils`; `@monorepo/cli` depends on both
+
+## Monorepo structure
+
+```
+/
+├── pnpm-workspace.yaml        # Declares packages/* and apps/*
+├── packages/
+│   ├── utils/                 # @monorepo/utils — shared helpers
+│   └── logger/                # @monorepo/logger — uses utils
+└── apps/
+    └── cli/                   # @monorepo/cli — uses both packages
+```
+
+## Things to try
+
+1. Run `node apps/cli/index.js` to see cross-package imports in action
+2. Run `pnpm run test` to execute all package tests
+3. Edit `packages/utils/index.js` — add a new function, then use it in `apps/cli/index.js`
+4. Browse the file tree to see how `pnpm-workspace.yaml` and `package.json` files define the workspace topology
+
+</div>

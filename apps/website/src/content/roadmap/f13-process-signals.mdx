@@ -1,0 +1,13 @@
+---
+title: Process signals
+description: SIGTERM, SIGKILL, SIGINT semantics for graceful shutdown of child processes.
+status: planned
+priority: low
+order: 13
+touchedAreas:
+  - polyfills/process
+  - shell
+  - polyfills/child_process
+internalNotes: |
+  Implement SIGINT, SIGTERM, SIGKILL, SIGHUP signal handling. process.on('SIGINT', handler) should register a handler. Shell Ctrl+C should send SIGINT to the foreground process. process.kill(pid, signal) should dispatch to the target process. Key files: polyfills/process.ts (signal registry, process.kill), shell.ts (Ctrl+C handling). Challenge: no real OS signals in browser — this is a simulation. Need a process table mapping PIDs to signal handlers.
+---

@@ -1,0 +1,55 @@
+---
+title: "Workspaces"
+description: "Workspaces API reference — configure pnpm workspaces, link local packages, and resolve workspace: protocol in jiki monorepos."
+section: "api"
+order: 17
+---
+
+Workspace support for monorepos. Discovers packages from `package.json` workspaces or `pnpm-workspace.yaml` and creates symlinks for cross-package resolution.
+
+## Discovering workspaces
+
+```ts
+import { discoverWorkspaces } from "jiki";
+
+const workspaces = discoverWorkspaces(container.vfs, "/");
+// [{ name: '@app/utils', path: '/packages/utils', version: '1.0.0' }]
+```
+
+Reads workspace patterns from:
+
+- `package.json` → `"workspaces": ["packages/*"]`
+- `pnpm-workspace.yaml` → `packages: ['packages/*']`
+
+Glob patterns supported: `packages/*`, `apps/**`
+
+## Linking workspaces
+
+```ts
+import { linkWorkspaces } from "jiki";
+
+linkWorkspaces(container.vfs, "/", workspaces);
+// Creates symlinks: /node_modules/@app/utils → /packages/utils
+```
+
+## Resolving workspace: Protocol
+
+```ts
+import { isWorkspaceProtocol, resolveWorkspaceDep } from "jiki";
+
+isWorkspaceProtocol("workspace:*"); // true
+isWorkspaceProtocol("^1.0.0"); // false
+
+const dep = resolveWorkspaceDep("@app/utils", workspaces);
+// { name: '@app/utils', path: '/packages/utils', version: '1.0.0' }
+```
+
+## `WorkspacePackage`
+
+```ts
+interface WorkspacePackage {
+  name: string; // package name
+  path: string; // absolute path in VFS
+  version: string; // version from package.json
+}
+```

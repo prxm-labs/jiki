@@ -1,0 +1,15 @@
+---
+title: VM sandboxing hardening
+description: Current vm.runInNewContext() shares the JS context — evaluate Realm API or iframe isolation for untrusted code.
+status: planned
+priority: high
+order: 23
+touchedAreas:
+  - sandbox
+  - polyfills/vm
+  - kernel
+  - memfs
+  - network-interceptor
+internalNotes: |
+  Current sandbox enforces limits (memory, time, file count, network hosts) but doesn't provide true isolation — code runs in the same JS context. Hardening means: (1) prevent prototype pollution (Object.freeze shared prototypes or use null-prototype objects), (2) prevent global leaks (seal the global provided to vm.runInNewContext), (3) enforce CPU time limits via Web Worker termination, (4) prevent infinite loops via code instrumentation (inject loop counters). Key files: sandbox.ts (enhanced guards), polyfills/vm.ts (frozen context), kernel.ts (instrumentation hooks). Risk: performance overhead from instrumentation.
+---

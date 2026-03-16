@@ -1,0 +1,11 @@
+---
+title: Crypto key derivation
+description: pbkdf2, scrypt, and HKDF implementations for password hashing and key stretching.
+status: planned
+priority: medium
+order: 11
+touchedAreas:
+  - polyfills/crypto
+internalNotes: |
+  Add PBKDF2, HKDF, and scrypt key derivation to the crypto polyfill. The browser's Web Crypto API (crypto.subtle) supports PBKDF2 and HKDF natively — wrap these as Node.js-compatible crypto.pbkdf2() and crypto.hkdf() functions. Scrypt is not in Web Crypto — need a pure JS or WASM implementation. Key file: polyfills/crypto.ts. Currently only has randomBytes, SHA-256, randomUUID, randomInt. Must also add createHmac for HMAC-based derivation. Consider using the noble-hashes library for missing algorithms.
+---

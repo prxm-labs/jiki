@@ -1,0 +1,15 @@
+---
+title: Tanstack examples and support
+description: Provide examples and support for Tanstack libraries like React Query, Router, and Table. Create a full blown example of Tanstack Start.
+status: planned
+priority: high
+order: 14
+touchedAreas:
+  - frameworks/vite-dev-server
+  - kernel
+  - npm/resolver
+  - code-transform
+  - transpiler
+internalNotes: |
+  Showcase TanStack libraries (Query, Router, Table, Form) running in jiki. TanStack packages are framework-agnostic with React/Vue/Solid adapters. Example structure: a Vite + React app using TanStack Query for data fetching (mock API via network-interceptor), TanStack Router for client-side routing, and TanStack Table for data display. Key challenge: TanStack packages use modern ESM with package.json exports — ensure module-resolver handles the exports field correctly. Demonstrates jiki's compatibility with the modern JS ecosystem.
+---

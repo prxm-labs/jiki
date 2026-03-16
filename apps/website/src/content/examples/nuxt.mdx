@@ -1,0 +1,35 @@
+---
+title: Nuxt
+description: Run Nuxt in the browser with auto-imported composables, file-based routing, server API routes, and middleware via jiki.
+category: frameworks
+features:
+  - File-based routing with pages directory
+  - Auto-imported composables
+  - Server API routes
+  - Middleware and layouts
+---
+
+import { Demo } from "../../../../../examples/nuxt/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Nuxt 3 application showcasing the framework's conventions: file-based routing, auto-imported composables, server API routes, layouts, and middleware. This is a full-stack Vue framework running in the browser.
+
+## What this demonstrates
+
+- The pages directory maps directly to URL routes
+- Composables like `useCounter` and `usePosts` are auto-imported
+- API endpoints are defined in the `server/api/` directory
+- An auth guard middleware protects routes
+
+## Try it yourself
+
+1. Add a new file to the `pages/` directory to create a route
+2. Create a composable in `composables/` and use it without importing
+3. Define a server API route in `server/api/`
+
+</div>

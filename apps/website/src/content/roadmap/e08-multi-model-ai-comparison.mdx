@@ -1,0 +1,15 @@
+---
+title: Multi-model AI comparison
+description: Side-by-side Claude vs Mistral vs Kimi — same prompt, different models, compare outputs.
+status: planned
+priority: medium
+order: 41
+touchedAreas:
+  - network-interceptor
+  - frameworks/vite-dev-server
+  - kernel
+  - polyfills/process
+  - polyfills/stream
+internalNotes: |
+  Build a UI that sends the same prompt to multiple LLM APIs (OpenAI, Anthropic, etc.) and displays responses side-by-side. Uses Vite dev server for the React UI, fetch for API calls (routed through network-interceptor if needed for CORS). Streaming responses via ReadableStream to show tokens as they arrive. Example structure: prompt input, model selector checkboxes, side-by-side streaming output panels. Demonstrates jiki's networking capabilities and streaming support. API keys stored in environment variables (polyfills/process env).
+---

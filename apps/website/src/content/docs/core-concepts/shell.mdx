@@ -1,0 +1,63 @@
+---
+title: "Shell"
+description: "Run shell commands in the browser with jiki — pipes, redirects, glob patterns, background jobs, tab completion, and command history included."
+section: "core-concepts"
+order: 3
+---
+
+jiki includes a shell that supports pipes, logical operators, glob patterns, variable expansion, command history, tab completion, and background jobs.
+
+## Built-in commands
+
+| Command   | Description                          |
+| --------- | ------------------------------------ |
+| `ls`      | List directory contents              |
+| `cat`     | Display file contents                |
+| `cd`      | Change working directory             |
+| `pwd`     | Print working directory              |
+| `mkdir`   | Create directories                   |
+| `rm`      | Remove files and directories         |
+| `echo`    | Print text to stdout                 |
+| `export`  | Set environment variables            |
+| `history` | Show command history                 |
+| `jobs`    | List background jobs                 |
+| `fg`      | Bring a background job to foreground |
+
+## Shell operators
+
+- `|` — redirect stdout of one command to stdin of the next
+- `&&` — run the next command only if the previous one succeeds
+- `||` — run the next command only if the previous one fails
+- `;` — run commands sequentially regardless of exit status
+- `&` — run command in the background
+- `>` / `>>` — redirect stdout to a file (overwrite / append)
+
+## Glob patterns
+
+- `*.js` — match files with .js extension
+- `**/*.ts` — recursive match across nested directories
+- `?` — match a single character
+- `{a,b}` — brace expansion (`*.{js,ts}` matches both extensions)
+
+## Command history
+
+Commands are automatically recorded. Use `shell.history` to navigate:
+
+```ts
+shell.history.up(); // previous command
+shell.history.down(); // next command
+shell.history.getAll(); // all commands
+```
+
+## Tab completion
+
+```ts
+const candidates = shell.complete("ec");
+// ['echo'] — matches commands, .bin/ binaries, and file paths
+```
+
+## Usage
+
+```ts
+const result = await container.run("echo hello && echo world");
+```

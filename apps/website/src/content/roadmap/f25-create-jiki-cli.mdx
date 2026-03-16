@@ -1,0 +1,13 @@
+---
+title: create-jiki CLI
+description: "Scaffold new jiki projects or recreate examples with npm create jiki@latest."
+status: planned
+priority: medium
+order: 40
+touchedAreas:
+  - create-jiki
+  - examples
+  - npm/resolver
+internalNotes: |
+  CLI scaffolding tool published as create-jiki on npm so users can run npm create jiki@latest (or pnpm create jiki / yarn create jiki). Two modes: (1) create an empty starter project with sensible defaults (package.json, tsconfig, basic jiki setup), (2) recreate any project from the examples folder as a standalone starting point. Implementation: prompts for project name, template selection (blank or example), framework choice if applicable, then copies files, rewrites package.json metadata, and runs install. Should list available examples dynamically from the repo or a published manifest. Consider using prompts (e.g. @clack/prompts) for the interactive CLI experience. The package lives in packages/create-jiki and is published independently.
+---

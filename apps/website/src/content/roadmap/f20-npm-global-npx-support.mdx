@@ -1,0 +1,57 @@
+---
+title: "npm install -g, npx, and precise npm support"
+description: "Global package installs, full npx lifecycle (cache, versioning, --yes), npm link, npm ls, npm outdated, and better flag handling."
+status: planned
+priority: high
+order: 7
+touchedAreas:
+  - shell-commands
+  - npm/index
+  - npm/resolver
+  - memfs
+  - polyfills/process
+  - kernel
+internalNotes: |
+  ## Goal
+  Bring npm/npx support closer to real npm behavior: global installs (`npm install -g`), a proper npx implementation with caching and version resolution, and commonly expected npm subcommands that are currently missing.
+
+  ## Current State (shell-commands.ts)
+  - `npm install` handles local installs with `-D`/`--save-dev` and `--no-save` flags. No `-g`/`--global` support.
+  - `npx` (npxCmd): minimal — calls `pm.install(pkgName)` then looks for a binary in `/node_modules/.bin`. No version specifier (`npx create-react-app@latest`), no `--yes` flag, no package caching, no `--package` flag.
+  - Missing npm subcommands: `npm link`, `npm ls`/`npm list`, `npm outdated`, `npm update`, `npm uninstall`, `npm info`/`npm view`, `npm cache`, `npm config`.
+  - No global bin PATH (`/usr/local/lib/node_modules/.bin` or equivalent).
+
+  ## Codebase Impact Analysis
+  - **shell-commands.ts** (npmCmd, ~line 436): Must detect `-g`/`--global` flag and route installs to a global prefix directory (e.g., `/usr/local/lib/node_modules`). Global bin stubs must be written to `/usr/local/bin` (already on default PATH). Add missing subcommands.
+  - **shell-commands.ts** (npxCmd, ~line 523): Full rewrite needed. Must: (1) parse version specifier from package name, (2) check global npx cache before installing, (3) support `--yes`/`-y` to skip prompts, (4) support `--package` flag, (5) handle scoped packages (`@scope/pkg`), (6) clean up temp installs.
+  - **npm/index.ts** (PackageManager): `install()` currently targets cwd-local `node_modules`. Need a `globalPrefix` config and `installGlobal()` method that writes to the global directory with proper bin linking.
+  - **memfs.ts**: No changes needed — global dirs are just regular VFS paths. But must ensure `/usr/local/lib` and `/usr/local/bin` exist (created at boot or on first global install).
+  - **polyfills/process.ts**: `process.env.PATH` default includes `/usr/local/bin` already — global bins will be found. May need `process.env.npm_config_prefix` for compatibility.
+  - **kernel.ts**: Module resolution already checks `node_modules` — global modules need the global `node_modules` in the resolution chain as a fallback.
+
+  ## npx Rewrite Spec
+  ```
+  npx <pkg>[@version] [args...]
+  npx --package <pkg> -c "<command>"
+  npx --yes <pkg>
+  ```
+  1. Parse package name and version specifier
+  2. Check local node_modules/.bin first
+  3. Check global npx cache (/tmp/.npx-cache or similar)
+  4. If not cached: install to temp dir, run, optionally clean up
+  5. Support create-* shorthand (npx create-react-app → npx @create-react-app/create-react-app)
+
+  ## Missing npm Subcommands (priority order)
+  1. `npm uninstall` / `npm rm` — remove packages from node_modules and package.json
+  2. `npm ls` / `npm list` — print dependency tree
+  3. `npm outdated` — compare installed vs latest versions
+  4. `npm link` — symlink a local package for development
+  5. `npm view` / `npm info` — show package metadata from registry
+  6. `npm update` — update packages to latest matching semver
+  7. `npm cache clean` — clear package cache
+
+  ## Risks
+  - Global installs persist in VFS — need to survive container restarts if persistence is enabled.
+  - npx version resolution adds registry lookups per invocation — latency concern.
+  - `npm link` requires symlink support in MemFS (already exists) but cross-workspace links may conflict with sandbox path restrictions.
+---

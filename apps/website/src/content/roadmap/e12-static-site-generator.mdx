@@ -1,0 +1,16 @@
+---
+title: Static site generator
+description: Minimal SSG from scratch — markdown parsing, template rendering, file output.
+status: planned
+priority: low
+order: 45
+touchedAreas:
+  - kernel
+  - memfs
+  - polyfills/fs
+  - transpiler
+  - shell-commands
+  - polyfills/stream
+internalNotes: |
+  Build a minimal static site generator in jiki. Read markdown files from a content/ directory, parse with a markdown library (marked or remark), apply a template, write HTML to a dist/ directory. Example structure: content/*.md + templates/*.html → dist/*.html. Could also demonstrate using a real SSG like 11ty (lighter than Astro/Next). Demonstrates jiki's file processing capabilities and the ability to run build tools.
+---

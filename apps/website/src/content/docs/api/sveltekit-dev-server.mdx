@@ -1,0 +1,44 @@
+---
+title: "SvelteKitDevServer"
+description: "SvelteKitDevServer API reference — serve SvelteKit apps with file-based routing and SSR in the browser via jiki."
+section: "api"
+order: 13
+---
+
+The `SvelteKitDevServer` extends `ViteDevServer` with SvelteKit's file-based routing conventions.
+
+## Constructor
+
+```ts
+import { SvelteKitDevServer } from "jiki";
+
+const server = new SvelteKitDevServer(vfs, {
+  port: 5173,
+  root: "/",
+  routesDir: "/src/routes",
+});
+```
+
+### Options
+
+Inherits all [ViteDevServer options](/docs/api/vite-dev-server) plus:
+
+| Option      | Type     | Default         | Description      |
+| ----------- | -------- | --------------- | ---------------- |
+| `routesDir` | `string` | `"/src/routes"` | Routes directory |
+
+## Routing conventions
+
+| File             | Purpose                                    |
+| ---------------- | ------------------------------------------ |
+| `+page.svelte`   | Page component                             |
+| `+layout.svelte` | Layout wrapper (inherited by child routes) |
+| `+server.ts`     | API endpoint                               |
+| `+error.svelte`  | Error page                                 |
+
+## Route discovery
+
+```ts
+const routes = server.discoverRoutes();
+// [{ route: '/', pagePath: '/src/routes/+page.svelte', ... }]
+```

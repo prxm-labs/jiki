@@ -1,0 +1,81 @@
+---
+title: "Package Cache"
+description: "Speed up repeat npm installs with jiki's IndexedDB package cache — manifests use a configurable TTL while tarballs are cached indefinitely."
+section: "core-concepts"
+order: 9
+---
+
+By default, every `container.install()` call fetches package metadata and tarballs from the npm registry over the network. The package cache keeps previously-fetched data in memory so repeat installs are near-instant.
+
+Manifests are cached with a configurable TTL (default 1 hour) since they can change when new versions are published. Tarballs are cached indefinitely because npm tarball URLs are immutable (content-addressed).
+
+## How it works
+
+1. On the first install, manifests and tarballs are fetched from the registry and stored in the cache.
+2. On repeat installs, the cache serves manifests (if within TTL) and tarballs directly, skipping network requests entirely.
+3. If a manifest has expired or a tarball hasn't been seen before, it's fetched from the registry and cached.
+
+Every `PackageManager` gets its own `PackageCache` instance by default. You can also share a cache across multiple package managers or pass a pre-populated cache.
+
+## Quick start
+
+The cache works automatically with no configuration needed:
+
+```ts
+import { boot } from "jiki";
+
+const container = boot();
+
+// First install: fetches from registry
+await container.install("react");
+
+// Second install: served from cache (near-instant)
+await container.install("react-dom"); // react manifest is already cached
+```
+
+## Custom configuration
+
+```ts
+import { boot, PackageCache } from "jiki";
+
+const cache = new PackageCache({
+  manifestTtlMs: 5 * 60 * 1000, // 5 minutes instead of 1 hour
+  maxManifests: 1000, // default: 500
+  maxTarballs: 500, // default: 200
+});
+
+const container = boot();
+// Access the cache via container.packageManager.cache
+container.packageManager.clearCache(); // clear when needed
+```
+
+## Diagnostics
+
+```ts
+const { cache } = container.packageManager;
+
+cache.manifestCount; // number of cached manifests
+cache.tarballCount; // number of cached tarballs
+cache.tarballBytes; // total bytes of cached tarballs
+```
+
+## Clearing the cache
+
+```ts
+// Clear everything
+container.packageManager.clearCache();
+
+// Or selectively
+container.packageManager.cache.clearManifests();
+container.packageManager.cache.clearTarballs();
+```
+
+## Cache eviction
+
+When the cache reaches its size limits, the oldest entries are evicted automatically:
+
+| Store        | Default limit | Eviction                  |
+| ------------ | ------------- | ------------------------- |
+| Manifests    | 500 entries   | Oldest by insertion order |
+| Tarballs     | 200 entries   | Oldest by insertion order |
+| Manifest TTL | 1 hour        | Re-fetched on next access |

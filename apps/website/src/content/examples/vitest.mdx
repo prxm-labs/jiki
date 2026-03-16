@@ -1,0 +1,35 @@
+---
+title: Vitest
+description: Run Vitest tests in the browser with ESM-first testing, result aggregation, and formatted output via jiki.
+category: testing
+features:
+  - Vitest test runner
+  - ESM-first testing
+  - Test result aggregation
+  - Formatted output display
+---
+
+import { Demo } from "../../../../../examples/vitest/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Vitest testing setup with unit tests for utility functions. Uses ESM-first `describe`/`it`/`expect` syntax and displays formatted test results.
+
+## What this demonstrates
+
+- Vite-native test framework with fast execution
+- Tests written with ES module imports
+- Math utilities and string utilities as separate test suites
+- Aggregated test results with pass/fail counts
+
+## Explore
+
+1. Run the test suites and view the formatted results
+2. Edit the source files to introduce a bug and see failures
+3. Add new test cases to existing suites
+
+</div>

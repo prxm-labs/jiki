@@ -1,0 +1,43 @@
+---
+title: Networking and tunneling
+description: "WebSocket-to-TCP bridge, tunnel proxy for real domains, and Fetch API networking layer — run Next, Expo, Express with real domain access."
+status: planned
+priority: high
+order: 4
+touchedAreas:
+  - polyfills/net
+  - polyfills/http
+  - polyfills/ws
+  - server-bridge
+  - network-interceptor
+  - service-worker
+  - dev-server
+internalNotes: |
+  ## Goal
+  Move beyond Fetch-only networking. Enable tunneling, WebSocket-to-TCP bridging, and real domain routing so that frameworks like Next.js, Expo, and Express can serve on real (or subdomain-mapped) URLs — not just `/__virtual__/{port}`.
+
+  ## Current Limitations
+  - All outbound networking goes through the Fetch API. No raw TCP/UDP socket access (browser limitation).
+  - polyfills/net.ts Socket.connect() is a no-op stub that logs a warning and emits a fake 'connect' event.
+  - polyfills/ws.ts WebSocket is a stub — no real WebSocket connections.
+  - server-bridge.ts only handles HTTP request/response via `/__virtual__/{port}` pattern.
+  - No mechanism for external tunnel relay (e.g., ngrok-style subdomain mapping).
+
+  ## Codebase Impact Analysis
+  - **polyfills/net.ts** (2.8 KB): Socket class needs real buffered write/read with data events. Server.listen() must register with ServerBridge. Must support both TCP client (connect) and server (createServer) patterns.
+  - **polyfills/ws.ts** (1.8 KB): Needs real WebSocket passthrough to browser's native WebSocket API for external connections, plus virtual WebSocket for in-container server-to-server comms.
+  - **server-bridge.ts** (13.3 KB): Extend beyond HTTP. Add protocol-agnostic connection manager. Support WebSocket upgrade requests. Add tunnel registration API for external relay services.
+  - **network-interceptor.ts** (3.8 KB): Add tunnel routing — requests to `*.tunnel.domain` should route to the correct virtual port. Integrate with external tunnel relay WebSocket.
+  - **service-worker.ts** (4.2 KB): Intercept tunnel domain requests in addition to `/__virtual__/` pattern.
+
+  ## Approach
+  1. WebSocket-to-TCP bridge: external relay server accepts WebSocket, forwards to TCP. Net.Socket buffers writes over WebSocket.
+  2. Tunnel proxy: map virtual ports to real subdomains via relay (e.g., `myapp.jiki.dev` → port 3000).
+  3. Real WebSocket support: passthrough to browser's native WebSocket for external services.
+  4. Protocol handlers: HTTP maps to ServerBridge, raw TCP maps to WebSocket relay, WebSocket maps to native.
+
+  ## Risks
+  - Without a relay server, raw TCP is impossible — this feature has an infrastructure dependency.
+  - Latency through WebSocket relay will be higher than native TCP.
+  - CORS and cross-origin isolation may block some tunnel configurations.
+---

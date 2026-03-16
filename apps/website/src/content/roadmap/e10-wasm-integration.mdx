@@ -1,0 +1,37 @@
+---
+title: WASM runtime support
+description: "First-class .wasm module support: load and execute WebAssembly binaries (ffmpeg, ImageMagick, SQLite, custom modules) with proper FS and memory bridging."
+status: planned
+priority: high
+order: 2
+touchedAreas:
+  - kernel
+  - memfs
+  - polyfills/fs
+  - module-resolver
+  - plugin
+  - transpiler
+internalNotes: |
+  ## Goal
+  Enable loading and running arbitrary .wasm modules inside jiki — not just a demo, but a reliable runtime path for WASM-heavy packages like ffmpeg.wasm, sql.js, sharp/ImageMagick ports, and custom Rust/C compiled modules.
+
+  ## Codebase Impact Analysis
+  - **module-resolver.ts**: Must add `.wasm` to the extension probe list and handle WASM files as binary assets (return ArrayBuffer, not string). Currently only probes `.js, .ts, .tsx, .jsx, .json, .node, .mjs, .cjs`.
+  - **memfs.ts**: Binary file I/O already works (Uint8Array), but `WebAssembly.instantiateStreaming` expects a Response object with `application/wasm` MIME type. Need either a MemFS-to-Response adapter or always use `WebAssembly.instantiate(buffer)` path.
+  - **kernel.ts**: Module execution pipeline must detect `.wasm` imports and route to `WebAssembly.instantiate` instead of the JS eval path. The module cache (max 4000 entries) should cache compiled WASM modules (`WebAssembly.Module`).
+  - **plugin.ts**: `onLoad` hooks should fire for `.wasm` files, allowing plugins to transform or provide custom WASM loaders (e.g., Emscripten glue code injection).
+  - **polyfills/fs.ts**: `fs.readFileSync` must reliably return `Uint8Array` for binary files — packages like sql.js and ffmpeg.wasm load their WASM binary via fs.
+
+  ## Key Challenges
+  - WASM modules that expect WASI (file I/O, env vars, clock) need a WASI shim layer bridging to MemFS and process polyfills.
+  - Large WASM binaries (ffmpeg ~25MB) need streaming instantiation or chunked loading to avoid memory pressure.
+  - Emscripten-compiled modules expect `Module.FS` — need to bridge or redirect to MemFS.
+  - SharedArrayBuffer (used by some WASM threading) requires cross-origin isolation headers.
+
+  ## Approach
+  1. Add `.wasm` extension resolution in module-resolver
+  2. Binary module loading path in kernel (detect + instantiate)
+  3. WASI shim layer mapping to MemFS/process polyfills
+  4. Plugin hook for custom WASM loaders
+  5. Examples: ffmpeg transcoding, ImageMagick resize, SQLite queries, custom Rust module
+---

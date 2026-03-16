@@ -1,0 +1,14 @@
+---
+title: WebSocket support
+description: Native WebSocket server and client APIs — replace the current ws stub with a functional implementation using MessageChannel or BroadcastChannel.
+status: planned
+priority: high
+order: 3
+touchedAreas:
+  - polyfills/net
+  - polyfills/http
+  - server-bridge
+  - network-interceptor
+internalNotes: |
+  Browser WebSocket API is available natively but server-side WebSocket (ws package) needs polyfilling. The server-bridge currently handles HTTP only — must extend to support WebSocket upgrade requests. Need a virtual WebSocket server that routes connections through the service worker message channel. Key files: server-bridge.ts (add WS upgrade handling), polyfills/net.ts (Socket needs real read/write for WS framing). The ws npm package expects net.Socket — our stub must become functional enough for the ws handshake and frame protocol.
+---

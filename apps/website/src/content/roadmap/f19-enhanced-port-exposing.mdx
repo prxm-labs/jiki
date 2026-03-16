@@ -1,0 +1,49 @@
+---
+title: Enhanced port exposing
+description: "Multi-port discovery, custom domain mapping, port forwarding hooks, and UI integration for exposed dev server ports."
+status: planned
+priority: high
+order: 6
+touchedAreas:
+  - server-bridge
+  - service-worker
+  - dev-server
+  - network-interceptor
+  - container
+internalNotes: |
+  ## Goal
+  Improve port exposure beyond the current single-port `/__virtual__/{port}` pattern. Support multi-port registration, automatic port discovery, custom domain mapping, and event hooks for embedding UIs to react to port changes.
+
+  ## Current State
+  - ServerBridge maps ports to in-memory HTTP servers via `/__virtual__/{port}/*` URL pattern.
+  - Service Worker intercepts `/__virtual__` requests and routes to ServerBridge.
+  - Only one "server-ready" event emitted per port — no lifecycle events (port closed, port conflict).
+  - No automatic port discovery — servers must explicitly register via `server.listen(port)`.
+  - No way to map a port to a custom subdomain or external URL.
+  - Request queue has a hard 10-second timeout with no configurability.
+
+  ## Codebase Impact Analysis
+  - **server-bridge.ts** (13.3 KB): Add port registry with lifecycle events (registered, ready, closed, error). Support multi-port with port range scanning. Add `getActivePorts()` API. Make request queue timeout configurable. Add domain-to-port mapping table.
+  - **service-worker.ts** (4.2 KB): Extend URL patterns beyond `/__virtual__/`. Support custom domain interception (e.g., `myapp.localhost:{port}`). Handle WebSocket upgrade for HMR on exposed ports.
+  - **dev-server.ts** (7.9 KB): Auto-register ports on `listen()`. Emit structured port events with metadata (framework name, URL, protocol).
+  - **network-interceptor.ts** (3.8 KB): Add rules for domain-to-port routing. Support wildcard domain patterns.
+  - **container.ts** (10.1 KB): Expose `onPortOpen(callback)`, `onPortClose(callback)` events on the Container API. Add `container.ports` read-only map for querying active ports.
+
+  ## Port Event API
+  ```ts
+  container.on('port-open', ({ port, url, framework, pid }) => { ... });
+  container.on('port-close', ({ port, reason }) => { ... });
+  container.ports // Map<number, { url: string, framework?: string, pid: number }>
+  ```
+
+  ## Use Cases
+  - Embedding UI shows a tab bar of open ports with clickable preview URLs
+  - Framework auto-detection: "Vite dev server running on port 5173"
+  - Port conflict resolution: if port 3000 is taken, suggest 3001
+  - Custom domains: map port 3000 to `preview.myapp.local` for realistic testing
+
+  ## Risks
+  - Custom domain interception requires Service Worker scope to cover those domains.
+  - Multi-port scanning could cause resource contention in the browser tab.
+  - Port lifecycle events must be reliable — missed close events leak resources.
+---

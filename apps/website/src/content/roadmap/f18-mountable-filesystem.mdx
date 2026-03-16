@@ -1,0 +1,46 @@
+---
+title: Mountable filesystem
+description: "Mount external filesystems into MemFS: host FS bridges, IndexedDB volumes, pre-built snapshots, and lazy-loaded directory trees."
+status: planned
+priority: high
+order: 1
+touchedAreas:
+  - memfs
+  - persistence
+  - container
+  - polyfills/fs
+  - sandbox
+internalNotes: |
+  ## Goal
+  Allow mounting external data sources as directories inside MemFS — host filesystem (via File System Access API), IndexedDB-backed persistent volumes, pre-built snapshots, and remote/lazy-loaded trees.
+
+  ## Codebase Impact Analysis
+  - **memfs.ts** (30.3 KB): Core change. The FSNode tree is currently flat in-memory. Need a mount-point abstraction: a MountNode type that delegates read/write/stat to an external MountAdapter. Path resolution must check mount boundaries. `toSnapshot()` must handle mount points (skip or serialize separately).
+  - **persistence.ts** (7.3 KB): Current adapters (IndexedDBAdapter, InMemoryAdapter) persist the entire FS. Mountable FS needs per-mount persistence — each mount point may have its own adapter. The flush queue (100ms batching) must be mount-aware.
+  - **container.ts** (10.1 KB): `boot()` needs a `mounts` config option: `{ path: string, adapter: MountAdapter }[]`. Mounts should be initialized before package installation.
+  - **polyfills/fs.ts** (10.0 KB): `createFsShim()` delegates to MemFS — no changes needed if MemFS handles mount dispatch internally.
+  - **sandbox.ts** (5.3 KB): `checkWrite()` must validate cross-mount access. Some mounts may be read-only (e.g., snapshot mounts). SandboxFs.allowedPaths must work across mount boundaries.
+
+  ## Mount Adapter Interface
+  ```ts
+  interface MountAdapter {
+    readFile(path: string): Uint8Array | string;
+    writeFile(path: string, content: Uint8Array | string): void;
+    readdir(path: string): string[];
+    stat(path: string): FSNodeStats;
+    watch?(path: string, cb: WatchCallback): void;
+    readOnly?: boolean;
+  }
+  ```
+
+  ## Use Cases
+  - Host FS bridge: mount user's local directory via File System Access API (Chrome)
+  - Persistent volumes: mount an IndexedDB-backed directory that survives page reloads
+  - Snapshot mounts: mount a pre-built node_modules snapshot (read-only, lazy-loaded)
+  - Remote FS: lazy-load files from a CDN or API on first access
+
+  ## Risks
+  - File System Access API is Chrome-only (Safari/Firefox have limited support).
+  - Lazy-loaded mounts introduce async into what is currently a sync FS API (readFileSync).
+  - Mount ordering matters for overlapping paths — need clear precedence rules.
+---

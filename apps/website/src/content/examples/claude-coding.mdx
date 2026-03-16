@@ -1,0 +1,42 @@
+---
+title: Claude Coding
+description: Generate React components with Claude AI in the browser — streaming responses, live preview, and error recovery via jiki.
+category: agentic
+features:
+  - Claude Opus 4.6 integration
+  - Streaming response rendering
+  - Live React preview
+  - Chat history persistence
+  - Element inspection
+  - Error overlay recovery
+---
+
+import { Demo } from "../../../../../examples/claude-coding/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+An AI-powered code generator that uses Claude Opus 4.6 to create React components from natural language descriptions. Generated code runs live in a jiki container with real-time preview and error overlay support.
+
+## How it works
+
+- Token-by-token streaming from the Anthropic Messages API directly in the browser
+- JSX is automatically extracted from AI responses and injected into the runtime
+- Generated React components render instantly in a sandboxed iframe
+- Click elements in the preview to reference them in chat
+- Conversation history is stored in IndexedDB across sessions
+- The error overlay catches runtime errors; ask the AI to fix them
+
+## Try it yourself
+
+1. Enter your Anthropic API key when prompted
+2. Describe a React component (e.g., "Create a todo list app with a dark theme")
+3. Watch the code generate in real-time and the preview update automatically
+4. Use the inspect button to click elements and reference them for edits
+5. Ask for modifications ("Add a filter by status feature")
+6. If an error appears, ask "Fix the error" and the AI will correct the code
+
+</div>

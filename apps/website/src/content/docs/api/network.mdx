@@ -1,0 +1,61 @@
+---
+title: "NetworkInterceptor"
+description: "NetworkInterceptor API reference — intercept, mock, and inspect outbound fetch requests from code running inside jiki containers."
+section: "api"
+order: 16
+---
+
+The `NetworkInterceptor` intercepts and mocks outgoing `fetch()` calls. Useful for testing, offline scenarios, and CORS avoidance.
+
+## Quick start
+
+```ts
+const container = boot();
+
+// Static mock
+container.mockFetch("/api/users", { json: [{ name: "Alice" }] });
+
+// Dynamic handler
+container.onFetch(url => {
+  if (url.includes("/health")) return { json: { ok: true } };
+  return null; // pass through
+});
+```
+
+## `MockResponse`
+
+```ts
+interface MockResponse {
+  status?: number; // default: 200
+  headers?: Record<string, string>;
+  body?: string;
+  json?: unknown; // auto-serialized, overrides body
+}
+```
+
+## Container methods
+
+| Method                         | Description                             |
+| ------------------------------ | --------------------------------------- |
+| `mockFetch(pattern, response)` | Register static mock (string or RegExp) |
+| `onFetch(handler)`             | Register dynamic handler                |
+| `network.clear()`              | Remove all rules and handlers           |
+| `network.ruleCount`            | Number of static rules                  |
+| `network.handlerCount`         | Number of dynamic handlers              |
+
+## Matching order
+
+1. Static rules are checked first (first match wins)
+2. Dynamic handlers are checked in registration order
+3. If nothing matches, the request passes through to the real network
+
+## `mockResponseToFetchResponse`
+
+Converts a `MockResponse` to a fetch-compatible object:
+
+```ts
+import { mockResponseToFetchResponse } from "jiki";
+
+const resp = mockResponseToFetchResponse({ json: { ok: true } });
+await resp.json(); // { ok: true }
+```

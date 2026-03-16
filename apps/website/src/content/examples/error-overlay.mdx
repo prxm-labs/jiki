@@ -1,0 +1,35 @@
+---
+title: Error Overlay
+description: Catch and display runtime errors in the browser with formatted stack traces and a full-screen error overlay via jiki.
+category: tools
+features:
+  - Runtime error catching
+  - Formatted stack traces
+  - Error type identification
+  - Full-screen error overlay
+---
+
+import { Demo } from "../../../../../examples/error-overlay/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A development error overlay that catches runtime exceptions and displays them with formatted stack traces. Covers error boundary patterns for unhandled errors, TypeErrors, and Promise rejections.
+
+## How it works
+
+- A global error handler catches uncaught exceptions
+- Stack traces are formatted with source locations
+- Error, TypeError, and unhandled Promise rejections are all handled
+- A full-screen overlay shows error details with a dismiss action
+
+## Things to try
+
+1. Click the error-triggering buttons to see different error types
+2. Examine the stack trace in the overlay
+3. Dismiss the overlay and try a different error type
+
+</div>

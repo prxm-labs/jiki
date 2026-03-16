@@ -1,0 +1,14 @@
+---
+title: Next.js ISR
+description: Incremental Static Regeneration with revalidate timers for cached page responses.
+status: planned
+priority: medium
+order: 9
+touchedAreas:
+  - frameworks/next-dev-server
+  - memfs
+  - persistence
+  - server-bridge
+internalNotes: |
+  Incremental Static Regeneration needs: (1) a cache layer in MemFS or persistence for pre-rendered HTML, (2) revalidation triggers (time-based or on-demand), (3) stale-while-revalidate serving from server-bridge. In a browser context, ISR is simulated — pages are rendered once, cached in MemFS, and re-rendered when stale. Key files: frameworks/next-dev-server.ts (getStaticProps revalidate handling), memfs.ts or persistence.ts (HTML cache storage). Simplification: since there's one user, no concurrent revalidation races to handle.
+---

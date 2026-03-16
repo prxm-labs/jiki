@@ -1,0 +1,35 @@
+---
+title: Svelte
+description: Run a Svelte app in the browser with reactive declarations, scoped CSS, animations, and transitions via jiki.
+category: frameworks
+features:
+  - Svelte reactive declarations
+  - Animations and transitions
+  - Event handling
+  - Scoped CSS styling
+---
+
+import { Demo } from "../../../../../examples/svelte/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Svelte 4 application demonstrating the framework's reactive declarations, animations, and event handling. Components are compiled in the browser with full reactivity support.
+
+## About this demo
+
+- Svelte's `$:` syntax provides automatic dependency tracking for reactive declarations
+- CSS is automatically scoped to each component
+- The UI is interactive with click handlers and state updates
+- Svelte internals are loaded via ESM from esm.sh
+
+## Explore
+
+1. Edit the `App.svelte` file to modify reactive variables
+2. Add new `$:` declarations to see computed values update
+3. Try adding CSS styles scoped to individual components
+
+</div>

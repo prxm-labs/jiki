@@ -1,0 +1,15 @@
+---
+title: SQLite in-browser
+description: sql.js with persistence — schema creation, queries, and IndexedDB-backed storage.
+status: planned
+priority: high
+order: 3
+touchedAreas:
+  - kernel
+  - memfs
+  - polyfills/fs
+  - polyfills/stream
+  - npm/resolver
+internalNotes: |
+  Showcase running sql.js (SQLite compiled to WASM) inside jiki. The example creates a database in MemFS, runs SQL queries, and persists data. sql.js loads a .wasm file — the kernel must handle WASM instantiation correctly. Key challenge: sql.js expects fs.readFileSync for loading the WASM binary — our polyfills/fs must serve the WASM file from MemFS. Example structure: install sql.js, create DB, insert data, query it, show results in shell. Demonstrates that jiki can run WASM-based packages and handle binary file I/O.
+---

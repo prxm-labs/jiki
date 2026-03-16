@@ -1,0 +1,21 @@
+---
+title: "Kernel"
+description: "Understand jiki's kernel — the browser-based execution engine that runs JavaScript and TypeScript with full CommonJS and ESM module support."
+section: "core-concepts"
+order: 2
+---
+
+The kernel is jiki's execution engine. It runs JavaScript and TypeScript code in the browser, handles module caching and code transformation, and implements the `require`/module system with Node.js-compatible resolution.
+
+It uses `esbuild-wasm` under the hood for on-the-fly transpilation of TypeScript and JSX, so you can run modern JavaScript toolchains without a build step. Modules are cached after their first load so subsequent imports are fast.
+
+## What it does
+
+- Implements Node.js-compatible `require()` with relative paths, `node_modules` lookup, and `package.json` entry points
+- Transpiles TypeScript, JSX, and TSX files before execution
+- Caches compiled modules to avoid redundant transpilation
+- Sets up `process`, `__dirname`, `__filename`, and other Node.js globals
+
+## How it works
+
+When you call `container.run()` or `container.execute()`, the kernel resolves the entry file, transpiles it if necessary, and executes it within a sandboxed context. Any `require()` calls within the code trigger the same resolution and transpilation pipeline recursively.

@@ -1,0 +1,12 @@
+---
+title: Type checker depth
+description: Move from heuristic pattern matching toward proper type inference for common patterns (generics, union narrowing).
+status: planned
+priority: low
+order: 32
+touchedAreas:
+  - type-checker
+  - transpiler
+internalNotes: |
+  The lightweight heuristic type checker catches basic errors but misses many. Improvements: (1) resolve imports and check cross-file types, (2) understand generics and utility types, (3) check function argument counts and types, (4) interface/type alias resolution. Key file: type-checker.ts. Alternative: instead of improving the heuristic checker, load the full TypeScript compiler (typescript npm package) and run it in-browser. This is heavy (~8MB) but accurate. Could be opt-in via a flag. If keeping heuristic approach, add pattern matching for: missing properties, wrong argument types, return type mismatches.
+---

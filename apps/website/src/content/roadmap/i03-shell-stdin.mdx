@@ -1,0 +1,14 @@
+---
+title: Shell stdin/interactive input
+description: Improve readline support for interactive prompts — Container.sendInput() works but isn't well-documented or robust.
+status: planned
+priority: high
+order: 20
+touchedAreas:
+  - shell
+  - polyfills/readline
+  - polyfills/process
+  - polyfills/stream
+internalNotes: |
+  Container.sendInput() exists but is undocumented and fragile. Need: (1) robust stdin stream on process.stdin that buffers input and emits 'data' events, (2) readline interface that waits for user input (blocking-like via async/await), (3) shell integration so the browser terminal captures keystrokes and pipes to stdin. Key files: shell.ts (input routing), polyfills/readline.ts (question() must suspend and resume), polyfills/process.ts (process.stdin as proper Readable). Challenge: JavaScript is single-threaded — blocking stdin reads are impossible. Must use async patterns and ensure libraries that expect sync readline gracefully degrade.
+---

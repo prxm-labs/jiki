@@ -1,0 +1,12 @@
+---
+title: Error parsing utilities
+description: parseError() and formatErrorHtml() are referenced in errors.mdx but lack full API documentation.
+status: planned
+priority: low
+order: 52
+touchedAreas:
+  - errors
+  - kernel
+internalNotes: |
+  Document jiki's error parsing and formatting utilities. Cover: (1) parseError() — how it categorizes errors (syntax, runtime, module-not-found, network), (2) formatErrorHtml() — the error overlay API, (3) formatErrorText() — plain text formatting for shell output, (4) how to hook into error handling via Container options (onStderr), (5) customizing the error overlay appearance. Target audience: developers building IDEs or educational tools who need to present errors clearly. Include examples of each error type and how they render. Reference: errors.ts, the errorOverlayScript injection.
+---

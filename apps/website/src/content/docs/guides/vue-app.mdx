@@ -1,0 +1,18 @@
+---
+title: "Building a Vue App"
+description: "How to build a Vue 3 app in the browser with jiki — Composition API, single-file components, and Vite-powered HMR."
+section: "guides"
+order: 3
+---
+
+Vue's single-file component format is a natural fit for jiki — `.vue` files are compiled on the fly inside the container, and Vite's HMR keeps the preview up to date as you edit templates, scripts, and styles.
+
+The setup follows the same pattern as a React project but uses Vue's Vite template. jiki's transpiler handles Vue SFC compilation through `@vitejs/plugin-vue` running inside the container.
+
+:::tip[See it in action]
+The [Vue example](/examples/vue) has a working Vue 3 app with the Composition API, reactive state, and Tailwind CSS. A good reference if you want to see the end result before diving in.
+:::
+
+## Template setup
+
+A typical starting point is a standard `create-vue` project structure with `App.vue`, a router setup, and a few sample components. Pre-installing dependencies via a filesystem snapshot can cut the boot time from several seconds to under one second.

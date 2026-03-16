@@ -1,0 +1,27 @@
+---
+title: "Transpiler"
+description: "Compile TypeScript, JSX, and TSX in the browser using jiki's esbuild-wasm transpiler with source maps, tree-shaking, and configurable targets."
+section: "core-concepts"
+order: 5
+---
+
+jiki uses esbuild-wasm to transpile TypeScript, JSX, and TSX files on the fly. The esbuild WebAssembly binary is loaded lazily on first use, keeping the initial bundle size small.
+
+The transpiler has both synchronous and asynchronous modes. Synchronous mode is used internally by `require()` for module loading, while the async API is for explicit bundling and transformation tasks.
+
+## Features
+
+- Uses esbuild's WebAssembly build for speed
+- The esbuild binary is only loaded when transpilation is first needed
+- Synchronous transforms for `require()`, async for explicit bundling
+- Bundle multiple files into a single output with tree-shaking and minification
+- Generate source maps for debuggable output
+
+## Supported formats
+
+The transpiler handles the following file types:
+
+- `.ts` -- TypeScript
+- `.tsx` -- TypeScript with JSX
+- `.jsx` -- JavaScript with JSX
+- `.mts` / `.cts` -- TypeScript ESM and CJS variants

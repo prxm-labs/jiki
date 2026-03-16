@@ -1,0 +1,36 @@
+---
+title: Sandbox
+description: Run untrusted code safely in the browser — file count limits, memory caps, and path-based access controls via jiki.
+category: runtime
+features:
+  - File count limits
+  - Memory limits
+  - Path-based access control
+  - Sandbox error messages
+---
+
+import { Demo } from "../../../../../examples/sandbox/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+jiki's sandboxing system for running untrusted code with resource limits. The container in this demo allows a maximum of 10 files, 1 MB memory, and writes only to `/app` and `/tmp`.
+
+## How it works
+
+- Creating more than 10 files triggers the file count limit
+- Writing to `/etc/secret` or other paths outside `/app` is blocked
+- Sandbox violations produce clear error messages with fix suggestions
+- Limits are configurable per-container so each use case gets appropriate restrictions
+
+## Try it yourself
+
+1. Run `node /app/index.js` — works fine within the sandbox
+2. Try `echo secret > /etc/passwd` — blocked by path restriction
+3. Run `node /app/fill-test.js` — hits the file count limit
+4. Create files in `/tmp` — allowed by the sandbox configuration
+
+</div>

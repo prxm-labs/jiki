@@ -1,0 +1,18 @@
+---
+title: "Building a React App"
+description: "How to build a React app in the browser with jiki — JSX transpilation, Tailwind CSS, and live HMR preview."
+section: "guides"
+order: 1
+---
+
+jiki can host a full React development environment in the browser. Components are editable, previews update with hot module replacement, and there's no separate server involved.
+
+Under the hood, Vite runs as the build tool inside the jiki container. Its dev server operates in-memory, and the preview renders in an iframe through jiki's Service Worker bridge, which intercepts HTTP requests. The experience is close to a local Vite + React setup.
+
+:::tip[See it in action]
+The [React example](/examples/react) shows a working version of this — a multi-page app with Tailwind CSS, client-side routing, and a live preview. It's a good starting point to explore before writing your own.
+:::
+
+## What this looks like
+
+A typical setup includes a code editor, a file explorer, and a live preview that reflects file changes. The container can boot with a pre-installed React + Vite template, bringing dev server startup down to seconds.

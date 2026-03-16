@@ -1,0 +1,35 @@
+---
+title: Vue
+description: Run a Vue 3 app in the browser with Composition API, reactive state management, and Tailwind CSS styling via jiki.
+category: frameworks
+features:
+  - Vue 3 Composition API
+  - Reactive state management
+  - Component-based architecture
+  - Tailwind CSS styling
+---
+
+import { Demo } from "../../../../../examples/vue/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Vue 3 application using the Composition API with reactive state, component composition, and client-side routing. Built with Tailwind CSS and loaded via the Vue global CDN build.
+
+## Details
+
+- Uses modern Vue patterns with `ref`, `computed`, and composables
+- The UI updates automatically when reactive data changes
+- Components are nested with props and events for clean composition
+- Edit `.vue` files and see changes reflected instantly in the preview
+
+## Things to try
+
+1. Edit any component file in the explorer
+2. Modify the reactive state or template and save
+3. Watch the preview update with your changes
+
+</div>

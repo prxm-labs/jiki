@@ -1,0 +1,15 @@
+---
+title: React Server Components
+description: Conditional client/server rendering based on "use client" / "use server" directives.
+status: planned
+priority: medium
+order: 8
+touchedAreas:
+  - frameworks/next-dev-server
+  - frameworks/code-transforms
+  - frameworks/next-shims
+  - kernel
+  - code-transform
+internalNotes: |
+  RSC requires a server-side React renderer producing a flight stream, and a client that hydrates from it. The Next.js dev server must: (1) identify server vs client components ("use client" boundaries), (2) render server components to RSC payload on the virtual server, (3) stream the payload to the client iframe. This is deeply intertwined with Next.js internals. Key files: frameworks/next-dev-server.ts (RSC rendering pipeline), frameworks/code-transforms.ts ("use client" boundary detection). Dependency: likely needs f05 (Server Actions) for mutations. Risk: high complexity — may need to vendor parts of react-server-dom-webpack.
+---

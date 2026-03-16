@@ -1,0 +1,16 @@
+---
+title: Monorepo multi-framework
+description: pnpm workspaces with React + Vue + shared utils — demonstrates cross-framework workspace linking.
+status: planned
+priority: medium
+order: 42
+touchedAreas:
+  - npm/workspaces
+  - npm/resolver
+  - frameworks/vite-dev-server
+  - frameworks/next-dev-server
+  - kernel
+  - memfs
+internalNotes: |
+  Demonstrate a monorepo with shared packages and multiple framework apps (e.g., a React app + a Vue app sharing a utility library). Uses pnpm-workspace.yaml or package.json workspaces. Shows workspace:* resolution linking local packages, and multiple dev servers running on different ports. Example structure: packages/shared-utils + apps/react-app + apps/vue-app. Demonstrates jiki's workspace support and ability to run multiple frameworks simultaneously.
+---

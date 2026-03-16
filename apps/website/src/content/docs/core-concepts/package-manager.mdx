@@ -1,0 +1,28 @@
+---
+title: "Package Manager"
+description: "Install npm and pnpm packages in the browser with jiki. Resolve dependencies, fetch tarballs, and link packages in the virtual filesystem."
+section: "core-concepts"
+order: 4
+---
+
+jiki has a built-in package manager that supports both npm and pnpm. It resolves dependencies, fetches packages from the npm registry, and installs them into the virtual filesystem.
+
+Packages are downloaded concurrently and cached to minimize network requests. Once a package has been fetched, subsequent installs (even across different containers) reuse the cached data and skip the network entirely.
+
+## Features
+
+- Use either npm or pnpm commands
+- Resolves the full dependency tree including peer dependencies
+- Fetches multiple packages in parallel
+- Caches downloaded packages to speed up repeated installs
+- Reads `package-lock.json` and `pnpm-lock.yaml` for deterministic installs
+
+## Usage
+
+```ts
+// Install dependencies from package.json
+await container.install();
+
+// Or run via shell
+await container.shell.execute("npm install");
+```

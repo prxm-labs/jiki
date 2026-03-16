@@ -1,0 +1,50 @@
+---
+title: Introduction to jiki
+description: Learn what jiki is and why developers use this browser-based Node.js runtime for coding playgrounds, live previews, and AI-powered development.
+section: getting-started
+order: 1
+---
+
+jiki (じき) is a lightweight, browser-based Node.js runtime. It lets you write files, install npm packages, run shell commands, and start dev servers, all in the browser without a backend.
+
+## What can you build with jiki?
+
+- Interactive coding tutorials with real code execution and validation
+- Online playgrounds for React, Vue, Svelte, or any npm package
+- Documentation with runnable code snippets
+- Browser-based IDEs with editor, terminal, and preview
+- AI coding assistants that can read/write files and run code in a safe sandbox
+- Testing sandboxes that run Jest or Vitest in the browser
+
+## Core capabilities
+
+jiki gives you a Node.js-like environment in the browser with a rich set of features:
+
+| Feature            | Description                                                                                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Virtual filesystem | In-memory FS with directories, symlinks, file watching, and [persistence](/docs/core-concepts/persistence)                                                        |
+| Package manager    | Install packages from npm with full dependency resolution and [caching](/docs/core-concepts/package-cache)                                                        |
+| Shell              | Pipes, logical operators, [recursive globs](/docs/core-concepts/shell), tab completion, and background jobs                                                       |
+| Transpiler         | TypeScript and JSX via esbuild-wasm with [source maps](/docs/api/container)                                                                                       |
+| Dev server         | [Vite](/docs/api/vite-dev-server), [Next.js](/docs/api/dev-server), [SvelteKit](/docs/api/sveltekit-dev-server), and [Remix](/docs/api/remix-dev-server) with HMR |
+| Plugin system      | [6 hook types](/docs/core-concepts/plugins) for extensibility                                                                                                     |
+| Sandboxing         | [Resource limits](/docs/api/container) for memory, files, network, and paths                                                                                      |
+| Snapshots          | Serialize and restore the entire container state                                                                                                                  |
+
+## How it works
+
+jiki runs entirely in the browser. It uses esbuild-wasm for TypeScript/JSX transpilation, Service Workers to intercept fetch requests and route them to virtual HTTP servers, and Web Workers for isolated code execution. A custom module resolver implements the Node.js resolution algorithm so `require()` and `import` work as expected.
+
+```typescript
+import { boot } from "jiki";
+
+const container = boot();
+container.writeFile("/hello.js", 'console.log("Hello!")');
+const result = await container.run("node hello.js");
+console.log(result.stdout); // "Hello!\n"
+```
+
+## Next steps
+
+- [Installation](/docs/getting-started/installation) -- add jiki to your project
+- [Quick Start](/docs/getting-started/quick-start) -- build your first browser-based app

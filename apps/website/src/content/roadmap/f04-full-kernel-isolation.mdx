@@ -1,0 +1,15 @@
+---
+title: Full kernel isolation
+description: Move module resolution, require(), and code execution into Web Workers — currently only transpilation is offloaded.
+status: planned
+priority: high
+order: 4
+touchedAreas:
+  - kernel
+  - sandbox
+  - polyfills/vm
+  - polyfills/worker-threads
+  - module-resolver
+internalNotes: |
+  Currently the kernel runs all code in the same JS context. Full isolation means each Container (or sub-process) gets its own global scope. Options: (a) iframe-based isolation, (b) Web Worker per kernel, (c) Realm-like sandbox via ShadowRealm proposal. The sandbox.ts guard enforces limits but doesn't provide true memory isolation. Key challenge: sharing MemFS across isolated contexts requires structured cloning or SharedArrayBuffer. Module cache must be per-context. Key files: kernel.ts (context creation), sandbox.ts (enforcement), polyfills/vm.ts (runInNewContext needs real isolation, not just Function()).
+---

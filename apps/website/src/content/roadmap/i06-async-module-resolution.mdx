@@ -1,0 +1,13 @@
+---
+title: Async module resolution
+description: Non-blocking require() for large dependency trees — currently synchronous and can block the main thread.
+status: planned
+priority: medium
+order: 24
+touchedAreas:
+  - module-resolver
+  - kernel
+  - npm/sync-installer
+internalNotes: |
+  Module resolution is currently synchronous. For dynamic import() and auto-install, async resolution would allow: (1) lazy downloading of packages on first require, (2) non-blocking resolution for large dependency trees, (3) progress feedback during resolution. Key files: module-resolver.ts (add resolveAsync method), kernel.ts (async execution path for dynamic imports), npm/sync-installer.ts (SyncAutoInstaller could become truly async). Challenge: require() is inherently synchronous in Node.js — only dynamic import() can truly be async. Need to maintain sync require while adding async import().
+---

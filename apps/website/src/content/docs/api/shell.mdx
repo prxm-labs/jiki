@@ -1,0 +1,43 @@
+---
+title: "Shell"
+description: "Shell API reference — run commands, pipe output, handle signals, and manage processes in jiki's browser-based shell environment."
+section: "api"
+order: 4
+---
+
+The `Shell` class runs shell commands within a jiki container. It parses command strings, resolves executables, and manages process I/O.
+
+The shell supports standard Unix-like syntax including pipes, logical operators, and environment variable expansion. Commands are executed against the virtual filesystem and kernel, so tools like `node`, `npm`, and `npx` work as expected.
+
+## Methods
+
+| Method                            | Description                    |
+| --------------------------------- | ------------------------------ |
+| `execute(command)`                | Execute a shell command string |
+| `spawn(command, args?, options?)` | Spawn a long-running process   |
+
+## Execute result
+
+The `execute()` method returns a promise that resolves with the command's result:
+
+```ts
+interface ShellResult {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+}
+```
+
+## Spawn
+
+For long-running processes like dev servers, use `spawn()` which returns a process handle with streaming I/O:
+
+```ts
+const proc = await container.shell.spawn("npm", ["run", "dev"]);
+
+proc.stdout.on("data", chunk => {
+  console.log(chunk);
+});
+
+await proc.exit; // wait for process to finish
+```

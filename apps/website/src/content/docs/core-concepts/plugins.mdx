@@ -1,0 +1,69 @@
+---
+title: "Plugins"
+description: "Extend jiki with custom plugins — intercept module resolution, transform code, add virtual modules, and hook into the container lifecycle."
+section: "core-concepts"
+order: 7
+---
+
+Plugins let you intercept and extend jiki's behaviour at key points in the runtime lifecycle without modifying core code. The plugin API mirrors esbuild's conventions, so it should feel familiar if you've written esbuild or Vite plugins before.
+
+Each container gets its own plugin registry, so plugins registered on one container never leak into another.
+
+## What plugins can do
+
+- Intercept module specifiers and redirect them to custom paths (resolve hooks)
+- Provide virtual file contents without writing to the filesystem (load hooks)
+- Modify source code before execution, with all matching transforms running in order (transform hooks)
+- Register custom shell commands
+- React to boot and package install events
+
+## How it works
+
+When you pass a `plugins` array to `boot()`, each plugin's `setup()` function is called during container construction. Inside `setup()`, you register hooks that the runtime calls at the appropriate points:
+
+1. When `require("some-module")` is called, `onResolve` hooks run first. If a hook returns a path, the default resolver is skipped entirely.
+2. Once a path is resolved, `onLoad` hooks run before the filesystem is read. If a hook returns contents, the VFS read is skipped.
+3. After source code is loaded (from a plugin or the VFS), `onTransform` hooks run as a pipeline. Every matching hook gets to modify the code in registration order.
+4. The final transformed code is evaluated by the kernel.
+
+## Quick example
+
+```ts
+import { boot, type JikiPlugin } from "jiki";
+
+const envPlugin: JikiPlugin = {
+  name: "env-injector",
+  setup(hooks) {
+    hooks.onResolve(/^@env$/, () => ({ path: "/__env__.js" }));
+    hooks.onLoad(/^\/__env__\.js$/, () => ({
+      contents: `module.exports = ${JSON.stringify({
+        NODE_ENV: "development",
+        API_URL: "https://api.example.com",
+      })};`,
+    }));
+  },
+};
+
+const container = boot({ plugins: [envPlugin] });
+container.writeFile(
+  "/app.js",
+  `
+  const env = require("@env");
+  console.log(env.API_URL);
+`,
+);
+container.runFile("/app.js");
+```
+
+## Hook execution semantics
+
+| Hook          | Semantics                                                                            |
+| ------------- | ------------------------------------------------------------------------------------ |
+| `onResolve`   | First match wins — first callback to return a result stops the chain                 |
+| `onLoad`      | First match wins                                                                     |
+| `onTransform` | Pipeline — all matching callbacks run in registration order                          |
+| `onCommand`   | Registered on the shell; later registrations for the same name override earlier ones |
+| `onInstall`   | All callbacks called after packages are installed                                    |
+| `onBoot`      | All callbacks called after `container.init()`                                        |
+
+See the [Plugins API reference](/docs/api/plugins) for the full type signatures, and the [Writing Plugins guide](/docs/guides/plugins) for practical patterns.

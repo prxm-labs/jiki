@@ -1,0 +1,35 @@
+---
+title: Jest
+description: Run Jest tests in the browser with result parsing, pass/fail tracking, and multiple test suites via jiki.
+category: testing
+features:
+  - Jest-compatible test framework
+  - Test result parsing and display
+  - Multiple test suites
+  - Pass/fail status tracking
+---
+
+import { Demo } from "../../../../../examples/jest/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Jest-compatible test runner with a custom minimal test framework implementation. It runs multiple test suites using `describe`/`it`/`expect` syntax and parses the results into a visual display.
+
+## What's inside
+
+- A custom Jest-like framework providing `describe`, `it`, and `expect`
+- Three test suites: calculator, user service, and event bus
+- Stdout parsing that extracts pass/fail counts from the runner output
+- Visual result display with pass/fail indicators per test
+
+## Try it yourself
+
+1. Click "Run Tests" to execute all test suites
+2. Edit test files to add new test cases
+3. Modify the source files and re-run to see failures
+
+</div>

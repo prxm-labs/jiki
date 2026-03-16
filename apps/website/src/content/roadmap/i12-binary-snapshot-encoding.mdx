@@ -1,0 +1,13 @@
+---
+title: Binary snapshot encoding
+description: Use ArrayBuffer/Blob for binary content instead of base64 (33% storage overhead).
+status: planned
+priority: low
+order: 30
+touchedAreas:
+  - memfs
+  - utils/binary-encoding
+  - persistence
+internalNotes: |
+  Snapshots currently use base64-encoded strings for file content, which adds ~33% overhead. Switch to a binary format: (1) use a custom binary header (magic bytes + version), (2) store file content as raw Uint8Array, (3) use a compact path encoding (length-prefixed). Consider MessagePack or a custom format. Key files: memfs.ts (toSnapshot/fromSnapshot), utils/binary-encoding.ts (new binary serializer). Must maintain backwards compatibility — detect format by magic bytes and fall back to JSON/base64 for old snapshots. Benchmark: typical Next.js project snapshot is ~5MB base64, ~3.3MB binary.
+---

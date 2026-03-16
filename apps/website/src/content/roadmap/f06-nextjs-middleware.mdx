@@ -1,0 +1,13 @@
+---
+title: Next.js Middleware
+description: Execute middleware.ts in the request pipeline for auth, redirects, and rewrites.
+status: planned
+priority: high
+order: 6
+touchedAreas:
+  - frameworks/next-dev-server
+  - server-bridge
+  - code-transform
+internalNotes: |
+  Next.js middleware runs at the edge before routing. Need to: (1) detect middleware.ts/js at project root, (2) execute it in a restricted context (no Node.js APIs, only Web APIs), (3) intercept every request in server-bridge before routing to the dev server. Middleware can rewrite URLs, set headers, redirect, or return responses. Key files: frameworks/next-dev-server.ts (middleware loading and execution before handleRequest), server-bridge.ts (interception point). Challenge: middleware expects NextRequest/NextResponse APIs — need lightweight shims.
+---

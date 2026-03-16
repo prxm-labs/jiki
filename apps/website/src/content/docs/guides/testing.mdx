@@ -1,0 +1,18 @@
+---
+title: "Running Tests"
+description: "How to run Jest and Vitest test suites entirely in the browser with jiki — write tests, execute them, and parse results client-side."
+section: "guides"
+order: 4
+---
+
+jiki can run JavaScript test suites directly in the browser using Jest or Vitest. Test results come back in real time without sending code to a server — useful for coding tutorials, interview platforms, or any scenario where you want client-side test execution.
+
+Both runners rely on jiki's kernel for module resolution and transpilation. Test files are discovered on the virtual filesystem, transpiled as needed, and executed inside the container. The output can be displayed in a custom UI or streamed to a terminal component.
+
+:::tip[See it in action]
+The [Jest example](/examples/jest) and [Vitest example](/examples/vitest) each show a working test runner with result parsing and pass/fail display. They're good references for how the output handling works in practice.
+:::
+
+## Choosing a test runner
+
+Vitest tends to be a better fit for jiki because it shares Vite's module transformation pipeline — startup is faster and the dependency footprint is smaller. Jest works too but needs more configuration for TypeScript and ESM. Both runners use the `describe`/`it`/`expect` API, so the choice often comes down to what your project already uses.
