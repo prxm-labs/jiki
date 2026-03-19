@@ -1,5 +1,11 @@
 # @run0/jiki
 
+## 0.0.1-beta.5
+
+### Patch Changes
+
+- Hook-based plugin system with onResolve, onLoad, onTransform, onCommand, onInstall, and onBoot hooks. Resource limits and sandboxing for untrusted code. Performance metrics tracking. Network request interceptor for mocking fetch(). Heuristic TypeScript type checker. Browser bundle generator. IndexedDB persistence with fire-and-forget writes. Worker thread isolation. jiki-ui React component library with CodeEditor, Terminal, BrowserWindow, FileExplorer, AIChatPanel, and MobileTabBar.
+
 ## 0.0.1-beta.4
 
 ### Patch Changes

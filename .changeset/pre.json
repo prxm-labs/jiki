@@ -2,12 +2,14 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@run0/jiki": "0.0.0"
+    "@run0/jiki": "0.0.0",
+    "@run0/jiki-ui": "0.0.0"
   },
   "changesets": [
     "beta-1-virtual-filesystem",
     "beta-2-module-system",
     "beta-3-package-management",
-    "beta-4-shell-devservers"
+    "beta-4-shell-devservers",
+    "beta-5-advanced-features"
   ]
 }
