@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/demo.tsx","./src/main.tsx","./src/components/apikeymodal.tsx","./src/hooks/useaichatcontainer.ts","./src/lib/anthropic-stream.ts","./src/lib/chat-persistence.ts","./src/lib/code-extractor.ts"],"version":"5.9.3"}
