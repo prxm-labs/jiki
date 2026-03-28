@@ -1,0 +1,170 @@
+---
+title: "Plugins"
+description: "Plugin API reference — JikiPlugin interface, onResolve, onLoad, and onTransform hooks, and registration methods for extending jiki."
+section: "api"
+order: 9
+---
+
+The plugin system provides hooks for intercepting module resolution, loading, code transformation, shell commands, and lifecycle events. All types are exported from the main `jiki` package.
+
+## `JikiPlugin`
+
+The interface every plugin must implement.
+
+```ts
+interface JikiPlugin {
+  name: string;
+  setup(hooks: PluginHooks): void;
+}
+```
+
+| Property | Type                           | Description                                |
+| -------- | ------------------------------ | ------------------------------------------ |
+| `name`   | `string`                       | Human-readable name used in error messages |
+| `setup`  | `(hooks: PluginHooks) => void` | Called once during container construction  |
+
+## `PluginHooks`
+
+Passed to `setup()`. Use it to register hooks.
+
+### `hooks.onResolve(filter, callback)`
+
+Intercept module resolution. First matching callback that returns a result wins.
+
+```ts
+hooks.onResolve(filter: RegExp, callback: OnResolveCallback): void;
+```
+
+**`OnResolveArgs`**
+
+| Property     | Type     | Description                           |
+| ------------ | -------- | ------------------------------------- |
+| `path`       | `string` | Raw module specifier (e.g. `"./foo"`) |
+| `resolveDir` | `string` | Directory the import originates from  |
+
+**`OnResolveResult`**
+
+| Property | Type     | Description            |
+| -------- | -------- | ---------------------- |
+| `path`   | `string` | Resolved absolute path |
+
+Return `null` or `undefined` to pass through to the next hook or the default resolver.
+
+### `hooks.onLoad(filter, callback)`
+
+Intercept module loading. First matching callback that returns contents wins.
+
+```ts
+hooks.onLoad(filter: RegExp, callback: OnLoadCallback): void;
+```
+
+**`OnLoadArgs`**
+
+| Property | Type     | Description                |
+| -------- | -------- | -------------------------- |
+| `path`   | `string` | Fully-resolved module path |
+
+**`OnLoadResult`**
+
+| Property   | Type     | Description                               |
+| ---------- | -------- | ----------------------------------------- |
+| `contents` | `string` | Source code to use instead of reading VFS |
+
+Return `null` or `undefined` to fall through to VFS.
+
+### `hooks.onTransform(filter, callback)`
+
+Transform source code. Runs as a pipeline — every matching callback executes in registration order.
+
+```ts
+hooks.onTransform(filter: RegExp, callback: OnTransformCallback): void;
+```
+
+**`OnTransformArgs`**
+
+| Property   | Type     | Description                           |
+| ---------- | -------- | ------------------------------------- |
+| `path`     | `string` | Fully-resolved file path              |
+| `contents` | `string` | Source code after previous transforms |
+
+**`OnTransformResult`**
+
+| Property   | Type     | Description             |
+| ---------- | -------- | ----------------------- |
+| `contents` | `string` | Transformed source code |
+
+Return `null` or `undefined` to skip this transform step.
+
+### `hooks.onCommand(name, handler)`
+
+Register a custom shell command.
+
+```ts
+hooks.onCommand(name: string, handler: CommandHandler): void;
+```
+
+The `handler` receives `(args: string[], ctx: ShellContext)` and returns a `ShellResult` (`{ stdout, stderr, exitCode }`).
+
+### `hooks.onInstall(callback)`
+
+Called after packages are installed.
+
+```ts
+hooks.onInstall(callback: (packages: string[]) => void): void;
+```
+
+### `hooks.onBoot(callback)`
+
+Called after the container is fully initialised via `container.init()`.
+
+```ts
+hooks.onBoot(callback: () => void): void;
+```
+
+## `PluginRegistry`
+
+Internal registry managing all hooks for a container. Exposed as `container.plugins`.
+
+| Property / Method          | Description                              |
+| -------------------------- | ---------------------------------------- |
+| `hasPlugins`               | `true` if any hooks are registered       |
+| `resolveHookCount`         | Number of registered resolve hooks       |
+| `loadHookCount`            | Number of registered load hooks          |
+| `transformHookCount`       | Number of registered transform hooks     |
+| `register(plugin)`         | Register a plugin's hooks                |
+| `runResolve(path, dir)`    | Execute resolve hooks (first-match-wins) |
+| `runLoad(path)`            | Execute load hooks (first-match-wins)    |
+| `runTransform(path, code)` | Execute transform pipeline               |
+| `runInstall(packages)`     | Notify install hooks                     |
+| `runBoot()`                | Notify boot hooks                        |
+
+## `registerPlugin()`
+
+Register a plugin on an existing container after construction.
+
+```ts
+import { boot, registerPlugin } from "@run0/jiki";
+
+const container = boot();
+registerPlugin(container, myPlugin);
+```
+
+## Imports
+
+```ts
+import {
+  boot,
+  registerPlugin,
+  PluginRegistry,
+  type JikiPlugin,
+  type PluginHooks,
+  type OnResolveArgs,
+  type OnResolveResult,
+  type OnLoadArgs,
+  type OnLoadResult,
+  type OnTransformArgs,
+  type OnTransformResult,
+  type OnInstallCallback,
+  type OnBootCallback,
+} from "@run0/jiki";
+```

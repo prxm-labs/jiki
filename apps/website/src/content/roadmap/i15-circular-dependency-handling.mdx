@@ -1,0 +1,12 @@
+---
+title: Circular dependency handling
+description: Better detection and error reporting for circular require() chains beyond the basic visited-set approach.
+status: planned
+priority: low
+order: 33
+touchedAreas:
+  - kernel
+  - module-resolver
+internalNotes: |
+  Node.js handles circular requires by returning partially-filled exports. The kernel already does this (checks module.loaded flag), but edge cases fail: (1) ESM circular imports with live bindings aren't supported, (2) circular dependencies between CJS and ESM modules crash, (3) no warning or diagnostic when a circular dependency is detected. Key files: kernel.ts (circular detection and partial export handling), module-resolver.ts (dependency graph tracking). Enhancement: add a `--detect-circular` flag that logs circular dependency chains to help users debug.
+---

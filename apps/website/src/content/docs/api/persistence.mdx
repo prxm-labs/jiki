@@ -1,0 +1,112 @@
+---
+title: "Persistence"
+description: "Persistence API reference — IndexedDBAdapter, InMemoryAdapter, and the PersistenceAdapter interface for saving jiki filesystem state."
+section: "api"
+order: 10
+---
+
+The persistence layer provides adapters that synchronise MemFS mutations to a storage backend, enabling filesystem state to survive page refreshes.
+
+## `PersistenceAdapter`
+
+The interface every adapter must implement.
+
+```ts
+interface PersistenceAdapter {
+  save(entry: PersistedEntry): void;
+  delete(path: string): void;
+  loadAll(): Promise<PersistedEntry[]>;
+  clear(): Promise<void>;
+  flush(): Promise<void>;
+}
+```
+
+| Method         | Description                      |
+| -------------- | -------------------------------- |
+| `save(entry)`  | Upsert a single entry by path    |
+| `delete(path)` | Remove a persisted entry         |
+| `loadAll()`    | Load all persisted entries       |
+| `clear()`      | Delete all persisted entries     |
+| `flush()`      | Force pending writes to complete |
+
+## `PersistedEntry`
+
+The serialised form of a filesystem entry.
+
+```ts
+interface PersistedEntry {
+  path: string;
+  type: "file" | "directory" | "symlink";
+  content?: Uint8Array;
+  target?: string;
+  mtime: number;
+}
+```
+
+| Property  | Type                                 | Description                       |
+| --------- | ------------------------------------ | --------------------------------- |
+| `path`    | `string`                             | Normalised absolute path          |
+| `type`    | `"file" \| "directory" \| "symlink"` | Entry type                        |
+| `content` | `Uint8Array`                         | File content (files only)         |
+| `target`  | `string`                             | Symlink target (symlinks only)    |
+| `mtime`   | `number`                             | Last modification time (epoch ms) |
+
+## `IndexedDBAdapter`
+
+Browser-compatible adapter backed by IndexedDB.
+
+```ts
+import { IndexedDBAdapter } from "@run0/jiki";
+
+const adapter = new IndexedDBAdapter(options?: IndexedDBAdapterOptions);
+```
+
+### `IndexedDBAdapterOptions`
+
+| Option            | Type     | Default      | Description                          |
+| ----------------- | -------- | ------------ | ------------------------------------ |
+| `dbName`          | `string` | `"jiki-vfs"` | IndexedDB database name              |
+| `storeName`       | `string` | `"files"`    | Object store name                    |
+| `flushIntervalMs` | `number` | `100`        | Batch flush interval in milliseconds |
+
+## `InMemoryAdapter`
+
+In-memory adapter using a `Map`. For testing and non-browser environments.
+
+```ts
+import { InMemoryAdapter } from "@run0/jiki";
+
+const adapter = new InMemoryAdapter();
+adapter.size; // number of stored entries
+```
+
+## `MemFS` persistence methods
+
+### `vfs.hydrate()`
+
+Rehydrate the VFS from the persistence adapter. Returns the number of entries restored.
+
+```ts
+const count = await vfs.hydrate();
+```
+
+### `vfs.flushPersistence()`
+
+Force all pending writes to complete immediately.
+
+```ts
+await vfs.flushPersistence();
+```
+
+## Imports
+
+```ts
+import {
+  IndexedDBAdapter,
+  InMemoryAdapter,
+  type PersistenceAdapter,
+  type PersistedEntry,
+  type IndexedDBAdapterOptions,
+  type MemFSOptions,
+} from "@run0/jiki";
+```

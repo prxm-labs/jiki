@@ -1,0 +1,16 @@
+---
+title: Package development
+description: Create, build, and test an npm package end-to-end — package.json, TypeScript compilation, test suite.
+status: planned
+priority: medium
+order: 40
+touchedAreas:
+  - npm/workspaces
+  - npm/resolver
+  - transpiler
+  - shell-commands
+  - kernel
+  - memfs
+internalNotes: |
+  Demonstrate developing and testing an npm package entirely in jiki. Example structure: (1) create a package with src/index.ts, (2) write unit tests, (3) build with esbuild (via jiki's transpiler.bundle()), (4) test the built output, (5) show the package is importable by another project in the workspace. Uses npm/workspaces for monorepo setup (workspace:* linking). Demonstrates jiki as a package authoring environment.
+---

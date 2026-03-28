@@ -1,0 +1,14 @@
+---
+title: SvelteKit full support
+description: Move beyond stub implementation — full file-based routing, server routes, load functions, and HMR.
+status: planned
+priority: high
+order: 18
+touchedAreas:
+  - frameworks/sveltekit-dev-server
+  - frameworks/code-transforms
+  - server-bridge
+  - code-transform
+internalNotes: |
+  The existing SvelteKit dev server handles basic file routing and load functions. Full support needs: (1) form actions (+page.server.ts actions), (2) hooks (handle, handleError, handleFetch in hooks.server.ts), (3) layout groups and breaking layouts, (4) advanced load patterns (streaming with deferred data), (5) error boundaries (+error.svelte). Key files: frameworks/sveltekit-dev-server.ts. The Svelte compiler must be loaded via esbuild plugin or WASM — currently relies on pre-compiled .svelte files. Need a plugin or code-transform pass for .svelte → JS compilation.
+---

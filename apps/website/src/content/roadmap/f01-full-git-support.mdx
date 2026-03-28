@@ -1,0 +1,15 @@
+---
+title: Full git support
+description: "In-browser git implementation: clone, commit, push, pull, branch, merge, and diff operations backed by the virtual filesystem."
+status: planned
+priority: high
+order: 1
+touchedAreas:
+  - memfs
+  - shell-commands
+  - polyfills/fs
+  - polyfills/child_process
+  - network-interceptor
+internalNotes: |
+  Git operations (clone, commit, push, pull, branch, merge, diff) need isomorphic-git or a custom implementation running against MemFS. Shell needs `git` command registration. Clone/push/pull require HTTP transport via network-interceptor or fetch polyfill. Diff/merge are CPU-intensive — consider Web Worker offloading. The VFS must support all file modes git expects. Key files: shell-commands.ts (register git command), memfs.ts (ensure stat compatibility with isomorphic-git's fs adapter). Risk: isomorphic-git expects a full fs API including promises — our polyfills/fs shim must cover fs.promises.
+---

@@ -1,0 +1,13 @@
+---
+title: Next.js Image optimization
+description: Plugin-based next/image handling beyond the current img fallback.
+status: planned
+priority: low
+order: 17
+touchedAreas:
+  - frameworks/next-dev-server
+  - frameworks/next-shims
+  - server-bridge
+internalNotes: |
+  The next/image shim currently renders a plain <img> tag. Full optimization needs: (1) image resizing (canvas-based or WASM), (2) format conversion (WebP/AVIF), (3) a virtual /_next/image endpoint in server-bridge for on-demand optimization. For dev mode, can skip actual optimization and just serve originals with correct dimensions. Key files: frameworks/next-shims.ts (Image component upgrade), frameworks/next-dev-server.ts (/_next/image endpoint). Pragmatic approach: use browser canvas for resize, skip format conversion in dev.
+---

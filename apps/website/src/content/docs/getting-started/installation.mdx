@@ -1,0 +1,68 @@
+---
+title: Installation
+description: Install jiki via npm or pnpm and add a browser-based Node.js runtime to your web application in under a minute.
+section: getting-started
+order: 2
+---
+
+import InstallSnippet from "@components/InstallSnippet.tsx";
+
+jiki can be installed via the npm registry and used directly.
+## Install
+
+<InstallSnippet package="@run0/jiki" client:visible />
+
+## Requirements
+
+- A modern browser with support for Service Workers and Web Workers
+- Node.js 18+ for build tooling (Vite, webpack, etc.)
+
+## Vite setup
+
+If you're using Vite, add the jiki plugin to your config:
+
+```typescript
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  optimizeDeps: {
+    exclude: ["@run0/jiki"],
+  },
+  worker: {
+    format: "es",
+  },
+});
+```
+
+## Service Worker
+
+jiki uses a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers) to intercept HTTP requests and route them to virtual servers running in the browser. You need to register the service worker in your app:
+
+```typescript
+import { boot } from "@run0/jiki";
+
+// The service worker is automatically registered
+// when you boot the container
+const container = boot();
+```
+
+## TypeScript
+
+jiki includes TypeScript declarations by default. No `@types/` package is needed.
+
+## UI Components
+
+For the UI components (CodeEditor, Terminal, BrowserWindow, FileExplorer), install the companion package:
+
+```bash
+npm install @run0/jiki-ui
+```
+
+These components are React-based and require React 19+.
+
+## Next steps
+
+- [Quick Start](/docs/getting-started/quick-start) -- build your first browser-based app

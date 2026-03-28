@@ -1,0 +1,35 @@
+---
+title: Crypto
+description: Run cryptographic operations in the browser — SHA-256 hashing, HMAC signatures, and secure random generation via jiki.
+category: runtime
+features:
+  - SHA-256 and MD5 hashing
+  - HMAC-SHA256 signatures
+  - Secure random generation
+  - Visual result display
+---
+
+import { Demo } from "../../../../../examples/crypto/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+Node.js crypto module operations running in the browser: hashing (SHA-256, MD5), HMAC signatures, and secure random number generation, all with formatted visual output.
+
+## Details
+
+- SHA-256 and MD5 hash computation
+- HMAC-SHA256 message authentication codes
+- Cryptographically secure random bytes and UUIDs
+- Formatted result display with labeled sections
+
+## Try it yourself
+
+1. Run the hash demo to see SHA-256 and MD5 output
+2. Execute the HMAC demo with custom secret keys
+3. Generate secure random values with the random demo
+
+</div>

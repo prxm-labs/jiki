@@ -1,0 +1,35 @@
+---
+title: Express
+description: Run an Express.js REST API in the browser — route handlers, middleware chains, and an interactive API explorer via jiki.
+category: servers
+features:
+  - REST API endpoints
+  - Middleware chain
+  - Interactive API explorer
+  - Real-time server status
+---
+
+import { Demo } from "../../../../../examples/express/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+An Express.js REST API server running client-side. It boots, installs dependencies, and runs a full Express application with multiple endpoints, middleware, and an interactive API explorer for testing routes.
+
+## How it works
+
+- GET routes serve users, time, and random data
+- The Express middleware chain handles requests through multiple layers
+- An interactive API explorer lets you test endpoints and see responses live
+- A status indicator tracks the server lifecycle: idle, installing, running, or error
+
+## Try it yourself
+
+1. Click on any route in the API explorer to send a request
+2. Watch the terminal for server logs and responses
+3. Observe the server status indicator in the header
+
+</div>

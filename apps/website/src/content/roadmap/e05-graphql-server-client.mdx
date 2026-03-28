@@ -1,0 +1,15 @@
+---
+title: GraphQL server + client
+description: Apollo Server schema execution + Apollo Client queries in a single container.
+status: planned
+priority: medium
+order: 38
+touchedAreas:
+  - polyfills/http
+  - server-bridge
+  - kernel
+  - npm/resolver
+  - network-interceptor
+internalNotes: |
+  Run a GraphQL server (e.g., graphql-yoga or apollo-server-express) in jiki, then query it from a client. The server runs via server-bridge on a virtual port, the client uses fetch to query it. Example structure: define a schema with types/resolvers, start server, run queries from a separate client script or a React frontend. Demonstrates jiki's HTTP server capabilities and inter-process communication. Key challenge: graphql packages have large dependency trees — may need pre-installed snapshot.
+---

@@ -1,0 +1,84 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { categoryLabels } from "../data/examples";
+import type { ExampleCategory } from "../data/examples";
+
+interface Props {
+  title: string;
+  description: string;
+  category: ExampleCategory;
+}
+
+const { title, description, category } = Astro.props;
+
+const siteUrl = Astro.site?.href ?? "https://jiki.sh";
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
+
+const breadcrumbLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Examples",
+      item: `${siteUrl}examples/`,
+    },
+    { "@type": "ListItem", position: 3, name: `${title} Example` },
+  ],
+};
+
+const articleLd = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: `${title} Example`,
+  description,
+  url: pageUrl,
+  publisher: {
+    "@type": "Organization",
+    name: "jiki",
+    url: siteUrl,
+  },
+};
+
+const jsonLd = [breadcrumbLd, articleLd];
+---
+
+<BaseLayout
+  title={`${title} Example | jiki`}
+  description={description}
+  type="article"
+  jsonLd={jsonLd}>
+  <Header />
+  <main transition:animate="fade">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-4">
+        <nav class="flex items-center gap-2 font-mono text-xs text-zinc-500">
+          <a
+            href="/examples"
+            data-astro-prefetch="hover"
+            class="transition-colors hover:text-zinc-300">Examples</a
+          >
+          <span>/</span>
+          <span class="text-zinc-400">{title}</span>
+        </nav>
+        <span
+          class="rounded-md bg-accent/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-accent">
+          {categoryLabels[category]}
+        </span>
+      </div>
+    </div>
+
+    <slot />
+
+    <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <article class="prose-article">
+        <slot name="content" />
+      </article>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

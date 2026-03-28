@@ -1,0 +1,13 @@
+---
+title: File permissions
+description: Functional chmod/chown with permission bit checking (currently no-ops).
+status: planned
+priority: low
+order: 15
+touchedAreas:
+  - memfs
+  - polyfills/fs
+  - sandbox
+internalNotes: |
+  Add chmod/chown support and permission checking to MemFS. Each FSNode needs a `mode` field (default 0o644 for files, 0o755 for dirs) and uid/gid. Access checks (read/write/execute) should be enforced based on the current process uid. Key files: memfs.ts (add mode/uid/gid to FSNode, permission checking in read/write/mkdir), polyfills/fs.ts (chmodSync, chownSync). Integration with sandbox.ts for fs.readOnly enforcement. Note: in a browser single-user context, uid is always 0 (root) unless sandbox restricts it.
+---

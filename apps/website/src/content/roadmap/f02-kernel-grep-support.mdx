@@ -1,0 +1,13 @@
+---
+title: Kernel grep support
+description: Built-in grep command in the kernel/shell with regex matching, recursive directory search, line numbers, and context lines (-A, -B, -C flags).
+status: planned
+priority: high
+order: 2
+touchedAreas:
+  - shell-commands
+  - memfs
+  - polyfills/fs
+internalNotes: |
+  Add `grep` as a built-in shell command. Must support: -r (recursive), -n (line numbers), -i (case insensitive), -l (files only), basic regex patterns. Implementation reads files from MemFS, scans line-by-line. For recursive mode, walk directory tree via memfs.readdirSync. Key file: shell-commands.ts. Consider supporting piped input (`cat file | grep pattern`) which requires shell pipe operator support.
+---

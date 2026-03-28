@@ -1,0 +1,15 @@
+---
+title: Solid.js
+description: SolidJS with fine-grained reactivity — expands framework coverage beyond React/Vue/Svelte.
+status: planned
+priority: high
+order: 37
+touchedAreas:
+  - frameworks/vite-dev-server
+  - transpiler
+  - code-transform
+  - kernel
+  - npm/resolver
+internalNotes: |
+  Solid.js uses a custom JSX transform (solid-js/jsx-runtime) that compiles to fine-grained reactive DOM operations (not virtual DOM). The Vite dev server must handle Solid's Babel plugin or the newer Solid SWC plugin. Since jiki uses esbuild, need either: (a) a jiki plugin that runs babel-plugin-jsx-dom-expressions, or (b) use vite-plugin-solid via the Vite dev server. Example structure: a reactive counter with derived signals and effects. Demonstrates that jiki supports non-React JSX transforms.
+---

@@ -1,0 +1,13 @@
+---
+title: Snapshot metadata
+description: Include full stat fields (atime, ctime, mode) in snapshots — currently only mtime is preserved.
+status: planned
+priority: low
+order: 29
+touchedAreas:
+  - memfs
+  - persistence
+  - utils/binary-encoding
+internalNotes: |
+  Snapshots currently serialize only files/directories/symlinks. Add metadata: (1) creation timestamp, (2) jiki version, (3) installed packages with versions, (4) environment variables, (5) custom user metadata. Key files: memfs.ts (toSnapshot should include metadata header), persistence.ts (metadata storage). The VFSSnapshot type needs a `metadata` field. This enables snapshot compatibility checking (refuse to load snapshots from incompatible jiki versions) and debugging (know what packages were installed when snapshot was taken).
+---

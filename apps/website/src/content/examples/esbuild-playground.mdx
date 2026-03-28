@@ -1,0 +1,35 @@
+---
+title: esbuild
+description: Run esbuild in the browser — interactive bundler config, bundle size analysis, and multiple output formats via jiki.
+category: tools
+features:
+  - Interactive build configuration
+  - Bundle size analysis
+  - Multiple output formats (ESM, CJS, IIFE)
+  - Build timing and statistics
+---
+
+import { Demo } from "../../../../../examples/esbuild-playground/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+An interactive esbuild playground with a configuration UI for controlling build settings. Includes bundle analysis showing size reduction, build time, and output format comparison.
+
+## Details
+
+- Dynamic controls for entry point, format, platform, and minification
+- Real-time bundle size and build time statistics
+- Switch between ESM, CommonJS, and IIFE output
+- TypeScript and React components bundled together
+
+## Try it yourself
+
+1. Toggle build options like minification and bundling
+2. Switch between ESM, CJS, and IIFE output formats
+3. Modify source files and rebuild to see size changes
+
+</div>

@@ -1,0 +1,16 @@
+---
+title: ESLint + Prettier
+description: Lint and format pipeline — configure rules, run checks, auto-fix.
+status: planned
+priority: low
+order: 44
+touchedAreas:
+  - kernel
+  - module-resolver
+  - npm/resolver
+  - polyfills/fs
+  - polyfills/process
+  - shell-commands
+internalNotes: |
+  Run ESLint and Prettier inside jiki to lint and format code. Both tools are Node.js packages that read files via fs and process them. Key challenges: (1) ESLint has a large dependency tree and uses dynamic requires extensively, (2) Prettier plugins may require native modules (stub gracefully), (3) both tools read config files (.eslintrc, .prettierrc) from MemFS. Example structure: create a JS file with lint errors, run eslint via shell, show errors, run prettier to fix formatting. Demonstrates jiki's ability to run complex Node.js tooling.
+---

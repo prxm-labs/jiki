@@ -1,0 +1,45 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  type = 'website',
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const canonical = Astro.props.canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<link rel="canonical" href={canonical} />
+<meta name="description" content={description} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<!-- Open Graph -->
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content="jiki" />
+<meta property="og:locale" content="en_US" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+
+<!-- JSON-LD Structured Data -->
+{jsonLd && (
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(Array.isArray(jsonLd) ? jsonLd : [jsonLd])}
+  />
+)}

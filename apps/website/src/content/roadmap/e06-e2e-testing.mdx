@@ -1,0 +1,16 @@
+---
+title: E2E testing
+description: Browser-based test runner showing component testing with assertion visualization.
+status: planned
+priority: medium
+order: 39
+touchedAreas:
+  - kernel
+  - shell-commands
+  - polyfills/child_process
+  - polyfills/http
+  - server-bridge
+  - frameworks/vite-dev-server
+internalNotes: |
+  Demonstrate running E2E tests inside jiki. Since Puppeteer/Playwright require a real browser, use a lighter approach: (1) start a dev server via jiki, (2) use a testing library that makes HTTP requests (e.g., supertest against server-bridge), (3) assert on responses. Alternative: use jsdom + testing-library for DOM testing without a real browser. Example structure: Vite app + test file that renders components and asserts DOM state. Demonstrates that jiki can run test suites.
+---

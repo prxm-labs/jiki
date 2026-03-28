@@ -1,0 +1,44 @@
+---
+title: "boot()"
+description: "boot() API reference — create and configure a new jiki container with filesystem, shell, transpiler, and dev server options."
+section: "api"
+order: 1
+---
+
+The `boot()` function creates a new jiki container. It sets up the virtual filesystem, kernel, and shell.
+
+## Signature
+
+```ts
+import { boot } from "@run0/jiki";
+
+const container = await boot(options?: BootOptions);
+```
+
+## Options
+
+| Option        | Type                     | Default     | Description                                                               |
+| ------------- | ------------------------ | ----------- | ------------------------------------------------------------------------- |
+| `cwd`         | `string`                 | `"/"`       | Initial working directory                                                 |
+| `env`         | `Record<string, string>` | `{}`        | Environment variables                                                     |
+| `snapshot`    | `Uint8Array`             | `undefined` | Restore from a previously saved snapshot                                  |
+| `plugins`     | `JikiPlugin[]`           | `[]`        | [Plugins](/docs/api/plugins) to register on the container                 |
+| `persistence` | `PersistenceAdapter`     | `undefined` | [Persistence](/docs/api/persistence) adapter for surviving page refreshes |
+
+## Return value
+
+Returns a `Promise<Container>` that resolves when the container is ready.
+
+## Example
+
+```ts
+import { boot } from "@run0/jiki";
+
+const container = await boot({
+  cwd: "/app",
+  env: { NODE_ENV: "development" },
+});
+
+await container.fs.writeFile("/app/index.js", 'console.log("ready")');
+await container.shell.execute("node index.js");
+```

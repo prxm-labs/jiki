@@ -1,0 +1,13 @@
+---
+title: Module cache tuning
+description: Make the 4000-module LRU limit configurable — large projects may need more, small ones waste memory.
+status: planned
+priority: low
+order: 31
+touchedAreas:
+  - kernel
+  - module-resolver
+  - metrics
+internalNotes: |
+  Module cache is a simple Map with LRU eviction at 4000 entries. Improvements: (1) size-based eviction (track estimated memory per module), (2) frequency-based caching (keep hot modules, evict cold), (3) expose cache stats in metrics, (4) configurable limits via ContainerOptions. Key files: kernel.ts (cache implementation), metrics.ts (cache hit/miss tracking — already exists but could be more granular). Consider WeakRef for large modules so GC can reclaim them if memory pressure is high.
+---

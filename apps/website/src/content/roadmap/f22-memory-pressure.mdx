@@ -1,0 +1,46 @@
+---
+title: Memory pressure management
+description: "Heap-aware eviction, streaming installs, GC hooks, and memory budget APIs to prevent browser tab crashes on large dependency trees."
+status: planned
+priority: high
+order: 9
+touchedAreas:
+  - sandbox
+  - memfs
+  - npm/cache
+  - npm/index
+  - kernel
+  - metrics
+internalNotes: |
+  ## Goal
+  Prevent browser tab crashes and degraded performance when working with large projects (500+ packages). Provide memory budgets, eviction strategies, and real-time heap awareness.
+
+  ## Current State
+  - **sandbox.ts** (5.3 KB): SandboxGuard tracks `totalBytes` and `fileCount` via `trackWrite()`/`trackDelete()`. Enforces limits only at write time — no eviction, no warnings, no progressive degradation. Once the limit is hit, the next write throws and the operation fails.
+  - **npm/cache.ts**: In-memory cache with `maxManifests: 500` and `maxTarballs: 200`. Eviction is count-based (LRU), not size-based. A single large tarball (e.g., `@next/swc` at 40MB) counts the same as a 2KB manifest.
+  - **kernel.ts**: Module cache capped at 4000 entries. No memory-aware eviction — the cap is purely count-based. Compiled modules vary wildly in retained size.
+  - **npm/index.ts** (150+ KB): `install()` fetches and extracts entire tarballs into VFS memory at once. No streaming extraction, no lazy file loading.
+  - **metrics.ts** (3.7 KB): Tracks timing metrics but has no memory metrics (heap size, VFS size, cache size).
+
+  ## Codebase Impact Analysis
+  - **sandbox.ts**: Add `onMemoryWarning(callback)` hook that fires at 70%/90% of `maxMemoryMB`. Add `evict()` method that clears caches before throwing. Integrate `performance.measureUserAgentSpecificMemory()` (Chrome 89+) for real heap tracking alongside VFS byte tracking.
+  - **memfs.ts** (30.3 KB): Add `getMemoryUsage()` returning `{ totalBytes, fileCount, largestFile }`. Add optional LRU eviction for file content — keep metadata but release file bodies for files not accessed recently (lazy re-fetch from persistence layer).
+  - **npm/cache.ts**: Switch from count-based to size-based eviction. Track `totalCacheBytes`. Evict largest/oldest tarballs first when memory pressure is high. Add `cache.clear()` and `cache.evict(targetBytes)` APIs.
+  - **npm/index.ts**: Implement streaming tarball extraction — write files to VFS as they're extracted from the gzip stream instead of buffering the entire tarball. Use pako's `Inflate` in streaming mode.
+  - **kernel.ts**: Add memory-weighted module cache eviction. Track approximate retained size per cached module (source length as proxy). Evict large, infrequently-used modules first.
+  - **metrics.ts**: Add `metrics.memory` with `{ vfsBytes, cacheBytes, moduleCacheEntries, heapUsedBytes }`. Expose via `container.getMetrics()`.
+
+  ## Memory Budget API
+  ```ts
+  container.on('memory-warning', ({ level, usedMB, limitMB }) => { ... });
+  // level: 'low' (70%), 'critical' (90%)
+
+  container.memory // { vfsBytes, cacheBytes, heapBytes, limitBytes }
+  ```
+
+  ## Risks
+  - `performance.measureUserAgentSpecificMemory()` requires cross-origin isolation and is Chrome-only.
+  - Streaming tarball extraction changes the install flow significantly — regressions in pnpm layout symlink creation are possible.
+  - LRU file content eviction adds complexity to MemFS and may break code that holds references to file content buffers.
+  - Size-based cache eviction requires tracking byte sizes through all cache write paths.
+---

@@ -1,0 +1,82 @@
+---
+title: "Container"
+description: "Container API reference — access the filesystem, shell, kernel, dev server, and package manager from a booted jiki instance."
+section: "api"
+order: 2
+---
+
+The `Container` class is the main interface for a jiki instance. It has methods for file operations, code execution, package installation, and snapshots.
+
+## Methods
+
+### File operations
+
+| Method                      | Description                |
+| --------------------------- | -------------------------- |
+| `writeFile(path, content)`  | Write content to a file    |
+| `readFile(path, encoding?)` | Read a file's contents     |
+| `mkdir(path, options?)`     | Create a directory         |
+| `readdir(path)`             | List directory contents    |
+| `exists(path)`              | Check if a path exists     |
+| `rm(path, options?)`        | Remove a file or directory |
+
+### Execution
+
+| Method          | Description                      |
+| --------------- | -------------------------------- |
+| `execute(code)` | Execute a string of JavaScript   |
+| `runFile(path)` | Run a JavaScript/TypeScript file |
+| `run(command)`  | Run a shell command              |
+
+### Package management
+
+| Method      | Description                              |
+| ----------- | ---------------------------------------- |
+| `install()` | Install dependencies from `package.json` |
+
+### Snapshots
+
+| Method               | Description                        |
+| -------------------- | ---------------------------------- |
+| `toSnapshot()`       | Serialize the container state      |
+| `fromSnapshot(data)` | Restore from a serialized snapshot |
+
+### Plugins
+
+| Property / Method                 | Description                                                |
+| --------------------------------- | ---------------------------------------------------------- |
+| `plugins`                         | The [PluginRegistry](/docs/api/plugins) for this container |
+| `registerPolyfill(name, factory)` | Register a custom [polyfill](/docs/api/container)          |
+| `registerPolyfills(map)`          | Register multiple polyfills at once                        |
+
+### Sandboxing
+
+| Property / Method | Description                                                       |
+| ----------------- | ----------------------------------------------------------------- |
+| `sandbox`         | The [SandboxGuard](/docs/api/container) enforcing resource limits |
+
+### Metrics
+
+| Property / Method | Description                                    |
+| ----------------- | ---------------------------------------------- |
+| `getMetrics()`    | Returns a [MetricsSnapshot](/docs/api/metrics) |
+| `metrics`         | The underlying Metrics instance                |
+
+### Network mocking
+
+| Property / Method              | Description                                          |
+| ------------------------------ | ---------------------------------------------------- |
+| `mockFetch(pattern, response)` | Mock a [fetch URL](/docs/api/network)                |
+| `onFetch(handler)`             | Register a dynamic fetch interceptor                 |
+| `network`                      | The [NetworkInterceptor](/docs/api/network) instance |
+
+## Example
+
+```ts
+const container = await boot();
+
+await container.writeFile("/index.js", 'console.log("hello")');
+const result = await container.runFile("/index.js");
+
+const snapshot = await container.toSnapshot();
+```

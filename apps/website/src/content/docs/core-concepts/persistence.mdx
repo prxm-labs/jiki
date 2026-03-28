@@ -1,0 +1,130 @@
+---
+title: "Persistence"
+description: "Save and restore jiki's virtual filesystem across page refreshes using IndexedDB. Keep files, packages, and user state between sessions."
+section: "core-concepts"
+order: 8
+---
+
+By default, jiki's virtual filesystem lives entirely in memory, so every page refresh wipes all files, installed packages, and user state. The persistence layer fixes this by automatically synchronising filesystem mutations to a storage backend (IndexedDB by default), so the VFS can be rehydrated on the next boot.
+
+## How it works
+
+1. When a file is created, updated, deleted, renamed, or symlinked, the mutation is queued for persistence.
+2. Queued mutations are flushed to IndexedDB in batches (~100 ms) to minimise transaction overhead. Writes are fire-and-forget and never block the synchronous VFS API.
+3. Calling `container.init()` (or `vfs.hydrate()` directly) loads all persisted entries back into memory, restoring the filesystem to its previous state.
+
+## Quick start
+
+```ts
+import { boot, IndexedDBAdapter } from "@run0/jiki";
+
+const adapter = new IndexedDBAdapter({ dbName: "my-project" });
+const container = boot({ persistence: adapter });
+await container.init();
+
+// Files written now will survive page refreshes
+container.writeFile("/app/index.js", 'console.log("persisted!");');
+```
+
+After a page refresh, the same code will restore `/app/index.js` from IndexedDB before the transpiler initialises.
+
+## Adapters
+
+### `IndexedDBAdapter`
+
+The default browser-compatible adapter. Uses a single IndexedDB object store keyed by normalised path.
+
+```ts
+import { IndexedDBAdapter } from "@run0/jiki";
+
+const adapter = new IndexedDBAdapter({
+  dbName: "my-project", // default: "jiki-vfs"
+  storeName: "files", // default: "files"
+  flushIntervalMs: 100, // default: 100
+});
+```
+
+| Option            | Type     | Default      | Description                |
+| ----------------- | -------- | ------------ | -------------------------- |
+| `dbName`          | `string` | `"jiki-vfs"` | IndexedDB database name    |
+| `storeName`       | `string` | `"files"`    | Object store name          |
+| `flushIntervalMs` | `number` | `100`        | Batch flush interval in ms |
+
+### `InMemoryAdapter`
+
+Stores entries in a `Map`. Useful for testing and server-side environments where IndexedDB is unavailable.
+
+```ts
+import { InMemoryAdapter } from "@run0/jiki";
+
+const adapter = new InMemoryAdapter();
+```
+
+### Custom adapters
+
+Implement the `PersistenceAdapter` interface to use any storage backend (OPFS, localStorage, a remote server, etc.):
+
+```ts
+import type { PersistenceAdapter, PersistedEntry } from "@run0/jiki";
+
+class MyAdapter implements PersistenceAdapter {
+  save(entry: PersistedEntry): void {
+    /* upsert */
+  }
+  delete(path: string): void {
+    /* remove */
+  }
+  async loadAll(): Promise<PersistedEntry[]> {
+    /* read all */
+  }
+  async clear(): Promise<void> {
+    /* wipe */
+  }
+  async flush(): Promise<void> {
+    /* force write */
+  }
+}
+```
+
+## Hydration
+
+Call `container.init()` to hydrate from the adapter. Hydration restores files, directories, and symlinks in depth-first order. It runs before the transpiler initialises, so TypeScript files are ready when code execution starts.
+
+```ts
+const container = boot({ persistence: adapter });
+const count = await container.init(); // restores persisted files
+```
+
+You can also call `vfs.hydrate()` directly if you need more control:
+
+```ts
+const vfs = new MemFS({ persistence: adapter });
+const count = await vfs.hydrate();
+console.log(`Restored ${count} entries`);
+```
+
+## Flushing
+
+Persistence writes are batched and flushed automatically. To force an immediate flush (e.g. before page unload):
+
+```ts
+await container.vfs.flushPersistence();
+```
+
+## What gets persisted
+
+| Operation                     | Persisted?                                                  |
+| ----------------------------- | ----------------------------------------------------------- |
+| `writeFileSync` / `writeFile` | Yes                                                         |
+| `symlinkSync`                 | Yes                                                         |
+| `unlinkSync`                  | Yes (removed)                                               |
+| `rmdirSync` (recursive)       | Yes (tree removed)                                          |
+| `renameSync`                  | Yes (old removed, new saved)                                |
+| `mkdirSync`                   | No (directories are recreated on hydration from file paths) |
+| `putFile(path, data, false)`  | No (used during hydration)                                  |
+
+## Performance
+
+- Batch writes reduce IndexedDB transaction overhead. Rapid consecutive writes (e.g. installing 100 packages) result in a few large transactions instead of 100 small ones.
+- Hydration reads all entries in a single `getAll()` call, which is the fastest way to bulk-read from IndexedDB.
+- Memory is not doubled: persisted entries are written to IndexedDB asynchronously and not kept in a separate in-memory store.

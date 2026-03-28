@@ -1,0 +1,20 @@
+# jiki
+
+> A lightweight, browser-based Node.js runtime. Write files, install npm packages, run shell commands, and start dev servers — all in the browser without a backend.
+
+- Website: https://jiki.sh
+- Documentation: https://jiki.sh/docs/getting-started/introduction
+- GitHub: https://github.com/vorillaz/web-containers-lite
+- npm: https://www.npmjs.com/package/jiki
+
+## Context Files
+
+- llm.txt (summary): https://jiki.sh/llm.txt
+- llm-full.txt (comprehensive): https://jiki.sh/llm-full.txt
+
+## AI Documentation
+
+- AI Overview: https://jiki.sh/docs/ai/overview
+- Building an AI Coding Assistant: https://jiki.sh/docs/ai/building-ai-assistant
+- Using jiki with AI Tools: https://jiki.sh/docs/ai/ai-tools
+- Provider Setup: https://jiki.sh/docs/ai/provider-setup

@@ -1,0 +1,35 @@
+---
+title: TypeScript
+description: Compile and run TypeScript in the browser — interfaces, type definitions, and module imports via jiki.
+category: tools
+features:
+  - TypeScript compilation
+  - Interface and type definitions
+  - Module imports
+  - Console output execution
+---
+
+import { Demo } from "../../../../../examples/typescript/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A TypeScript development environment that compiles and executes `.ts` files in the browser with full type system support, including interfaces, type aliases, and cross-file imports.
+
+## Details
+
+- Interfaces, type aliases, and type checking all work
+- Cross-file imports resolve through TypeScript's module system
+- TypeScript is compiled and executed entirely in the browser
+- Type mismatches are caught at compile time
+
+## Try it yourself
+
+1. Edit the TypeScript files and add new interfaces
+2. Try introducing a type error and see the compiler output
+3. Add new `.ts` files with imports between them
+
+</div>

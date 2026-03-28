@@ -1,0 +1,72 @@
+---
+title: "Errors"
+description: "Errors API reference — BootError, ShellError, TranspileError, and other structured error types with codes for jiki container operations."
+section: "api"
+order: 8
+---
+
+jiki provides structured error types for failures that occur during container operations. Each error type corresponds to a specific failure category, so you can catch and handle them individually.
+
+Errors thrown by jiki extend a common `JikiError` base class with a `code` property for programmatic matching and a `message` string. Filesystem errors use Node.js conventions like `ENOENT` and `EACCES`.
+
+## Error types
+
+| Error Class         | Code        | Description                                            |
+| ------------------- | ----------- | ------------------------------------------------------ |
+| `FileNotFoundError` | `ENOENT`    | The specified file or directory does not exist         |
+| `FileExistsError`   | `EEXIST`    | A file or directory already exists at the path         |
+| `PermissionError`   | `EACCES`    | Insufficient permissions for the operation             |
+| `ProcessError`      | `PROCESS`   | A shell command or process exited with a non-zero code |
+| `TranspileError`    | `TRANSPILE` | esbuild failed to transform the code                   |
+| `NetworkError`      | `NETWORK`   | A package download or registry request failed          |
+
+## Error fix suggestions
+
+Parsed errors include an actionable `suggestions` array that helps users fix common mistakes:
+
+```ts
+import { parseError } from "@run0/jiki";
+
+const err = parseError("runtime", new Error("Cannot find module 'react'"));
+console.log(err.suggestions);
+// ["Run: npm install react"]
+```
+
+| Error Pattern                    | Suggestion                                |
+| -------------------------------- | ----------------------------------------- |
+| `Cannot find module 'X'`         | `Run: npm install X`                      |
+| `X is not defined` (capitalized) | `Did you forget to import X?`             |
+| `Transpiler not initialized`     | `Call await container.init()`             |
+| Sandbox path violations          | `Add the path to sandbox.fs.allowedPaths` |
+| Network failures during install  | `Check your internet connection`          |
+
+## `ContainerError`
+
+```ts
+interface ContainerError {
+  id: string;
+  category: "build" | "runtime" | "bundle" | "install" | "filesystem";
+  title: string;
+  message: string;
+  file?: string;
+  line?: number;
+  column?: number;
+  stack?: string;
+  suggestions?: string[];
+  timestamp: number;
+}
+```
+
+## Example
+
+```ts
+import { FileNotFoundError } from "@run0/jiki";
+
+try {
+  await container.readFile("/missing.txt");
+} catch (err) {
+  if (err instanceof FileNotFoundError) {
+    console.log("File not found:", err.path);
+  }
+}
+```

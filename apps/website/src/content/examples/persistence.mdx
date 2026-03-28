@@ -1,0 +1,36 @@
+---
+title: Persistence
+description: Persist jiki's virtual filesystem across page refreshes — IndexedDB storage, automatic saves on writes, and persisted entry tracking.
+category: runtime
+features:
+  - InMemoryAdapter for testing
+  - Automatic persistence on file writes
+  - Counter that survives restarts
+  - Persisted entry tracking
+---
+
+import { Demo } from "../../../../../examples/persistence/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+jiki's persistence layer automatically saves filesystem changes to a storage backend. Here, an `InMemoryAdapter` tracks all writes. In production, swap it for `IndexedDBAdapter` so files survive page refreshes.
+
+## Details
+
+- Every `writeFile` call is automatically tracked by the adapter
+- A counter script reads, increments, and writes a value; run it multiple times to see it persist across executions
+- The header shows how many entries are currently persisted
+- Swap `InMemoryAdapter` for `IndexedDBAdapter` for real browser persistence
+
+## Try it yourself
+
+1. Run `node counter.js` several times — the counter increments each time
+2. Create new files — they appear in the persisted entry count
+3. Edit `notes.txt` and save — the persistence adapter tracks the change
+4. In production, replace `InMemoryAdapter` with `IndexedDBAdapter` for real persistence
+
+</div>

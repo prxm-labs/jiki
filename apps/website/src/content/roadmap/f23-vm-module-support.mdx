@@ -1,0 +1,60 @@
+---
+title: Enhanced vm module
+description: "Better vm polyfill: iframe-based context isolation, execution timeouts, vm.compileFunction, source map offsets, and compilation caching."
+status: planned
+priority: high
+order: 10
+touchedAreas:
+  - polyfills/vm
+  - sandbox
+  - kernel
+  - polyfills/process
+internalNotes: |
+  ## Goal
+  Upgrade the vm polyfill from a thin `new Function()` wrapper to a more capable module that supports context isolation (via iframes), execution timeouts, compilation caching, and the most commonly used vm APIs that packages depend on.
+
+  ## Current State (polyfills/vm.ts — 112 lines)
+  - `createContext(sandbox)` returns the sandbox object as-is — no isolation.
+  - `runInContext(code, context)` uses `new Function(...keys, 'return (' + code + ')')` — executed in the main realm.
+  - `runInNewContext(code, sandbox)` delegates to `runInContext`.
+  - `runInThisContext(code)` calls `new Function('return (' + code + ')')()`.
+  - `Script` class stores code, offers `runInContext`/`runInNewContext`/`runInThisContext` — no compilation caching, no options parsing.
+  - **Missing APIs**: `vm.compileFunction()`, `vm.Module`, `vm.SourceTextModule`, `vm.SyntheticModule`, `measureMemory()`.
+  - **Ignored options**: `timeout`, `lineOffset`, `columnOffset`, `filename`, `displayErrors`, `importModuleDynamically`.
+
+  ## Codebase Impact Analysis
+  - **polyfills/vm.ts**: Major rewrite. Add:
+    1. **Iframe-based context isolation**: `createContext()` creates a hidden iframe, extracts its `contentWindow` as the execution realm. Code runs in a separate global scope. Not V8-level isolation but significantly better than `new Function()`.
+    2. **Execution timeouts**: Wrap code execution in `Promise.race` with a timeout. For sync APIs (`runInThisContext`), use a Web Worker with `terminate()` as kill switch.
+    3. **`vm.compileFunction(code, params, options)`**: Compile code into a reusable function with specified parameters. Cache compiled functions by source hash.
+    4. **Source map support**: Pass `lineOffset`/`columnOffset`/`filename` to error stack rewriting.
+    5. **Compilation cache**: `Script` constructor caches the compiled `Function` object keyed by source hash. Repeated `new Script(sameCode)` reuses the compiled function.
+  - **sandbox.ts** (5.3 KB): `executionTimeout` is already exposed but vm.ts ignores it. Wire vm execution to respect `sandbox.executionTimeout`.
+  - **kernel.ts** (10.8 KB): Module evaluation uses `new Function()` directly in the module wrapper. Should route through vm.Script for caching and timeout support.
+  - **polyfills/process.ts**: `process.allowedNodeEnvironmentFlags` should include `--experimental-vm-modules` (even if it's a no-op) for compatibility with packages that check for it.
+
+  ## Iframe Isolation Model
+  ```
+  createContext(sandbox)
+    → create hidden iframe (srcdoc, sandbox attribute)
+    → copy sandbox properties into iframe.contentWindow
+    → return proxy to iframe.contentWindow
+
+  runInContext(code, ctx)
+    → iframe.contentWindow.eval(code)
+    → result crosses iframe boundary via structured clone or proxy
+  ```
+
+  ## APIs to Implement (priority order)
+  1. `vm.compileFunction(code, params, options)` — most commonly used by bundlers/transpilers
+  2. `Script` with timeout and caching
+  3. `createContext` with iframe isolation
+  4. `runInContext`/`runInNewContext`/`runInThisContext` with timeout
+  5. `vm.SourceTextModule` (stretch — needed for ESM loader hooks)
+
+  ## Risks
+  - Iframe creation is async and has overhead (~1-5ms per iframe). Frequent `createContext` calls may be slow.
+  - Cross-iframe value passing has limitations: functions, symbols, and prototype chains don't survive structured clone.
+  - Some browsers restrict iframe `eval()` under CSP — need `allow-scripts` in sandbox attribute.
+  - Web Worker-based timeout for sync APIs adds complexity and may not work if Workers are restricted.
+---

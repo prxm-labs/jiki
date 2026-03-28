@@ -1,0 +1,36 @@
+---
+title: Plugin System
+description: Build jiki plugins in the browser — virtual module resolution, CSS import stubbing, and code transformation hooks.
+category: tools
+features:
+  - Virtual module resolution via onResolve + onLoad
+  - CSS import stubbing
+  - Code transformation pipeline
+  - Custom environment injection
+---
+
+import { Demo } from "../../../../../examples/plugin-system/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+Three jiki plugins working together: a CSS stub plugin that handles `.css` imports, a virtual environment plugin that provides `@env` as a virtual module, and a banner plugin that prepends a comment to every `.js` file.
+
+## What's inside
+
+- The virtual-env plugin uses `onResolve` + `onLoad` to intercept `require("@env")` and return a JavaScript object without any file on disk
+- The css-stub plugin uses `onLoad` to return an empty object for `.css` imports, preventing errors
+- The banner plugin uses `onTransform` to modify source code before execution, adding a comment to every `.js` file
+- All three plugins compose without conflicts
+
+## Try it yourself
+
+1. Run `node app.js` to see the virtual environment variables
+2. Run `node style-test.js` to see CSS import stubbing in action
+3. Run `node banner-test.js` to see code transformation
+4. Edit `app.js` to add new `require("@env")` usage
+
+</div>

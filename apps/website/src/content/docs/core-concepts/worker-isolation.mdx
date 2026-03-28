@@ -1,0 +1,41 @@
+---
+title: "Worker Isolation"
+description: "Run jiki containers in a Web Worker for non-blocking TypeScript transpilation and full thread isolation from the main UI."
+section: "core-concepts"
+order: 10
+---
+
+By default, all jiki operations run on the main thread. The `worker` option offloads CPU-intensive transpilation (TypeScript, JSX, TSX) to a Web Worker via esbuild-wasm, preventing UI freezes during compilation.
+
+## Quick start
+
+```ts
+import { boot } from "@run0/jiki";
+
+const container = boot({ worker: true });
+await container.init(); // esbuild transpiler runs in a Web Worker
+```
+
+## Worker modes
+
+| Mode     | Behaviour                                                         |
+| -------- | ----------------------------------------------------------------- |
+| `false`  | Everything on the main thread (default)                           |
+| `true`   | Transpilation runs in a Web Worker                                |
+| `'auto'` | Use workers when `Worker` is available (browser), skip in Node.js |
+
+## What gets offloaded
+
+Currently, worker mode offloads esbuild-wasm transpilation: converting TypeScript, JSX, and TSX to JavaScript. This is the single most expensive operation and the primary cause of UI freezes during development.
+
+Module resolution, code execution, and VFS operations continue to run on the main thread. Full kernel isolation (moving `require()` and code execution to a worker) is planned for a future release.
+
+## When to use
+
+- For interactive playgrounds, enable `worker: true` or `'auto'` to keep the UI responsive while users edit TypeScript files.
+- If you're installing packages and running code in sequence without a UI, `false` (the default) is fine.
+- Workers are not needed in Node.js environments.
+
+## Browser requirements
+
+Worker mode uses esbuild's built-in Web Worker support. No special headers (COOP/COEP) are required for this level of isolation.

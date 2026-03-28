@@ -1,0 +1,112 @@
+---
+title: Quick Start
+description: Boot your first jiki container, write files to the virtual filesystem, install npm packages, and run JavaScript entirely in the browser.
+section: getting-started
+order: 3
+---
+
+This guide walks you through booting a container, writing files, running code, and installing packages.
+
+## Boot a container
+
+The `boot()` function creates a new container with a virtual filesystem, shell, and package manager:
+
+```typescript
+import { boot } from "@run0/jiki";
+
+const container = boot({
+  cwd: "/",
+  env: {
+    NODE_ENV: "development",
+  },
+});
+```
+
+## Write files
+
+Use `writeFile` to create files in the virtual filesystem:
+
+```typescript
+container.writeFile(
+  "/index.js",
+  `
+  const greeting = process.env.NODE_ENV === 'development'
+    ? 'Hello, developer!'
+    : 'Hello, world!';
+
+  console.log(greeting);
+`,
+);
+```
+
+## Run code
+
+Execute files with `run()` which accepts shell commands:
+
+```typescript
+const result = await container.run("node index.js");
+console.log(result.stdout); // "Hello, developer!\n"
+console.log(result.exitCode); // 0
+```
+
+## Install packages
+
+Install npm packages that run in the browser:
+
+```typescript
+await container.install("is-number");
+
+container.writeFile(
+  "/check.js",
+  `
+  const isNumber = require('is-number');
+  console.log(isNumber(42));    // true
+  console.log(isNumber('foo')); // false
+`,
+);
+
+const result = await container.run("node check.js");
+```
+
+## Use snapshots
+
+Save and restore the container state through snapshots:
+
+```typescript
+// Save
+const snapshot = container.toSnapshot();
+localStorage.setItem("my-snapshot", JSON.stringify(snapshot));
+
+// Restore
+const saved = JSON.parse(localStorage.getItem("my-snapshot"));
+const restored = Container.fromSnapshot(saved);
+```
+
+## Add a UI
+
+Use `jiki-ui` for pre-built React components:
+
+```tsx
+import { CodeEditor, Terminal } from "@run0/jiki-ui";
+
+function App() {
+  return (
+    <div className="flex h-screen">
+      <CodeEditor
+        filename="index.js"
+        content={code}
+        onSave={(path, content) => {
+          container.writeFile(path, content);
+        }}
+      />
+      <Terminal lines={output} onCommand={cmd => container.run(cmd)} />
+    </div>
+  );
+}
+```
+
+## Next steps
+
+- [Virtual Filesystem](/docs/core-concepts/virtual-filesystem) -- learn about MemFS
+- [Shell](/docs/core-concepts/shell) -- shell commands and scripting
+- [Container API](/docs/api/container) -- full API reference

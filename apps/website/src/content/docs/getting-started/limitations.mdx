@@ -1,0 +1,91 @@
+---
+title: Limitations and Caveats
+description: What jiki cannot do, why, and what to expect from a browser-based Node.js simulation that is not standards-compliant.
+section: getting-started
+order: 4
+---
+
+export const Planned = ({ label = "planned" }) => (
+  <a href="/roadmap" class="not-prose ml-1.5 inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-blue-400 no-underline hover:bg-blue-500/20 transition-colors">{label}</a>
+);
+
+jiki is not Node.js. It's a browser-based simulation that reimplements parts of the Node.js API using Service Workers, Web Workers, the Fetch API, and esbuild-wasm. It's not WinterTC (TC55) compliant, doesn't target the WinterCG minimum API surface, and makes no claims of spec conformance.
+
+This page documents every known limitation.
+
+## Runtime
+
+jiki runs inside the browser's JavaScript engine. There's no V8 embedding, no libuv event loop, and no native code execution.
+
+- **No native addons.** `.node` files, N-API, and node-gyp builds are not supported. Any package that compiles C/C++ during `npm install` will fail.
+- **No `.wasm` module loading.** <Planned /> `WebAssembly.instantiate()` works for raw buffers, but there's no WASI layer, no Emscripten filesystem bridge, and no automatic `.wasm` resolution in `require()`.
+- **No `worker_threads` with `SharedArrayBuffer`.** The browser requires cross-origin isolation headers (`COOP`/`COEP`) which most embedding contexts don't set.
+- **Simulated `child_process`.** `fork()` creates a new Kernel instance in the same thread. `spawn()` and `exec()` route to the shell. No OS processes are created.
+- **`process.exit()` doesn't terminate the tab.** It throws an internal error that the shell catches. Calling it in deeply nested code may produce unexpected behavior.
+- **No signal handling.** <Planned /> `SIGTERM`, `SIGINT`, `SIGUSR1`, and all other signals are no-ops. `process.on('SIGINT', handler)` registers the handler but it never fires.
+
+## Standards compliance
+
+jiki doesn't conform to any runtime standard.
+
+- **Not WinterTC (TC55) compliant.** The [WinterTC minimum API](https://wintercg.org/) defines a baseline for server-side JavaScript runtimes. jiki doesn't implement this baseline.
+- **No `AsyncLocalStorage`.** The `async_hooks` module is stubbed.
+- **No `CompressionStream` / `DecompressionStream`.** Compression uses pako (zlib polyfill), not the Streams API.
+- **Partial `crypto`.** <Planned /> `randomBytes`, `createHash`, and `createHmac` work. Key derivation (`pbkdf2`, `scrypt`), `sign`/`verify`, and `KeyObject` are missing.
+- **`vm` is a thin wrapper.** <Planned /> `vm.runInThisContext()` calls `eval()`. There are no V8 isolates, no context separation, and no memory limits.
+- **Event loop differences.** Microtask ordering and `setImmediate` behavior may differ from Node.js because they depend on the browser's event loop.
+
+## Networking
+
+All network access goes through the browser's Fetch API. jiki can't open raw sockets.
+
+- **No TCP/UDP sockets.** <Planned /> `net.createServer()` and `net.connect()` are stubs. They log a warning and emit synthetic events. Database drivers, Redis clients, and anything that opens a raw socket won't work.
+- **No real WebSocket.** <Planned /> The `ws` module is stubbed. The browser's native `WebSocket` API works for external connections, but the Node.js `ws` server/client pattern doesn't.
+- **No DNS resolution.** <Planned /> `dns.lookup()` and `dns.resolve()` are no-ops. Hostname resolution is handled by the browser's fetch implementation.
+- **Virtual HTTP servers only.** <Planned /> `http.createServer()` registers a handler with the [ServerBridge](/docs/api/server-bridge). Requests are routed through a Service Worker at `/__virtual__/{port}/`. There are no real listening ports.
+- **No HTTPS/TLS.** The `tls` module is a stub. All virtual servers are plain HTTP.
+- **No `http2`.** The module is not polyfilled.
+
+## Filesystem
+
+jiki uses an in-memory virtual filesystem ([MemFS](/docs/api/memfs)). There is no disk.
+
+- **In-memory only.** All files live in RAM. Closing the tab loses everything unless you enable [persistence](/docs/core-concepts/persistence) (IndexedDB adapter) or use [snapshots](/docs/api/container).
+- **No host filesystem access.** <Planned /> jiki can't read or write files on the user's machine. The File System Access API is not integrated.
+- **Partial `fs.promises`.** Some async methods are missing. Packages that rely on `fs.promises.readFile` or `fs.promises.readdir` may fail.
+- **No file permission enforcement.** <Planned /> `chmod()` and `chown()` accept calls without error but don't actually change behavior. `fs.accessSync()` always succeeds.
+- **No hard links.** <Planned /> `fs.linkSync()` is not implemented. Symlinks work (with a 20-hop cycle limit).
+- **No memory-mapped files.** `mmap` patterns are not available.
+
+## Package management
+
+jiki includes a built-in package manager that fetches from the npm registry.
+
+- **No `npm install -g`.** <Planned /> Global installs are not supported. The `-g` and `--global` flags are ignored.
+- **Minimal `npx`.** <Planned /> It installs the package and runs the binary. No version specifiers (`npx create-react-app@latest`), no `--yes` flag, no package caching.
+- **Missing npm subcommands.** <Planned /> `uninstall`, `ls`, `outdated`, `link`, `update`, `view`, and `cache` are not implemented.
+- **No `pnpm dlx`.** <Planned /> The pnpm equivalent of npx doesn't exist yet.
+- **No yarn.** Only npm and pnpm layouts are supported.
+- **Post-install scripts with native code fail.** `postinstall` scripts that call `node-gyp`, `cmake`, or any native toolchain will error.
+- **Packages with native bindings won't work.** `bcrypt`, `sharp`, `canvas`, `better-sqlite3`, `fsevents`, and similar packages require compiled binaries that can't run in the browser.
+
+## Shell
+
+jiki provides a shell with 19+ built-in commands. It's not bash.
+
+- **No interactive stdin for child processes.** <Planned /> The shell itself supports readline, but processes spawned via `child_process` can't read from stdin.
+- **No job control.** `&` runs commands in the background, but `fg`, `bg`, and `jobs` are not implemented.
+- **No system utilities.** <Planned /> `grep`, `sed`, `awk`, `curl`, `wget`, `tar`, `git`, and other common CLI tools are not built in.
+- **Basic variable expansion.** `$VAR` and `${VAR}` work. `${VAR:-default}`, `${VAR:+alt}`, and other bash parameter expansion forms are not supported.
+- **No heredocs.** `<<EOF` syntax is not parsed.
+- **No process substitution.** `<(command)` is not supported.
+
+## Performance
+
+jiki trades native performance for the convenience of running in a browser tab.
+
+- **Registry fetches on every boot.** Unless you use the [package cache](/docs/core-concepts/package-cache) or load from a snapshot, every `npm install` hits the network.
+- **Memory pressure.** <Planned /> Large dependency trees (500+ packages) can exhaust the browser tab's memory budget. There is no swap.
+- **Slower transpilation.** esbuild-wasm is roughly 3-10x slower than native esbuild depending on the browser and workload.
+- **Module cache cap.** <Planned /> The LRU cache holds 4000 entries. Projects with more than 4000 unique module paths will see cache evictions and re-transpilation.
+- **No parallel I/O.** The virtual filesystem is synchronous and single-threaded. Concurrent file operations serialize.

@@ -1,0 +1,43 @@
+---
+title: "AI & jiki"
+description: "Build AI coding assistants and integrate jiki with AI tools"
+section: "ai"
+order: 1
+---
+
+jiki is a natural fit for AI-powered development tools. A sandboxed browser runtime that can write files, install packages, and run code is exactly what an AI coding assistant needs to turn generated code into a live, running application.
+
+This section covers two sides of the same coin:
+
+- **Building AI apps with jiki** — how to stream LLM responses, inject code into a container, and build live preview with error recovery
+- **Using AI tools with jiki** — how to give Claude, Cursor, Copilot, and other AI assistants the context they need to help you use jiki effectively
+
+## See it in action
+
+jiki ships with three AI coding assistant examples, each demonstrating a different provider and use case:
+
+| Example | Provider | Model | What it builds |
+| ------- | -------- | ----- | -------------- |
+| [Claude Coding](/examples/claude-coding) | Anthropic | Claude Opus 4.6 | React components from natural language |
+| [OpenAI Coding](/examples/openai-coding) | OpenAI | GPT-5.4 Mini | Astro sites with React islands |
+| [Mistral Coding](/examples/mistral-coding) | Mistral | Codestral | React components with live preview |
+
+All three follow the same architecture: stream tokens from an LLM API, extract code from the response, write it into a jiki container, and render a live preview in an iframe. The differences are in the API format and what gets generated.
+
+## Context files for AI tools
+
+jiki provides structured context files so AI assistants can help developers use the library without hallucinating unsupported features:
+
+| File | Size | When to use |
+| ---- | ---- | ----------- |
+| [`llms.txt`](/llms.txt) | ~0.5 KB | Spec-compliant index — points to the other files |
+| [`llm.txt`](/llm.txt) | ~12 KB | Quick overview with skills and code snippets |
+| [`llm-full.txt`](/llm-full.txt) | ~50 KB | Complete API reference, guides, and examples |
+
+Use `llm.txt` when you need a quick answer. Use `llm-full.txt` when you want the AI to help with implementation details across any jiki feature.
+
+## What's in this section
+
+- [Building an AI Coding Assistant](/docs/ai/building-ai-assistant) — streaming, code injection, error recovery, and chat persistence patterns
+- [Using jiki with AI Tools](/docs/ai/ai-tools) — how to configure Claude, Cursor, and Copilot for jiki projects
+- [Provider Setup](/docs/ai/provider-setup) — API access for Anthropic, OpenAI, and Mistral in the browser

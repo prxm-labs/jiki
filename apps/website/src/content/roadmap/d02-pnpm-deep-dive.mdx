@@ -1,0 +1,15 @@
+---
+title: pnpm deep dive
+description: pnpm layout, workspaces, and differences from npm — currently mentioned but not explained in depth.
+status: planned
+priority: medium
+order: 49
+touchedAreas:
+  - npm/pnpm
+  - npm/resolver
+  - npm/workspaces
+  - npm/cache
+  - memfs
+internalNotes: |
+  Document jiki's pnpm layout implementation in detail. Cover: (1) how the content-addressable store works (node_modules/.pnpm/<name>@<version>/...), (2) symlink structure and how it differs from npm flat layout, (3) workspace support (pnpm-workspace.yaml, workspace:* protocol), (4) performance benefits (shared packages across projects via cache), (5) limitations vs real pnpm (no global store across containers, no lockfile generation). Target audience: developers choosing between npm and pnpm layouts in jiki. Include diagrams of the node_modules structure. Reference key files: npm/pnpm.ts (PnpmLayout class), npm/workspaces.ts, npm/cache.ts.
+---

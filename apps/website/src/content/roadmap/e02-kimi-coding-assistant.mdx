@@ -1,0 +1,18 @@
+---
+title: Kimi coding assistant
+description: Kimi (Moonshot AI) integration mirroring the Claude/Mistral examples — expands AI model coverage to a third provider.
+status: planned
+priority: high
+order: 35
+touchedAreas:
+  - kernel
+  - shell
+  - shell-commands
+  - memfs
+  - polyfills/fs
+  - polyfills/process
+  - network-interceptor
+  - frameworks/vite-dev-server
+internalNotes: |
+  Build an AI-powered coding assistant running entirely in the browser using jiki. The assistant reads/writes files in MemFS, executes code via the shell, and communicates with an LLM API via fetch (through network-interceptor for API key routing). Example structure: Vite-based UI with chat interface, user describes code changes, assistant modifies files in MemFS, user sees live results. Demonstrates jiki as a platform for AI-assisted development environments. Prerequisites: network access for LLM API calls, Vite dev server for the UI.
+---

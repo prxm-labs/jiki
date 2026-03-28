@@ -1,0 +1,37 @@
+---
+title: "MemFS"
+description: "MemFS API reference — readFile, writeFile, mkdir, readdir, watch, and snapshot operations on jiki's in-memory virtual filesystem."
+section: "api"
+order: 3
+---
+
+The `MemFS` class is the low-level filesystem API used internally by the container. It implements a Node.js-compatible `fs` interface that operates entirely in memory.
+
+Most of the time you'll use the higher-level `Container` methods. The `MemFS` API is there when you need direct filesystem access.
+
+## Key methods
+
+| Method                            | Description                           |
+| --------------------------------- | ------------------------------------- |
+| `writeFile(path, data, options?)` | Write data to a file                  |
+| `readFile(path, options?)`        | Read a file's contents                |
+| `unlink(path)`                    | Delete a file                         |
+| `mkdir(path, options?)`           | Create a directory                    |
+| `rmdir(path, options?)`           | Remove a directory                    |
+| `readdir(path)`                   | List directory entries                |
+| `stat(path)`                      | Get file metadata                     |
+| `lstat(path)`                     | Get file metadata (no symlink follow) |
+| `symlink(target, path)`           | Create a symbolic link                |
+| `readlink(path)`                  | Read the target of a symbolic link    |
+| `watch(path, callback)`           | Watch a file or directory for changes |
+| `rename(oldPath, newPath)`        | Rename or move a file                 |
+
+## Snapshot serialization
+
+MemFS supports serializing its entire state to a compact binary format and restoring it later. This is useful for pre-populating a filesystem with installed dependencies to skip the install step on subsequent boots.
+
+```ts
+const snapshot = container.fs.toSnapshot();
+// Later...
+const container2 = await boot({ snapshot });
+```

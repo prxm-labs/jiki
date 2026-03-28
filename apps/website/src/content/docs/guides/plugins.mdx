@@ -1,0 +1,184 @@
+---
+title: "Writing Plugins"
+description: "How to build custom jiki plugins with onResolve, onLoad, and onTransform hooks — add virtual modules, stub imports, and transform code at runtime."
+section: "guides"
+order: 5
+---
+
+Plugins are how you extend what jiki can do — resolve custom imports, stub out modules, transform code, or add shell commands. Below are some common patterns, each as a standalone plugin you can adapt to your needs.
+
+:::tip[See it in action]
+The [Plugin System example](/examples/plugin-system) demonstrates virtual module resolution, CSS import stubbing, and code transformation hooks working together in the browser. A useful reference for seeing how plugins compose.
+:::
+
+## Virtual modules
+
+The most common plugin pattern: resolve a custom specifier to a virtual path, then provide its contents via `onLoad`. No file needs to exist on the virtual filesystem.
+
+```ts
+import { boot, type JikiPlugin } from "@run0/jiki";
+
+const configPlugin: JikiPlugin = {
+  name: "virtual-config",
+  setup(hooks) {
+    hooks.onResolve(/^virtual:config$/, () => ({
+      path: "/__virtual__/config.js",
+    }));
+
+    hooks.onLoad(/^\/__virtual__\/config\.js$/, () => ({
+      contents: `module.exports = ${JSON.stringify({
+        apiUrl: "https://api.example.com",
+        debug: true,
+      })};`,
+    }));
+  },
+};
+
+const container = boot({ plugins: [configPlugin] });
+const result = container.execute('module.exports = require("virtual:config");');
+console.log(result.exports); // { apiUrl: "https://api.example.com", debug: true }
+```
+
+## CSS module stub
+
+When running Node-style code that imports `.css` files, you can stub them out so `require()` doesn't throw:
+
+```ts
+const cssStubPlugin: JikiPlugin = {
+  name: "css-stub",
+  setup(hooks) {
+    hooks.onLoad(/\.css$/, () => ({
+      contents: "module.exports = {};",
+    }));
+  },
+};
+```
+
+For CSS modules, return a proxy that generates class names:
+
+```ts
+const cssModulesPlugin: JikiPlugin = {
+  name: "css-modules",
+  setup(hooks) {
+    hooks.onLoad(/\.module\.css$/, () => ({
+      contents: `module.exports = new Proxy({}, {
+        get: (_, key) => "css_" + key
+      });`,
+    }));
+  },
+};
+```
+
+## Code instrumentation
+
+Use `onTransform` to inject code before every file executes. Transforms run as a pipeline, so multiple plugins can each add their own instrumentation.
+
+```ts
+const timingPlugin: JikiPlugin = {
+  name: "timing",
+  setup(hooks) {
+    hooks.onTransform(/\.js$/, args => ({
+      contents: `const __start = Date.now();\n${args.contents}\nconsole.log("${args.path}:", Date.now() - __start, "ms");`,
+    }));
+  },
+};
+```
+
+## Custom shell commands
+
+Register commands that users can invoke via `container.run()`:
+
+```ts
+const toolsPlugin: JikiPlugin = {
+  name: "tools",
+  setup(hooks) {
+    // "now" command prints the current timestamp
+    hooks.onCommand("now", () => ({
+      stdout: new Date().toISOString() + "\n",
+      stderr: "",
+      exitCode: 0,
+    }));
+
+    // "count" command counts files in a directory
+    hooks.onCommand("count", (args, ctx) => {
+      const dir = args[0] || ctx.cwd;
+      try {
+        const entries = ctx.vfs.readdirSync(dir);
+        return {
+          stdout: `${entries.length} entries\n`,
+          stderr: "",
+          exitCode: 0,
+        };
+      } catch {
+        return {
+          stdout: "",
+          stderr: `count: ${dir}: not found\n`,
+          exitCode: 1,
+        };
+      }
+    });
+  },
+};
+
+const container = boot({ plugins: [toolsPlugin] });
+await container.run("now"); // prints ISO timestamp
+await container.run("count /"); // prints entry count
+```
+
+## Lifecycle hooks
+
+React to container events:
+
+```ts
+const lifecyclePlugin: JikiPlugin = {
+  name: "lifecycle",
+  setup(hooks) {
+    hooks.onBoot(() => {
+      console.log("Container is ready");
+    });
+
+    hooks.onInstall(packages => {
+      console.log("Installed:", packages.join(", "));
+    });
+  },
+};
+```
+
+## Composing multiple plugins
+
+Plugins are independent and compose naturally. Pass them as an array — hooks execute in the order plugins are listed:
+
+```ts
+const container = boot({
+  plugins: [
+    configPlugin, // virtual modules
+    cssStubPlugin, // CSS handling
+    timingPlugin, // instrumentation
+    toolsPlugin, // shell commands
+    lifecyclePlugin, // logging
+  ],
+});
+```
+
+For `onResolve` and `onLoad`, the first plugin to return a result wins. For `onTransform`, all matching plugins run in order. This means you can layer transforms from different plugins without conflicts.
+
+## Registering plugins after boot
+
+If you need to add a plugin to an existing container:
+
+```ts
+import { boot, registerPlugin } from "@run0/jiki";
+
+const container = boot();
+// ... later ...
+registerPlugin(container, myPlugin);
+```
+
+This registers all hooks and makes any new shell commands available immediately.
+
+## Tips
+
+- Specific filters tend to perform better. A broad filter like `/./` runs on every module and can slow things down — something like `/^virtual:/` or `/\.custom$/` is usually a better choice.
+- For virtual modules, `onResolve` and `onLoad` work as a pair: `onResolve` maps the specifier to a unique path, and `onLoad` provides the contents for that path.
+- Transforms are cumulative — each one in the pipeline receives the output of the previous one, so ordering matters when multiple plugins transform the same files.
+- Plugins are isolated per container. A plugin registered on one container has no effect on another.

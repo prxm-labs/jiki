@@ -1,0 +1,28 @@
+---
+title: "ServerBridge"
+description: "ServerBridge API reference — route HTTP requests from preview iframes to jiki's in-memory server handlers via Service Workers."
+section: "api"
+order: 7
+---
+
+The `ServerBridge` is the networking layer that connects in-memory HTTP servers to the browser's request pipeline. It uses a Service Worker to intercept fetch requests from preview iframes and route them to the appropriate server handler inside the jiki container, without real network round-trips.
+
+When a framework dev server listens on a port, the ServerBridge registers that port. Any subsequent fetch requests targeting that port are intercepted by the Service Worker, forwarded to the in-memory handler, and the response is returned to the browser as if it came from a real server.
+
+## Setup
+
+The Service Worker file must be served from your application's public directory. jiki provides a helper to register it:
+
+```ts
+import { registerServiceWorker } from "jiki/sw";
+
+await registerServiceWorker("/sw.js");
+```
+
+## Methods
+
+| Method                    | Description                              |
+| ------------------------- | ---------------------------------------- |
+| `register(port, handler)` | Register a server handler for a port     |
+| `unregister(port)`        | Remove a server handler                  |
+| `isRegistered(port)`      | Check if a port has a registered handler |

@@ -1,0 +1,35 @@
+---
+title: Astro
+description: Run an Astro site in the browser with Markdown content, component islands, file-based routing, and static generation via jiki.
+category: frameworks
+features:
+  - Markdown blog with frontmatter
+  - Multi-framework component islands
+  - File-based routing
+  - Static site generation
+---
+
+import { Demo } from "../../../../../examples/astro/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+An Astro 5 static site featuring a markdown-powered blog, component islands from multiple frameworks (React and Vue), and file-based routing. This runs Astro's island architecture directly in the browser.
+
+## How it works
+
+- Blog posts are written in Markdown with frontmatter metadata
+- Interactive React and Vue components are embedded as islands in static pages
+- Pages and blog posts are mapped from the filesystem
+- You can browse posts by tag using dynamic tag pages
+
+## Try it yourself
+
+1. Edit a markdown blog post and see the rendered output
+2. Modify the React or Vue island components
+3. Add a new `.md` file to create a blog post
+
+</div>

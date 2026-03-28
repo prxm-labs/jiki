@@ -1,0 +1,11 @@
+---
+title: Crypto algorithm coverage
+description: Extend beyond SHA family — add MD5 (legacy compat), BLAKE2, and proper randomUUID.
+status: planned
+priority: medium
+order: 27
+touchedAreas:
+  - polyfills/crypto
+internalNotes: |
+  Current crypto polyfill only has randomBytes, SHA-256, randomUUID, randomInt. Need to add: (1) createHash for MD5, SHA-1, SHA-384, SHA-512, (2) createHmac, (3) createCipheriv/createDecipheriv for AES, (4) createSign/createVerify for RSA/ECDSA, (5) crypto.subtle parity. Key file: polyfills/crypto.ts. Strategy: delegate to Web Crypto API (crypto.subtle) where possible (AES-GCM, SHA-*, HMAC, ECDSA, RSA), fall back to pure JS for unsupported algorithms (MD5, DES). Consider importing noble-hashes and noble-ciphers for comprehensive coverage without large bundle size.
+---

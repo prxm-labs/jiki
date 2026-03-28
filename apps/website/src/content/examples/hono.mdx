@@ -1,0 +1,35 @@
+---
+title: Hono
+description: Run a Hono web server in the browser with logger, CORS middleware, and request context API via jiki.
+category: servers
+features:
+  - Lightweight web framework
+  - Composable middleware (logger, CORS)
+  - Request context API
+  - Interactive API explorer
+---
+
+import { Demo } from "../../../../../examples/hono/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Hono web framework server running in the browser with composable middleware, including logger, CORS, and request ID generation. Uses the same interactive API explorer as the Express example.
+
+## Details
+
+- Hono provides a modern, lightweight web framework with minimal overhead
+- The middleware stack composes logger, CORS, and request ID generation
+- Hono's type-safe request context API is available throughout handlers
+- The interactive explorer sends requests and displays responses inline
+
+## Things to try
+
+1. Use the API explorer to test different endpoints
+2. Watch the terminal for middleware logs (logger output)
+3. Check response headers for CORS and request ID values
+
+</div>

@@ -1,0 +1,15 @@
+---
+title: Error message quality
+description: Replace generic "Cannot find module" with contextual suggestions (did-you-mean, check node_modules, verify package.json).
+status: planned
+priority: high
+order: 22
+touchedAreas:
+  - errors
+  - kernel
+  - module-resolver
+  - shell
+  - frameworks/code-transforms
+internalNotes: |
+  Current errors often expose internal jiki stack frames. Need: (1) source-map-based stack trace remapping to user code, (2) clear error messages for common failures (module not found, syntax errors, network issues), (3) contextual suggestions ("Did you mean X?" for typos in imports), (4) error overlay improvements with clickable file links. Key files: errors.ts (parseError, formatErrorHtml improvements), kernel.ts (error wrapping in execute/runFile), module-resolver.ts (better ENOENT messages with suggestions). The ErrorOverlay already exists — enhance it with source context snippets.
+---

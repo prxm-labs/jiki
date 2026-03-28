@@ -1,0 +1,108 @@
+---
+title: "Using jiki with AI Tools"
+description: "How to give AI coding assistants context about jiki using llm.txt and llm-full.txt"
+section: "ai"
+order: 3
+---
+
+AI coding assistants work best when they have accurate, up-to-date context about the libraries you're using. jiki provides three structured context files specifically designed for AI consumption.
+
+## Context files
+
+| File | Size | Purpose |
+| ---- | ---- | ------- |
+| [`llms.txt`](https://jiki.sh/llms.txt) | ~0.5 KB | Spec-compliant index pointing to the other files |
+| [`llm.txt`](https://jiki.sh/llm.txt) | ~12 KB | Summary with capabilities, code snippets, and doc links |
+| [`llm-full.txt`](https://jiki.sh/llm-full.txt) | ~50 KB | Complete API reference, guides, and examples — everything an AI needs |
+
+**When to use which:**
+
+- **Quick questions** ("how do I write a file?") — `llm.txt` has enough context
+- **Implementation help** ("set up a Vite dev server with HMR and plugins") — use `llm-full.txt`
+- **Automated discovery** — `llms.txt` is the entry point for tools that follow the llms.txt spec
+
+## Using with Claude Code
+
+Add jiki context to your project's `CLAUDE.md` file:
+
+```markdown
+## jiki
+
+This project uses jiki for browser-based code execution.
+Full API reference: https://jiki.sh/llm-full.txt
+Limitations (important): https://jiki.sh/docs/getting-started/limitations
+```
+
+Or fetch the context directly in a conversation:
+
+```
+@https://jiki.sh/llm-full.txt
+```
+
+:::tip[Include limitations]
+Always point your AI at the [limitations page](/docs/getting-started/limitations). This prevents it from suggesting features jiki doesn't support — like native addons, TCP sockets, or `worker_threads` with `SharedArrayBuffer`.
+:::
+
+## Using with Cursor
+
+Add jiki documentation as project context. Create or update `.cursorrules`:
+
+```markdown
+## jiki Context
+
+This project uses jiki (browser-based Node.js runtime).
+Refer to https://jiki.sh/llm-full.txt for the complete API reference.
+
+Key constraints:
+- No native addons or .node files
+- No TCP/UDP sockets — virtual HTTP servers only
+- In-memory filesystem — use persistence adapter for durability
+- esbuild-wasm for transpilation (3-10x slower than native)
+```
+
+You can also add `llm-full.txt` as a docs reference in Cursor's project settings.
+
+## Using with GitHub Copilot
+
+Reference jiki context in Copilot Chat:
+
+```
+@workspace Use the jiki API from https://jiki.sh/llm.txt to help me set up a React playground
+```
+
+For Copilot's workspace agent, having `llm.txt` or `llm-full.txt` in your project's documentation folder helps it discover jiki's API surface.
+
+## Using as MCP context
+
+If your AI tool supports the Model Context Protocol, you can serve jiki docs as an MCP resource:
+
+```typescript
+// Example: fetch jiki context for an MCP server
+const response = await fetch("https://jiki.sh/llm-full.txt");
+const context = await response.text();
+
+// Provide as a resource to the AI
+server.addResource({
+  uri: "jiki://docs/full",
+  name: "jiki Full Documentation",
+  mimeType: "text/plain",
+  text: context,
+});
+```
+
+## Tips for better AI assistance
+
+1. **Start with `llm.txt` for quick lookups**, switch to `llm-full.txt` when you need the AI to write implementation code.
+
+2. **Point at specific sections** if you're working on one feature. The `llm-full.txt` file is organized by topic — tell the AI "focus on the Plugins API section" to reduce noise.
+
+3. **Include limitations early** in your context. The single most common AI mistake with jiki is suggesting Node.js features that don't exist in the browser runtime (native addons, raw sockets, `fs.promises` completeness).
+
+4. **Use the examples as starting points.** Tell your AI "adapt the pattern from the Claude coding example" — the example code is referenced in `llm-full.txt`.
+
+5. **Version awareness.** The context files are updated with each release. If you're on an older version, the current `llm-full.txt` may reference APIs that don't exist in your version yet.
+
+## Next steps
+
+- [Provider Setup](/docs/ai/provider-setup) — configure API access for building AI-powered apps
+- [Building an AI Coding Assistant](/docs/ai/building-ai-assistant) — patterns for streaming, code injection, and error recovery

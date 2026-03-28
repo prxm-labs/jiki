@@ -1,0 +1,15 @@
+---
+title: Stub module warnings
+description: Reduce noise from repeated warnings on unsupported modules (async_hooks, cluster, dgram, etc.) — warn once, then silence.
+status: planned
+priority: medium
+order: 26
+touchedAreas:
+  - polyfills/net
+  - polyfills/dns
+  - kernel
+  - module-resolver
+  - errors
+internalNotes: |
+  Many polyfills are stubs (dgram, dns, tls, cluster, etc.) that silently return empty objects. When user code depends on these, it fails mysteriously. Need: (1) console.warn when a stub module is imported, (2) clear message explaining what's missing and why, (3) optionally throw instead of warn (strict mode). Key files: kernel.ts (wrap builtin factory calls with warning), module-resolver.ts (detect stub modules), polyfills stubs. The builtins.ts registry knows which modules are real vs stub — add a `stub: true` flag and emit warnings at resolve time.
+---

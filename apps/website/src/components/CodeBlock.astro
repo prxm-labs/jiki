@@ -1,0 +1,26 @@
+---
+import { Code } from 'astro:components';
+import type { ThemeRegistrationRaw } from 'shiki';
+import jikiTheme from '../themes/jiki-dark.json';
+
+interface Props {
+  code: string;
+  lang?: string;
+  filename?: string;
+}
+
+const { code, lang = 'typescript', filename } = Astro.props;
+const theme = jikiTheme as unknown as ThemeRegistrationRaw;
+---
+
+{filename ? (
+  <div class="code-block-wrapper">
+    <div class="code-block-titlebar">
+      <div class="dots"><span /><span /><span /></div>
+      <span class="filename">{filename}</span>
+    </div>
+    <Code code={code} lang={lang as any} theme={theme} />
+  </div>
+) : (
+  <Code code={code} lang={lang as any} theme={theme} />
+)}

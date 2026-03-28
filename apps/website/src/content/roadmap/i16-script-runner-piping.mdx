@@ -1,0 +1,43 @@
+---
+title: Run full projects
+description: "End-to-end project execution: npm/pnpm scripts with piped output, port exposure, dev server lifecycle, and multi-process orchestration."
+status: planned
+priority: high
+order: 5
+touchedAreas:
+  - shell
+  - shell-commands
+  - polyfills/process
+  - polyfills/child_process
+  - polyfills/stream
+  - kernel
+  - frameworks/vite-dev-server
+  - frameworks/next-dev-server
+internalNotes: |
+  ## Goal
+  Enable users to run `npm run dev`, `npm run build`, `pnpm run dev`, etc. inside jiki's browser shell and see real-time stdout/stderr output streamed to the terminal, identical to how it works in a native terminal.
+
+  ## Current State
+  - The shell already handles `npm` and `pnpm` commands via shell-commands.ts, routing to PackageManager.
+  - `package.json` scripts (the `scripts` field) are NOT currently resolved or executed when running `npm run <name>`.
+  - The shell has ShellProcess with stdin/stdout/stderr EventEmitters, but scripts don't use this streaming path.
+  - child_process polyfill supports fork/spawn/exec but doesn't connect output to the shell's stream.
+
+  ## Implementation Approach
+  1. **Script resolution**: In shell-commands.ts, intercept `npm run <name>` / `pnpm run <name>`. Read `package.json` from cwd, resolve the script by name, expand it into the underlying command.
+  2. **Command expansion**: Scripts may chain commands (`&&`, `||`, `;`), use environment variables, or invoke binaries from `node_modules/.bin`. The shell parser already handles `&&`/`;` — need to ensure `.bin` PATH resolution works.
+  3. **Stream piping**: When executing a script, create a ShellProcess. Connect child_process spawn's stdout/stderr to the shell's stdout/stderr EventEmitters so output streams in real time to the browser terminal.
+  4. **Long-running processes**: `npm run dev` starts a dev server (Vite, Next, etc.) that runs indefinitely. Must handle: process lifecycle, Ctrl+C / kill signal forwarding, cleanup on container teardown.
+  5. **Pre/post scripts**: npm supports `prebuild`, `postbuild`, etc. Implement the standard lifecycle script ordering.
+
+  ## Key Files
+  - `packages/jiki/src/shell-commands.ts` — add `run` subcommand to npm/pnpm handlers
+  - `packages/jiki/src/shell.ts` — ShellProcess streaming integration
+  - `packages/jiki/src/polyfills/child_process.ts` — connect spawn output to shell streams
+  - `packages/jiki/src/polyfills/process.ts` — env PATH must include `node_modules/.bin`
+
+  ## Risks
+  - Scripts that spawn sub-processes (e.g., `concurrently`) need recursive stream piping.
+  - Interactive scripts expecting stdin need i03 (shell stdin) to land first or in parallel.
+  - Long-running dev servers must not block the shell from accepting new commands.
+---

@@ -1,0 +1,42 @@
+---
+title: "Transpiler"
+description: "Transpiler API reference — compile TypeScript, JSX, and TSX to JavaScript with configurable esbuild-wasm options in jiki."
+section: "api"
+order: 5
+---
+
+The `Transpiler` class handles TypeScript, JSX, and TSX transpilation using esbuild-wasm. It can also bundle files with tree-shaking and minification.
+
+The transpiler lazily loads the esbuild WebAssembly binary on first use. Once initialized, subsequent transformations are fast since the WASM runtime stays warm in memory. The transpiler is used internally by the kernel for `require()` calls but can also be used directly for explicit build tasks.
+
+## Methods
+
+| Method                      | Description                           |
+| --------------------------- | ------------------------------------- |
+| `transform(code, options?)` | Transform a single file's code        |
+| `build(options)`            | Bundle multiple files into one output |
+| `initialize()`              | Eagerly load the esbuild WASM binary  |
+
+## Transform options
+
+```ts
+interface TransformOptions {
+  loader?: "ts" | "tsx" | "jsx" | "js";
+  sourcemap?: boolean | "inline";
+  minify?: boolean;
+  target?: string;
+  jsx?: "transform" | "preserve" | "automatic";
+}
+```
+
+## Example
+
+```ts
+const result = await container.transpiler.transform(
+  `const greet = (name: string): string => \`Hello, \${name}\`;`,
+  { loader: "ts", sourcemap: true },
+);
+
+console.log(result.code);
+// 'const greet = (name) => `Hello, ${name}`;\n'
+```

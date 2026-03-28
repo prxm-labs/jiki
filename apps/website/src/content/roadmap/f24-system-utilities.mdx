@@ -1,0 +1,79 @@
+---
+title: Shell system utilities
+description: "Built-in grep, head, tail, wc, sort, uniq, xargs, curl, tar, and sed commands for the jiki shell."
+status: planned
+priority: high
+order: 11
+touchedAreas:
+  - shell-commands
+  - shell
+  - memfs
+  - polyfills/stream
+internalNotes: |
+  ## Goal
+  Add commonly expected Unix utilities to jiki's shell. Many npm scripts, Makefiles, and developer workflows shell out to grep, sed, curl, etc. Their absence causes silent failures or confusing "command not found" errors.
+
+  ## Current State (shell-commands.ts — 20.7 KB, 708 lines)
+  21 registered commands: echo, cd, pwd, ls, cat, mkdir, rm, cp, mv, touch, which, env, printenv, export, true, false, node, npm, npx, pnpm, esbuild.
+  Missing: grep, sed, awk, head, tail, wc, sort, uniq, xargs, curl, wget, tar, tee, diff, basename, dirname, realpath, sleep, date, uname.
+
+  Shell piping (`|`) already works — commands read from stdin arg and write to stdout. New utilities just need to follow the same `(args, ctx) => ShellResult` pattern.
+
+  ## Codebase Impact Analysis
+  - **shell-commands.ts**: Add new command functions. Each utility is self-contained (~30-80 lines). File will grow from ~700 to ~1500 lines. Consider splitting into `shell-commands/` directory with one file per command category (text-processing, file-utils, network-utils).
+  - **shell.ts** (22.3 KB): No changes needed — piping, argument parsing, and command dispatch already work. New commands register via `createDefaultCommands()`.
+  - **memfs.ts**: No changes — commands use `ctx.vfs.readFileSync()`/`readdirSync()` which already exist.
+  - **polyfills/stream.ts** (15.7 KB): `grep`, `sort`, `uniq` may need to operate as stream transforms for large inputs. Current stdin is passed as a string arg — sufficient for most use cases but streaming would be better for piped chains.
+
+  ## Commands to Implement (priority order)
+
+  ### Tier 1 — High impact (used by npm scripts and dev tools)
+  | Command | Scope | Notes |
+  |---------|-------|-------|
+  | `grep` | Pattern matching with `-i`, `-r`, `-n`, `-l`, `-v`, `-c`, `-E` | Most requested. RegExp-based, reads from files or stdin. |
+  | `head` | First N lines (`-n`) | Simple, high utility in pipes. |
+  | `tail` | Last N lines (`-n`) | Complement to head. |
+  | `wc` | Line/word/char count (`-l`, `-w`, `-c`) | Used in scripts to check output size. |
+  | `sort` | Sort lines (`-r`, `-n`, `-u`) | Needed for pipe chains. |
+  | `xargs` | Build commands from stdin | Used in `find | xargs` patterns. |
+  | `sed` | Stream editor (`s/pattern/replacement/g`) | At minimum: `s` command with regex. |
+
+  ### Tier 2 — Useful utilities
+  | Command | Scope | Notes |
+  |---------|-------|-------|
+  | `uniq` | Deduplicate sorted lines (`-c`, `-d`) | Complement to sort. |
+  | `tee` | Write stdin to file and stdout | Useful in pipe debugging. |
+  | `diff` | Compare two files | Basic unified diff output. |
+  | `curl` | HTTP GET/POST via fetch | `-o`, `-X`, `-H`, `-d` flags. Maps to Fetch API. |
+  | `tar` | Extract `.tar.gz` archives | `tar -xzf` — pako for gzip, custom tar parser for extraction to VFS. |
+  | `sleep` | Pause for N seconds | Trivial but expected. |
+
+  ### Tier 3 — Path and system info
+  | Command | Scope | Notes |
+  |---------|-------|-------|
+  | `basename` | Strip directory from path | One-liner. |
+  | `dirname` | Strip filename from path | One-liner. |
+  | `realpath` | Resolve symlinks | Delegate to memfs symlink resolution. |
+  | `date` | Print current date/time | `new Date().toISOString()` or format string. |
+  | `uname` | System info | Return `jiki` / `browser` / arch from os polyfill. |
+
+  ## File Organization
+  Consider splitting shell-commands.ts:
+  ```
+  shell-commands/
+    index.ts          — createDefaultCommands(), re-exports
+    file-ops.ts       — cat, ls, mkdir, rm, cp, mv, touch
+    text-processing.ts — grep, sed, head, tail, wc, sort, uniq, xargs, tee, diff
+    network.ts        — curl
+    archive.ts        — tar
+    system.ts         — echo, cd, pwd, which, env, export, basename, dirname, realpath, date, uname, sleep
+    package-managers.ts — npm, pnpm, npx
+    runtime.ts        — node, esbuild
+  ```
+
+  ## Risks
+  - `grep -r` on large VFS trees could be slow — need depth/file-count limits.
+  - `sed` is a complex language — implementing only `s/pattern/replacement/flags` covers 90% of use cases but edge cases in npm scripts may fail.
+  - `curl` through Fetch API inherits CORS restrictions — requests to APIs without CORS headers will fail.
+  - File growth: adding 15+ commands at ~50 lines each = ~750 lines. Splitting into a directory is recommended to keep files focused.
+---

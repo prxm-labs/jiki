@@ -1,0 +1,14 @@
+---
+title: Remix full support
+description: Complete the stub — loaders, actions, nested routes, error boundaries, and streaming.
+status: planned
+priority: high
+order: 19
+touchedAreas:
+  - frameworks/remix-dev-server
+  - frameworks/code-transforms
+  - server-bridge
+  - code-transform
+internalNotes: |
+  Current Remix dev server handles basic loader/action routing and nested layouts. Full support needs: (1) resource routes (non-UI routes returning raw responses), (2) deferred data (defer/Await), (3) streaming responses, (4) error boundaries (ErrorBoundary export), (5) meta/links exports, (6) client-side fetcher API. Key files: frameworks/remix-dev-server.ts. Risk: Remix v2 has significant API changes from v1 — must target v2 conventions (file-based routing with dot notation).
+---

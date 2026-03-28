@@ -1,0 +1,18 @@
+---
+title: "Building a Next.js App"
+description: "How to run a Next.js app entirely in the browser with jiki — App Router, server components, API routes, and HMR without a backend server."
+section: "guides"
+order: 2
+---
+
+Next.js can run in the browser through jiki. Server-side rendering, API routes, and the App Router all work — jiki's in-memory HTTP server and kernel handle the server-side parts that Next.js expects.
+
+jiki provides the Node.js APIs that Next.js depends on: the filesystem, `http` module, and `child_process` stubs. The dev server runs inside the container, and pages are served through the Service Worker bridge so the preview iframe behaves like real browser navigation.
+
+:::tip[See it in action]
+The [Next.js example](/examples/nextjs) demonstrates a full Next.js 14 project with App Router, HMR, TypeScript, and file-based routing running in the browser. Worth exploring as a reference before building your own.
+:::
+
+## Things to keep in mind
+
+Next.js is more resource-intensive than simpler frameworks like Vite. The initial `npm install` pulls a larger dependency tree, and the dev server startup involves compiling pages with webpack or turbopack. Filesystem snapshots can help here — pre-installing dependencies keeps boot times reasonable.

@@ -1,0 +1,15 @@
+---
+title: Incremental transpilation
+description: Cache-aware partial recompilation instead of full esbuild pass on every change.
+status: planned
+priority: medium
+order: 25
+touchedAreas:
+  - transpiler
+  - code-transform
+  - kernel
+  - memfs
+  - utils/hash
+internalNotes: |
+  Currently every file is transpiled on first load, with results cached by filename:hash. Incremental transpilation means: (1) persist transpile cache across sessions (via persistence adapter), (2) invalidate only changed files using mtime comparison, (3) batch transpilation for related files (e.g., all imports of a changed module). Key files: transpiler.ts (cache persistence), code-transform.ts (hash-based invalidation), kernel.ts (processedCodeCache persistence). The simpleHash utility is already used for cache keys. Consider storing transpiled output in MemFS (e.g., node_modules/.cache/jiki/).
+---

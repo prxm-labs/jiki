@@ -1,0 +1,12 @@
+---
+title: Advanced Next.js routing
+description: Parallel routes (@slot), intercepting routes (..), and i18n routing support.
+status: planned
+priority: medium
+order: 10
+touchedAreas:
+  - frameworks/next-dev-server
+  - frameworks/next-shims
+internalNotes: |
+  Covers: parallel routes (@folder), intercepting routes (.folder), route groups ((folder)), catch-all segments ([...slug]), optional catch-all ([[...slug]]). The current file-based router in next-dev-server.ts handles basic routes. Need to extend the route matching algorithm to support these patterns. Key files: frameworks/next-dev-server.ts (routeResolver function — currently simple glob matching, needs upgrade to handle Next.js conventions). The next-shims router stub also needs updates for client-side navigation to match.
+---

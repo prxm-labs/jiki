@@ -1,0 +1,312 @@
+# jiki — Browser-Based Node.js Runtime
+
+> A lightweight, browser-based Node.js runtime. Write files, install npm packages, run shell commands, and start dev servers — all in the browser without a backend.
+
+## What You Can Build
+
+- Interactive coding tutorials with real code execution and validation
+- Online playgrounds for React, Vue, Svelte, or any npm package
+- Documentation with runnable code snippets
+- Browser-based IDEs with editor, terminal, and preview
+- AI coding assistants that can read/write files and run code in a safe sandbox
+- Testing sandboxes that run Jest or Vitest in the browser
+
+## Skills
+
+### Run JavaScript/TypeScript in the Browser
+
+Execute JavaScript and TypeScript files in an in-memory Node.js-like environment. The kernel handles `require()`, `import`, and module resolution. TypeScript and JSX are transpiled on the fly via esbuild-wasm.
+
+```js
+import { boot } from "@run0/jiki";
+
+const container = boot();
+container.writeFile("/hello.ts", 'const msg: string = "Hello!"; console.log(msg);');
+const result = await container.run("node hello.ts");
+console.log(result.stdout); // "Hello!\n"
+```
+
+### Install & Use npm Packages
+
+Install real npm packages from the registry. Dependencies are resolved, fetched concurrently, and cached. Both npm and pnpm are supported.
+
+```js
+await container.install("is-number");
+container.writeFile("/check.js", `
+  const isNumber = require('is-number');
+  console.log(isNumber(42));    // true
+  console.log(isNumber('foo')); // false
+`);
+await container.run("node check.js");
+```
+
+### Build Framework Apps (React, Next.js, Vue, Svelte, Remix, Astro, Nuxt, SolidJS)
+
+Run full framework dev environments in the browser. Vite serves files as ES modules with HMR. Next.js App Router, SvelteKit file-based routing, and Remix flat routes all work.
+
+```js
+import { boot, ViteDevServer } from "@run0/jiki";
+
+const container = boot();
+// Write React files...
+const server = new ViteDevServer(container.vfs, {
+  port: 3000,
+  root: "/",
+  framework: "react", // also: "vue", "svelte", "solid", "vanilla"
+});
+server.start();
+```
+
+### Run a Dev Server with HMR
+
+Start Vite, Next.js, SvelteKit, or Remix dev servers that run entirely in-memory. The Service Worker bridge routes browser requests to the in-memory server. Preview renders in an iframe with hot module replacement.
+
+```js
+container.devServer.on("port", (port, url) => {
+  console.log(`Server ready at ${url}`);
+  iframe.src = url;
+});
+await container.shell.spawn("npm", ["run", "dev"]);
+```
+
+### Execute Shell Commands
+
+A full CLI shell with 19+ built-in commands, pipes, logical operators, recursive globs, variable expansion, tab completion, and background jobs.
+
+```js
+// Pipes and chaining
+await container.run("echo hello | cat && echo world");
+
+// Glob patterns
+await container.run("ls **/*.ts");
+
+// Environment variables
+await container.run("export NODE_ENV=production && node app.js");
+```
+
+### Persist State Across Sessions
+
+Save filesystem state to IndexedDB so files, installed packages, and user work survive page refreshes. Mutations are batched and flushed automatically.
+
+```js
+import { boot, IndexedDBAdapter } from "@run0/jiki";
+
+const adapter = new IndexedDBAdapter({ dbName: "my-project" });
+const container = boot({ persistence: adapter });
+await container.init(); // restores persisted files
+```
+
+### Save & Restore Snapshots
+
+Serialize the entire container state (files, packages, config) to a compact binary format. Restore it later to skip install and setup.
+
+```js
+const snapshot = container.toSnapshot();
+localStorage.setItem("my-snapshot", JSON.stringify(snapshot));
+
+// Later...
+const saved = JSON.parse(localStorage.getItem("my-snapshot"));
+const restored = Container.fromSnapshot(saved);
+```
+
+### Write & Run Tests
+
+Run Jest or Vitest test suites directly in the browser. Test files are discovered on the virtual filesystem, transpiled, and executed. Results stream back in real time.
+
+```js
+container.writeFile("/sum.js", "module.exports = (a, b) => a + b;");
+container.writeFile("/sum.test.js", `
+  const sum = require('./sum');
+  describe('sum', () => {
+    it('adds numbers', () => { expect(sum(1, 2)).toBe(3); });
+  });
+`);
+await container.run("npx vitest run");
+```
+
+### Extend with Plugins
+
+6 hook types (onResolve, onLoad, onTransform, onCommand, onInstall, onBoot) let you intercept module resolution, provide virtual files, transform code, add shell commands, and react to lifecycle events.
+
+```js
+const envPlugin = {
+  name: "env-injector",
+  setup(hooks) {
+    hooks.onResolve(/^@env$/, () => ({ path: "/__env__.js" }));
+    hooks.onLoad(/^\/__env__\.js$/, () => ({
+      contents: `module.exports = { API_URL: "https://api.example.com" };`,
+    }));
+  },
+};
+const container = boot({ plugins: [envPlugin] });
+```
+
+### Sandbox & Resource Limits
+
+Run untrusted code safely with configurable limits for file count, memory, and path-based access controls. Violations produce clear error messages with fix suggestions.
+
+### Mock Network Requests
+
+Intercept outgoing `fetch()` calls with static pattern matching or dynamic handlers. Useful for testing, offline scenarios, and CORS avoidance.
+
+```js
+container.mockFetch("/api/users", { json: [{ name: "Alice" }] });
+container.onFetch(url => {
+  if (url.includes("/health")) return { json: { ok: true } };
+  return null; // pass through
+});
+```
+
+### Worker Isolation
+
+Offload CPU-intensive transpilation to a Web Worker to prevent UI freezes during TypeScript/JSX compilation.
+
+```js
+const container = boot({ worker: true });
+```
+
+### Monorepo Workspaces
+
+Discover packages from `package.json` workspaces or `pnpm-workspace.yaml`, create symlinks for cross-package resolution, and resolve `workspace:*` protocol dependencies.
+
+## Quick Start
+
+```js
+import { boot } from "@run0/jiki";
+
+const container = boot({
+  cwd: "/",
+  env: { NODE_ENV: "development" },
+});
+
+container.writeFile("/index.js", 'console.log("Hello from jiki!")');
+const result = await container.run("node index.js");
+console.log(result.stdout); // "Hello from jiki!\n"
+```
+
+## UI Components
+
+The companion `@run0/jiki-ui` package provides React 19+ components: CodeEditor, Terminal, BrowserWindow, FileExplorer.
+
+```bash
+npm install @run0/jiki-ui
+```
+
+## API Reference
+
+- `Container` — Main interface: file ops, execution, install, snapshots, plugins, sandbox, metrics, network
+- `boot(options?)` — Factory function to create and initialize a container
+- `MemFS` — Virtual in-memory filesystem with Node.js-compatible `fs` interface
+- `Shell` — CLI shell with execute() and spawn() for long-running processes
+- `Transpiler` — esbuild-wasm powered TypeScript/JSX transpilation and bundling
+- `DevServer` — Base HTTP server with port events and HMR
+- `ViteDevServer` — Vite framework dev server (React, Vue, Svelte, Solid, vanilla)
+- `SvelteKitDevServer` — SvelteKit file-based routing dev server
+- `RemixDevServer` — Remix flat file routing dev server
+- `ServerBridge` — Service Worker bridge connecting in-memory servers to browser requests
+- `PluginRegistry` — esbuild-style plugin system with 6 hook types
+- `Persistence` — State persistence via IndexedDB or custom adapters
+- `NetworkInterceptor` — Fetch mocking with static rules and dynamic handlers
+- `Metrics` — Performance tracking (reads, writes, commands, installs, cache hit rate)
+- `TypeChecker` — Heuristic-based type checking for TypeScript files
+- `Workspaces` — Monorepo workspace discovery and linking
+
+## Documentation
+
+### Getting Started
+- Introduction: https://jiki.sh/docs/getting-started/introduction
+- Installation: https://jiki.sh/docs/getting-started/installation
+- Quick Start: https://jiki.sh/docs/getting-started/quick-start
+- Limitations: https://jiki.sh/docs/getting-started/limitations
+
+### Core Concepts
+- Virtual Filesystem: https://jiki.sh/docs/core-concepts/virtual-filesystem
+- Kernel: https://jiki.sh/docs/core-concepts/kernel
+- Shell: https://jiki.sh/docs/core-concepts/shell
+- Package Manager: https://jiki.sh/docs/core-concepts/package-manager
+- Transpiler: https://jiki.sh/docs/core-concepts/transpiler
+- Dev Server: https://jiki.sh/docs/core-concepts/dev-server
+- Plugins: https://jiki.sh/docs/core-concepts/plugins
+- Persistence: https://jiki.sh/docs/core-concepts/persistence
+- Package Cache: https://jiki.sh/docs/core-concepts/package-cache
+- Worker Isolation: https://jiki.sh/docs/core-concepts/worker-isolation
+
+### API Reference
+- boot(): https://jiki.sh/docs/api/boot
+- Container: https://jiki.sh/docs/api/container
+- MemFS: https://jiki.sh/docs/api/memfs
+- Shell: https://jiki.sh/docs/api/shell
+- Transpiler: https://jiki.sh/docs/api/transpiler
+- DevServer: https://jiki.sh/docs/api/dev-server
+- ServerBridge: https://jiki.sh/docs/api/server-bridge
+- Errors: https://jiki.sh/docs/api/errors
+- Plugins: https://jiki.sh/docs/api/plugins
+- Persistence: https://jiki.sh/docs/api/persistence
+- ViteDevServer: https://jiki.sh/docs/api/vite-dev-server
+- SvelteKitDevServer: https://jiki.sh/docs/api/sveltekit-dev-server
+- RemixDevServer: https://jiki.sh/docs/api/remix-dev-server
+- Metrics: https://jiki.sh/docs/api/metrics
+- NetworkInterceptor: https://jiki.sh/docs/api/network
+- Workspaces: https://jiki.sh/docs/api/workspaces
+- TypeChecker: https://jiki.sh/docs/api/type-checker
+
+### Guides
+- React App: https://jiki.sh/docs/guides/react-app
+- Next.js App: https://jiki.sh/docs/guides/nextjs-app
+- Vue App: https://jiki.sh/docs/guides/vue-app
+- Vite App: https://jiki.sh/docs/guides/vite-app
+- Testing: https://jiki.sh/docs/guides/testing
+- Writing Plugins: https://jiki.sh/docs/guides/plugins
+
+### AI
+- AI Overview: https://jiki.sh/docs/ai/overview
+- Building an AI Coding Assistant: https://jiki.sh/docs/ai/building-ai-assistant
+- Using jiki with AI Tools: https://jiki.sh/docs/ai/ai-tools
+- Provider Setup: https://jiki.sh/docs/ai/provider-setup
+
+## Examples
+
+### Frameworks
+- React: https://jiki.sh/examples/react — Multi-page app with Tailwind CSS, routing, and live preview
+- Next.js: https://jiki.sh/examples/nextjs — Next.js 14 with App Router, HMR, and TypeScript
+- Vue: https://jiki.sh/examples/vue — Vue 3 Composition API with reactive state
+- Svelte: https://jiki.sh/examples/svelte — Reactive declarations, scoped CSS, and animations
+- Astro: https://jiki.sh/examples/astro — Astro 5 with Markdown blog and component islands
+- Nuxt: https://jiki.sh/examples/nuxt — Auto-imported composables, server API routes
+- SolidJS: https://jiki.sh/examples/solidjs — SolidJS reactive primitives
+- Remix: https://jiki.sh/examples/remix — Remix flat file routing
+
+### Testing
+- Vitest: https://jiki.sh/examples/vitest — ESM-first testing with formatted results
+- Jest: https://jiki.sh/examples/jest — Jest-compatible runner with result parsing
+
+### Servers
+- Express: https://jiki.sh/examples/express — REST API with middleware and interactive explorer
+- Hono: https://jiki.sh/examples/hono — Lightweight web framework with composable middleware
+
+### AI Coding Assistants
+- Claude: https://jiki.sh/examples/claude-coding — Generate React components with Claude AI
+- OpenAI: https://jiki.sh/examples/openai-coding — Build Astro sites with GPT
+- Mistral: https://jiki.sh/examples/mistral-coding — Generate React code with Codestral
+
+### Build Tools
+- Vite: https://jiki.sh/examples/vite — Vite + React + TypeScript with HMR
+- esbuild: https://jiki.sh/examples/esbuild-playground — Interactive bundler playground
+- TypeScript: https://jiki.sh/examples/typescript — Compile and run TypeScript
+- Prettier: https://jiki.sh/examples/prettier — Code formatting with before/after diffs
+
+### Advanced
+- pnpm Workspaces: https://jiki.sh/examples/pnpm-workspaces — Monorepo with cross-package imports
+- Persistence: https://jiki.sh/examples/persistence — IndexedDB filesystem persistence
+- Plugin System: https://jiki.sh/examples/plugin-system — Virtual modules, CSS stubs, code transforms
+- Shell Scripting: https://jiki.sh/examples/shell-scripting — Commands, pipes, and file manipulation
+- Sandbox: https://jiki.sh/examples/sandbox — Resource limits and path restrictions
+- Interactive Tutorial: https://jiki.sh/examples/interactive-tutorial — 7 guided coding lessons
+- Error Overlay: https://jiki.sh/examples/error-overlay — Runtime error display with stack traces
+- npm Scripts: https://jiki.sh/examples/npm-scripts — Package management and script execution
+- Node.js: https://jiki.sh/examples/node — Built-in modules, CommonJS, and ESM
+- Crypto: https://jiki.sh/examples/crypto — SHA-256, HMAC, and secure random generation
+
+## Optional
+
+- Full documentation for AI: https://jiki.sh/llm-full.txt

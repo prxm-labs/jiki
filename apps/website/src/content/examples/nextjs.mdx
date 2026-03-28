@@ -1,0 +1,35 @@
+---
+title: Next.js
+description: Run Next.js 14 in the browser with App Router, HMR, TypeScript, and file-based routing via jiki.
+category: frameworks
+features:
+  - Next.js 14 App Router
+  - Hot Module Replacement (HMR)
+  - TypeScript support
+  - File-based routing
+---
+
+import { Demo } from "../../../../../examples/nextjs/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A full Next.js 14 project using the App Router, running with a real dev server and HMR support. It comes with TypeScript, layout components, and the standard Next.js directory structure.
+
+## What's inside
+
+- Next.js 14 file-based routing with the `/app` directory
+- Hot Module Replacement for instant feedback during development
+- Full TypeScript support with `tsconfig.json`
+- Nested layout composition using `layout.tsx` files
+
+## Try it yourself
+
+1. Edit a page component and save to trigger HMR
+2. Add a new file in the `/app` directory to create a route
+3. Modify `layout.tsx` to change the shared layout
+
+</div>

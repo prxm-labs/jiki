@@ -1,0 +1,35 @@
+---
+title: Node.js
+description: Run Node.js code in the browser — built-in modules like os and path, CommonJS require, and ESM support via jiki.
+category: runtime
+features:
+  - Built-in module support (os, path)
+  - CommonJS require system
+  - JSON configuration loading
+  - ESM-to-CJS transformation
+---
+
+import { Demo } from "../../../../../examples/node/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+A Node.js runtime environment running standard scripts in the browser. Covers built-in modules, CommonJS require, JSON file loading, and automatic ESM-to-CJS transformation.
+
+## How it works
+
+- The `os` and `path` modules are available out of the box
+- Standard `require()` and `module.exports` patterns work as expected
+- `require('./config.json')` loads JSON files directly
+- ESM and CJS are automatically transformed so both module styles work together
+
+## Try it yourself
+
+1. Edit `index.js` and run it from the terminal
+2. Create new modules and import them with `require()`
+3. Try using Node.js built-in modules like `os` and `path`
+
+</div>

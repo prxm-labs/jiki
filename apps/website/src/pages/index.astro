@@ -1,0 +1,277 @@
+---
+import MarketingLayout from "../layouts/MarketingLayout.astro";
+import FeatureCard from "../components/FeatureCard.astro";
+import ExampleCard from "../components/ExampleCard.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import HeroDemo from "../components/HeroDemo.tsx";
+import { features } from "../data/features";
+import { examples, categoryLabels } from "../data/examples";
+import CodeBlock from "../components/CodeBlock.astro";
+
+const featuredExamples = examples.slice(0, 8);
+
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "jiki",
+  url: "https://jiki.sh",
+  logo: "https://jiki.sh/favicon.svg",
+};
+
+const softwareLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "jiki",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Web Browser",
+  description:
+    "jiki is a lightweight browser-based Node.js runtime with a virtual filesystem, npm/pnpm support, shell, and dev servers for building coding playgrounds and AI-powered tools.",
+  url: "https://jiki.sh",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+};
+
+const homepageJsonLd = [organizationLd, softwareLd];
+
+const demoCode = `import { boot } from '@run0/jiki';
+
+// Boot a container with a virtual filesystem
+const container = boot({ cwd: '/' });
+
+// Write files, install packages, run code
+container.writeFile('/app.js', \`
+  const chalk = require('chalk');
+  console.log(chalk.green('Hello from jiki!'));
+\`);
+
+await container.install('chalk');
+const result = await container.run('node app.js');
+
+console.log(result.stdout);
+// => "Hello from jiki!"`;
+---
+
+<MarketingLayout jsonLd={homepageJsonLd}>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div
+      class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent">
+    </div>
+    <div
+      class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
+      <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <div
+            class="mb-4 inline-block font-mono text-xs uppercase tracking-widest text-accent">
+            The <em>fake of the art</em> runtime.
+          </div>
+          <h1
+            class="font-display text-5xl leading-tight text-zinc-100 sm:text-6xl lg:text-7xl">
+            <em>Run Node.js</em><br />in the browser
+          </h1>
+          <p class="mt-6 max-w-lg text-lg leading-[1.75] text-zinc-400">
+            A lightweight runtime with virtual filesystem, npm support, shell,
+            and dev servers. Build coding playgrounds and agentic flows entirely
+            in the browser.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-md border border-zinc-700 px-6 py-2.5 font-mono text-sm tracking-wider text-zinc-300 transition-colors hover:border-zinc-500 hover:text-zinc-100">
+              View on GitHub
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                ></path>
+              </svg>
+            </a>
+            <div
+              class="group inline-flex items-center gap-3 rounded-md bg-emerald-500/15 border border-emerald-500/30 px-5 py-2.5 font-mono text-sm tracking-wider transition-all hover:bg-emerald-500/25 hover:border-emerald-500/50">
+              <span class="text-emerald-600">$</span>
+              <span class="text-emerald-400">npm i @run0/jiki</span>
+              <button
+                id="hero-copy-btn"
+                type="button"
+                class="inline-flex items-center justify-center rounded p-0.5 text-emerald-600 transition-colors hover:text-emerald-300"
+                aria-label="Copy to clipboard">
+                <svg
+                  id="hero-copy-icon"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"
+                  ></path>
+                </svg>
+                <svg
+                  id="hero-check-icon"
+                  class="hidden h-4 w-4 text-emerald-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M5 13l4 4L19 7"></path>
+                </svg>
+              </button>
+            </div>
+            <script>
+              document
+                .getElementById("hero-copy-btn")
+                ?.addEventListener("click", () => {
+                  navigator.clipboard.writeText("npm install jiki");
+                  const copyIcon = document.getElementById("hero-copy-icon");
+                  const checkIcon = document.getElementById("hero-check-icon");
+                  copyIcon?.classList.add("hidden");
+                  checkIcon?.classList.remove("hidden");
+                  setTimeout(() => {
+                    copyIcon?.classList.remove("hidden");
+                    checkIcon?.classList.add("hidden");
+                  }, 2000);
+                });
+            </script>
+          </div>
+        </div>
+        <div class="w-full min-w-0">
+          <HeroDemo client:visible />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="border-y border-zinc-800/50 bg-zinc-900/30">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+        {
+          [
+            "Virtual Filesystem",
+            "npm & pnpm",
+            "TypeScript",
+            "HMR",
+            "Snapshots",
+          ].map(stat => (
+            <span class="font-mono text-xs tracking-widest text-zinc-500">
+              {stat}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section
+    class="animate-on-scroll mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+    <div class="mb-12 max-w-2xl">
+      <SectionHeading label="Features">
+        <em>What's inside</em> the runtime
+      </SectionHeading>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {features.map(feature => <FeatureCard {...feature} />)}
+    </div>
+  </section>
+
+  <!-- Code Demo -->
+  <section class="animate-on-scroll border-y border-zinc-800/50 bg-zinc-900/20">
+    <div class="mx-auto max-w-4xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+      <div class="mb-8 text-center">
+        <SectionHeading label="Quick Start">
+          <em>A few lines</em> is all it takes
+        </SectionHeading>
+      </div>
+      <CodeBlock code={demoCode} lang="typescript" filename="app.ts" />
+    </div>
+  </section>
+
+  <!-- Examples Showcase -->
+  <section
+    class="animate-on-scroll mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+    <div class="mb-12 flex items-end justify-between">
+      <div>
+        <SectionHeading label="Examples">
+          <em>See it</em> in action
+        </SectionHeading>
+      </div>
+      <a
+        href="/examples"
+        data-astro-prefetch="hover"
+        class="hidden font-mono text-sm text-zinc-400 transition-colors hover:text-accent sm:inline-flex items-center gap-1">
+        View all {examples.length} examples
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </a>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        featuredExamples.map(example => (
+          <ExampleCard
+            title={example.title}
+            description={example.description}
+            slug={example.slug}
+            category={categoryLabels[example.category]}
+          />
+        ))
+      }
+    </div>
+    <div class="mt-8 text-center sm:hidden">
+      <a
+        href="/examples"
+        data-astro-prefetch="hover"
+        class="font-mono text-sm text-zinc-400 transition-colors hover:text-accent">
+        View all {examples.length} examples →
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="animate-on-scroll border-t border-zinc-800/50 bg-zinc-900/20">
+    <div
+      class="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6 sm:py-28 lg:px-8">
+      <SectionHeading>
+        <em>Try jiki</em>
+      </SectionHeading>
+      <p class="mx-auto mt-4 max-w-lg text-lg text-zinc-400">
+        Install the package and boot a container in a few lines of code.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <a
+          href="/docs/getting-started/introduction"
+          data-astro-prefetch="viewport"
+          class="inline-flex items-center rounded-md bg-accent px-6 py-2.5 font-mono text-sm font-medium tracking-wider text-zinc-950 transition-colors hover:bg-accent-light">
+          Read the Docs
+        </a>
+        <a
+          href="/examples"
+          data-astro-prefetch="viewport"
+          class="inline-flex items-center rounded-md border border-zinc-700 px-6 py-2.5 font-mono text-sm tracking-wider text-zinc-300 transition-colors hover:border-zinc-500 hover:text-zinc-100">
+          Browse Examples
+        </a>
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

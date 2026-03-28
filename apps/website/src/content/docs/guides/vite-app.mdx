@@ -1,0 +1,95 @@
+---
+title: "Building a Vite App"
+description: "How to set up a Vite + React + TypeScript project running entirely in the browser using jiki's ViteDevServer with HMR and CSS injection."
+section: "guides"
+order: 4
+---
+
+jiki's `ViteDevServer` serves files as ES modules with on-the-fly transpilation, CSS injection, and HMR updates. It works with React, Vue, Svelte, SolidJS, and vanilla JavaScript projects.
+
+:::tip[See it in action]
+The [Vite example](/examples/vite) shows a Vite + React + TypeScript setup with Tailwind CSS and HMR. A helpful reference for seeing how the pieces fit together.
+:::
+
+## Quick start
+
+Here's a minimal setup to get a Vite-powered React app running in the browser:
+
+```ts
+import { boot, ViteDevServer } from "@run0/jiki";
+
+const container = boot();
+
+// Write project files
+container.writeFile(
+  "/index.html",
+  `<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>`,
+);
+
+container.writeFile(
+  "/src/main.jsx",
+  `
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+function App() {
+  return <h1>Hello from Vite!</h1>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+`,
+);
+
+// Start the dev server
+const server = new ViteDevServer(container.vfs, {
+  port: 3000,
+  root: "/",
+  framework: "react",
+});
+
+server.start();
+```
+
+## How it works
+
+1. **HTML:** The server injects an HMR client script into the `index.html`. If no HTML file exists, it generates a default one.
+2. **JS/TS/JSX/TSX:** Files are transformed with esbuild on each request. Bare imports like `"react"` are rewritten to `/@modules/react`.
+3. **CSS:** CSS files are served as JavaScript modules that inject `<style>` tags at runtime.
+4. **Bare imports:** Requests to `/@modules/<pkg>` are resolved from `node_modules` using the package's `main` or `module` field.
+5. **HMR:** File changes emit `hmr-update` events that the client can listen for.
+
+## Options
+
+| Option            | Type     | Default         | Description                                                     |
+| ----------------- | -------- | --------------- | --------------------------------------------------------------- |
+| `port`            | `number` | (required)      | Port number                                                     |
+| `root`            | `string` | `"/"`           | Root directory                                                  |
+| `entry`           | `string` | `"/index.html"` | Entry HTML file                                                 |
+| `framework`       | `string` | `"react"`       | Framework preset (`react`, `vue`, `svelte`, `solid`, `vanilla`) |
+| `jsxImportSource` | `string` | `"react"`       | JSX import source                                               |
+
+## Listening for HMR updates
+
+```ts
+server.on("hmr-update", update => {
+  console.log(update.type, update.path); // "update" "/src/app.jsx"
+  // Reload the preview iframe or apply hot update
+});
+```
+
+## CSS handling
+
+CSS imports in JavaScript are automatically handled:
+
+```js
+import "./styles.css"; // Injects a <style> tag at runtime
+```
+
+CSS module files (`.module.css`) can be supported via a [plugin](/docs/guides/plugins).

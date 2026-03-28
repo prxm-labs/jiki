@@ -1,0 +1,212 @@
+---
+title: "Provider Setup"
+description: "Configure Anthropic, OpenAI, and Mistral API access for browser-based AI coding assistants"
+section: "ai"
+order: 4
+---
+
+When building an AI coding assistant with jiki, you need to connect to an LLM API. This guide covers the setup for each supported provider and the trade-offs between browser-direct and proxied API calls.
+
+## Browser-direct vs proxy
+
+There are two ways to call an LLM API from a jiki-powered app:
+
+| Approach | Pros | Cons |
+| -------- | ---- | ---- |
+| **Browser-direct** | No server needed, simpler deployment | API key exposed in browser, CORS restrictions |
+| **Server proxy** | Key stays on server, no CORS issues | Requires a backend endpoint |
+
+**Browser-direct** works well for demos, prototypes, and apps where users provide their own API key (like jiki's examples). The key is stored in `localStorage` and never leaves the user's browser.
+
+**Server proxy** is better for production apps where you control the API key. Route requests through your backend to keep credentials secure.
+
+## Anthropic (Claude)
+
+The [Claude coding example](/examples/claude-coding) calls Anthropic's Messages API directly from the browser.
+
+**Setup:**
+
+```typescript
+const response = await fetch("https://api.anthropic.com/v1/messages", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": apiKey,
+    "anthropic-version": "2023-06-01",
+    "anthropic-dangerous-direct-browser-access": "true",
+  },
+  body: JSON.stringify({
+    model: "claude-opus-4-6",
+    max_tokens: 4096,
+    system: "You are a React developer. Respond with a single JSX code block.",
+    stream: true,
+    messages: [{ role: "user", content: userPrompt }],
+  }),
+});
+```
+
+**Key details:**
+- The `anthropic-dangerous-direct-browser-access: "true"` header is required for browser-direct calls
+- Streaming uses Server-Sent Events — parse `content_block_delta` events for text
+- `anthropic-version` must be `2023-06-01` or later
+- Get an API key at [console.anthropic.com](https://console.anthropic.com)
+
+**Parsing stream events:**
+
+```typescript
+// Anthropic event format
+if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
+  const text = event.delta.text;
+  // append to response
+}
+if (event.type === "message_stop") {
+  // response complete
+}
+```
+
+## OpenAI
+
+The [OpenAI coding example](/examples/openai-coding) calls the Chat Completions API directly from the browser.
+
+**Setup:**
+
+```typescript
+const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${apiKey}`,
+  },
+  body: JSON.stringify({
+    model: "gpt-5.4-mini",
+    max_completion_tokens: 4096,
+    messages: [
+      { role: "system", content: "You are a web developer..." },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  }),
+});
+```
+
+**Key details:**
+- OpenAI allows browser-direct calls with CORS headers
+- Streaming uses Server-Sent Events with `[DONE]` terminator
+- Get an API key at [platform.openai.com](https://platform.openai.com)
+
+**Parsing stream events:**
+
+```typescript
+// OpenAI event format
+const delta = event.choices?.[0]?.delta;
+if (delta?.content) {
+  const text = delta.content;
+  // append to response
+}
+if (event.choices?.[0]?.finish_reason) {
+  // response complete
+}
+```
+
+## Mistral
+
+The [Mistral coding example](/examples/mistral-coding) uses the OpenAI-compatible Chat Completions endpoint, proxied through a server endpoint to avoid CORS issues.
+
+**Setup (via proxy):**
+
+```typescript
+// Client-side: call your proxy endpoint
+const response = await fetch("/api/mistral", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "codestral-latest",
+    max_tokens: 4096,
+    messages: [
+      { role: "system", content: "You are a React developer..." },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  }),
+});
+```
+
+**Proxy endpoint** (Astro example):
+
+```typescript
+// src/pages/api/mistral.ts
+export const POST: APIRoute = async ({ request }) => {
+  const body = await request.json();
+
+  return fetch("https://api.mistral.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${import.meta.env.MISTRAL_API_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
+};
+```
+
+**Key details:**
+- Mistral's API is OpenAI-compatible — same request/response format
+- `codestral-latest` is optimized for code generation
+- CORS requires a proxy (unlike Anthropic and OpenAI)
+- Get an API key at [console.mistral.ai](https://console.mistral.ai)
+
+## Common patterns
+
+### API key handling
+
+All three jiki examples use the same pattern: prompt the user for their key on first use and store it in `localStorage`:
+
+```typescript
+function getApiKey(provider: string): string | null {
+  const key = localStorage.getItem(`${provider}-api-key`);
+  if (key) return key;
+
+  const input = prompt(`Enter your ${provider} API key:`);
+  if (input) {
+    localStorage.setItem(`${provider}-api-key`, input);
+    return input;
+  }
+  return null;
+}
+```
+
+:::warning[Browser key security]
+Keys stored in `localStorage` are accessible to any JavaScript on the page. This is acceptable for demos and apps where users provide their own keys. For production apps with shared keys, use a server proxy.
+:::
+
+### System prompts for code generation
+
+The system prompt determines the quality and format of generated code. Key guidelines:
+
+- **Be specific about output format**: "Respond with a single JSX code block" or "Label each file with `filename=`"
+- **Specify the framework**: "Use React 18 with hooks" or "Generate Astro pages with frontmatter"
+- **Include error handling**: "If the user reports an error, fix the code and output the corrected version"
+- **Set constraints**: "Do not use external APIs. All data should be hardcoded or generated."
+
+### Abort handling
+
+Always support cancellation for long-running generations:
+
+```typescript
+const controller = new AbortController();
+
+const response = await fetch(url, {
+  ...options,
+  signal: controller.signal,
+});
+
+// Cancel button handler
+cancelButton.onclick = () => controller.abort();
+```
+
+## Next steps
+
+- [Building an AI Coding Assistant](/docs/ai/building-ai-assistant) — the full pattern for streaming, extraction, and error recovery
+- [Claude coding example](/examples/claude-coding) — working Anthropic integration
+- [OpenAI coding example](/examples/openai-coding) — working OpenAI integration
+- [Mistral coding example](/examples/mistral-coding) — working Mistral integration

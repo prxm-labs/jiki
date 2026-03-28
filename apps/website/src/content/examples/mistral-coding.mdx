@@ -1,0 +1,42 @@
+---
+title: Mistral Coding
+description: Generate React code with Mistral Codestral in the browser — streaming AI responses, live preview, and chat history via jiki.
+category: agentic
+features:
+  - Codestral integration via Mistral API
+  - Streaming response rendering
+  - Live React preview
+  - Chat history persistence
+  - Element inspection
+  - Error overlay recovery
+---
+
+import { Demo } from "../../../../../examples/mistral-coding/src/Demo";
+
+<div className="demo-frame">
+  <Demo showHeader={false} client:load />
+</div>
+
+<div className="example-prose">
+
+An AI-powered code generator that uses Mistral's Codestral model to create React components from natural language descriptions. Generated code runs live in a jiki container with real-time preview and error overlay support. The initial demo renders a marketing website for a fictional analytics product.
+
+## Details
+
+- Token-by-token streaming from the Mistral Chat Completions API (OpenAI-compatible) directly in the browser
+- JSX is automatically extracted from AI responses and injected into the runtime
+- Generated React components render instantly in a sandboxed iframe
+- Click elements in the preview to reference them in chat
+- Conversation history is stored in IndexedDB across sessions
+- The error overlay catches runtime errors; ask the AI to fix them
+
+## Explore
+
+1. Enter your Mistral API key when prompted (get one at console.mistral.ai)
+2. The preview starts with a marketing website for "Pulse" — a fictional analytics product
+3. Describe changes (e.g., "Change the color scheme to purple" or "Add a pricing section with three tiers")
+4. Watch the code generate in real-time and the preview update automatically
+5. Use the inspect button to click elements and reference them for edits
+6. If an error appears, ask "Fix the error" and the AI will correct the code
+
+</div>

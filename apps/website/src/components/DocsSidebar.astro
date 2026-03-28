@@ -1,0 +1,71 @@
+---
+import { docsNav } from '../data/navigation';
+
+const currentPath = Astro.url.pathname;
+
+const ACTIVE_CLASS = 'bg-accent/10 text-accent font-medium';
+const INACTIVE_CLASS = 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50';
+---
+
+<aside id="docs-sidebar" class="hidden w-60 shrink-0 lg:block" transition:persist transition:animate="none">
+  <nav class="sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto pb-8 pr-4">
+    {docsNav.map((section) => (
+      <div class="mb-6">
+        <h4 class="mb-2 font-mono text-xs uppercase tracking-widest text-zinc-500">
+          {section.title}
+        </h4>
+        <ul class="space-y-1">
+          {section.items.map((item) => {
+            const isActive = currentPath === item.href || currentPath === item.href + '/';
+            return (
+              <li>
+                <a
+                  href={item.href}
+                  data-sidebar-link
+                  {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : { 'data-astro-prefetch': 'load' })}
+                  class:list={[
+                    'block rounded-md px-3 py-1.5 text-sm transition-colors',
+                    isActive ? ACTIVE_CLASS : INACTIVE_CLASS,
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </nav>
+</aside>
+
+<script>
+  const ACTIVE = 'bg-accent/10 text-accent font-medium';
+  const INACTIVE = 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50';
+
+  let savedScrollTop = 0;
+
+  function updateSidebarActive() {
+    const path = window.location.pathname;
+    document.querySelectorAll<HTMLAnchorElement>('[data-sidebar-link]').forEach((a) => {
+      const href = a.getAttribute('href') ?? '';
+      const isActive = path === href || path === href + '/';
+
+      INACTIVE.split(' ').forEach((c) => a.classList.remove(c));
+      ACTIVE.split(' ').forEach((c) => a.classList.remove(c));
+
+      (isActive ? ACTIVE : INACTIVE).split(' ').forEach((c) => a.classList.add(c));
+    });
+
+    // Restore scroll position after active-state update
+    const nav = document.querySelector('#docs-sidebar nav');
+    if (nav) nav.scrollTop = savedScrollTop;
+  }
+
+  document.addEventListener('astro:before-swap', () => {
+    const nav = document.querySelector('#docs-sidebar nav');
+    if (nav) savedScrollTop = nav.scrollTop;
+  });
+
+  document.addEventListener('astro:after-swap', updateSidebarActive);
+</script>
