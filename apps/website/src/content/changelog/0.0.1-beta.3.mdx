@@ -1,0 +1,30 @@
+---
+version: "0.0.1-beta.3"
+date: 2025-12-28
+highlights:
+  - npm registry client with semver resolution
+  - Tarball extraction and package caching
+  - pnpm content-addressable store layout
+  - Lockfile-aware installation
+  - Monorepo workspace discovery and linking
+---
+
+## Package Management
+
+Full npm-compatible package manager running entirely in the browser.
+
+### npm Registry Client
+
+Fetches package metadata and tarballs from the npm registry. Supports scoped packages, version ranges, and tag resolution.
+
+### Dependency Resolution
+
+Semver-aware dependency resolver with support for `^`, `~`, `>=`, and exact version ranges. Handles nested dependencies with deduplication.
+
+### pnpm Support
+
+Content-addressable store layout matching pnpm conventions. Packages are stored once and hardlinked into project `node_modules`.
+
+### Workspaces
+
+Discover and link workspace packages from `package.json` workspaces fields or `pnpm-workspace.yaml`. Supports `workspace:` protocol for local dependencies.

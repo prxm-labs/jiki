@@ -1,0 +1,30 @@
+---
+version: "0.0.1-beta.2"
+date: 2025-11-28
+highlights:
+  - CommonJS kernel with module caching
+  - Node.js-style module resolver
+  - esbuild-wasm transpiler for TypeScript and JSX
+  - ESM-to-CJS code transforms
+  - 24 Node.js polyfills
+---
+
+## Module System
+
+CommonJS kernel execution engine with full `require()` support, module caching, and circular dependency handling.
+
+### Module Resolver
+
+Node.js-compatible module resolution supporting:
+- Relative paths (`./`, `../`)
+- Directory index files (`index.js`, `index.ts`)
+- Package.json `main`, `module`, and `exports` fields
+- Builtin module resolution
+
+### Transpiler
+
+esbuild-wasm integration for TypeScript and JSX with lazy WASM loading. Supports `.ts`, `.tsx`, `.jsx` file extensions with automatic format detection.
+
+### Polyfills
+
+24 Node.js polyfills including `fs`, `crypto`, `http`, `net`, `os`, `zlib`, `child_process`, `readline`, `tty`, `vm`, and more.

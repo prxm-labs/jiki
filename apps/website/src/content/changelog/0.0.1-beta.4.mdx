@@ -1,0 +1,38 @@
+---
+version: "0.0.1-beta.4"
+date: 2026-02-22
+highlights:
+  - Shell with pipes, redirects, globs, and job control
+  - Container API with boot() entrypoint
+  - Vite dev server with HMR
+  - Next.js dev server with Pages and App Router
+  - SvelteKit and Remix dev servers
+  - Error parsing with fix suggestions
+---
+
+## Shell
+
+Full shell implementation with command parsing, pipes (`|`), logical operators (`&&`, `||`), semicolons, redirects (`>`, `>>`), glob expansion (`**/*.ts`), brace expansion (`*.{js,ts}`), background jobs (`&`), command history, and tab completion.
+
+### Container API
+
+The `boot()` function provides the main entrypoint for initializing and managing the runtime. Orchestrates VFS, kernel, package manager, shell, and dev servers.
+
+```ts
+import { boot } from "@run0/jiki";
+
+const container = boot({ cwd: "/app" });
+await container.init();
+await container.run("index.ts");
+```
+
+### Dev Servers
+
+- **Vite**: ESM-based module serving with HMR, `/@modules/` bare import resolution, and CSS-as-JS injection
+- **Next.js**: File-based routing with Pages Router and App Router, API routes, and SSR
+- **SvelteKit**: File-based routing with `+page.svelte`, `+layout.svelte`, and `+server.ts`
+- **Remix**: Flat file routing with dot-delimited nesting
+
+### Error Handling
+
+Smart error messages with actionable fix suggestions for common issues like missing modules, undefined references, and configuration errors.

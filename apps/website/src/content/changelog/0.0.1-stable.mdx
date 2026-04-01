@@ -1,0 +1,46 @@
+---
+version: "0.0.1"
+date: 2026-04-07
+highlights:
+  - First stable release of jiki
+  - 30 working examples across frameworks and tools
+  - Complete documentation website
+  - CI/CD for npm publishing and website deployment
+  - Full integration test suite
+---
+
+## Stable Release
+
+The first stable release of jiki — a lightweight, browser-based Node.js runtime.
+
+### What's Included
+
+- **Virtual filesystem** with POSIX-like API, symlinks, watching, and persistence
+- **CommonJS kernel** with module caching and circular dependency handling
+- **npm package manager** with pnpm support, workspaces, and caching
+- **Shell** with pipes, globs, job control, history, and tab completion
+- **esbuild-wasm transpiler** for TypeScript and JSX
+- **Dev servers** for Vite, Next.js, SvelteKit, and Remix
+- **Plugin system** with 6 hook types
+- **Sandboxing** with resource limits
+- **Performance metrics** and network mocking
+- **TypeScript type checker** (heuristic)
+- **30 examples** covering frameworks, servers, testing, tools, and AI
+- **jiki-ui** React component library
+
+### Getting Started
+
+```bash
+npm install @run0/jiki
+```
+
+```ts
+import { boot } from "@run0/jiki";
+
+const container = boot();
+await container.init();
+
+container.vfs.writeFileSync("/index.js", 'console.log("Hello from jiki!")');
+const result = await container.run("/index.js");
+console.log(result.stdout); // "Hello from jiki!"
+```

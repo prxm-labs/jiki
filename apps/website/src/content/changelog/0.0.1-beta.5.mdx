@@ -1,0 +1,49 @@
+---
+version: "0.0.1-beta.5"
+date: 2026-03-19
+highlights:
+  - Hook-based plugin system with 6 hook types
+  - Resource limits and sandboxing
+  - Performance metrics tracking
+  - Network request interceptor
+  - TypeScript type checker
+  - Browser bundle generator
+  - IndexedDB persistence
+  - jiki-ui component library
+---
+
+## Plugin System
+
+Hook-based plugin system that lets you intercept and extend jiki at key points. API mirrors esbuild conventions.
+
+- `onResolve` — intercept module resolution
+- `onLoad` — provide virtual file contents
+- `onTransform` — modify source code in a pipeline
+- `onCommand` — register custom shell commands
+- `onInstall` / `onBoot` — lifecycle hooks
+
+```ts
+const container = boot({
+  plugins: [{
+    name: "virtual-config",
+    setup(hooks) {
+      hooks.onResolve(/^@env$/, () => ({ path: "/__env__.js" }));
+      hooks.onLoad(/^\/__env__\.js$/, () => ({
+        contents: 'module.exports = { NODE_ENV: "production" };',
+      }));
+    },
+  }],
+});
+```
+
+## Persistence
+
+IndexedDB persistence for the virtual filesystem. Writes are fire-and-forget with batched flushing.
+
+## Sandboxing
+
+Configurable resource limits for untrusted code: memory caps, file count limits, network allowlists, and filesystem path restrictions.
+
+## jiki-ui
+
+React component library with CodeEditor (Shiki syntax highlighting), Terminal, BrowserWindow, FileExplorer, AIChatPanel, and MobileTabBar.

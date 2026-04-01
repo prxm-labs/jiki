@@ -1,0 +1,26 @@
+---
+version: "0.0.1-beta.1"
+date: 2025-10-31
+highlights:
+  - In-memory virtual filesystem with POSIX-like API
+  - Directory operations, symlinks, and file watching
+  - Snapshot serialization for VFS state
+  - Core polyfills for path, events, process, stream, assert, util, url, querystring
+---
+
+## Virtual Filesystem
+
+The foundation of jiki — an in-memory virtual filesystem (MemFS) with Node.js-compatible semantics.
+
+### Features
+
+- Full directory tree with `mkdir`, `readdir`, `rmdir`, and recursive operations
+- Symlink support with `symlink`, `readlink`, and automatic resolution
+- File watching via `watch` with change event notifications
+- Snapshot serialization for saving and restoring VFS state
+- POSIX-like path resolution with `.` and `..` handling
+- Stats objects with `isFile()`, `isDirectory()`, `isSymbolicLink()`
+
+### Core Polyfills
+
+Polyfills for essential Node.js modules: `path`, `events`, `process`, `stream`, `assert`, `util`, `url`, and `querystring`.
