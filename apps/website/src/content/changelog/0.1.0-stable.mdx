@@ -1,0 +1,193 @@
+---
+version: "0.1.0"
+date: 2026-04-02
+highlights:
+  - Plugin system with 6 hook types for extensibility
+  - IndexedDB persistence survives page refreshes
+  - Package cache for near-instant repeat installs
+  - Vite, SvelteKit, and Remix dev servers
+  - Shell history, tab completion, recursive globs, background jobs
+  - Resource limits and sandboxing for untrusted code
+  - TypeScript type-checking and error fix suggestions
+  - Performance metrics and network request mocking
+  - Monorepo workspace support
+---
+
+## Plugin system
+
+A new hook-based plugin system that lets you intercept and extend jiki's behaviour at key points without modifying core code. The API mirrors esbuild's conventions.
+
+- `onResolve` intercepts module resolution (first match wins)
+- `onLoad` provides virtual file contents without writing to the VFS
+- `onTransform` modifies source code in a pipeline (all matching transforms run in order)
+- `onCommand` registers custom shell commands
+- `onInstall` and `onBoot` lifecycle hooks
+
+```ts
+const container = boot({
+  plugins: [
+    {
+      name: "virtual-config",
+      setup(hooks) {
+        hooks.onResolve(/^@env$/, () => ({ path: "/__env__.js" }));
+        hooks.onLoad(/^\/__env__\.js$/, () => ({
+          contents: 'module.exports = { NODE_ENV: "production" };',
+        }));
+      },
+    },
+  ],
+});
+```
+
+## Persistence
+
+The virtual filesystem can now persist to IndexedDB, surviving page refreshes. Writes are fire-and-forget with batched flushing — they never block the synchronous VFS API.
+
+- `IndexedDBAdapter` for browser environments
+- `InMemoryAdapter` for testing
+- Custom adapters via the `PersistenceAdapter` interface
+- `container.init()` restores persisted state on boot
+
+```ts
+import { boot, IndexedDBAdapter } from "jiki";
+
+const container = boot({
+  persistence: new IndexedDBAdapter({ dbName: "my-project" }),
+});
+await container.init(); // restores persisted files
+```
+
+## Package cache
+
+Downloaded npm manifests and tarballs are now cached in memory. Repeat installs go from 10-30 seconds to under 1 second. Manifests have a configurable TTL (default 1 hour); tarballs are cached indefinitely since npm URLs are immutable.
+
+```ts
+container.packageManager.cache.manifestCount; // cached manifests
+container.packageManager.cache.tarballBytes; // cached tarball size
+container.packageManager.clearCache(); // clear everything
+```
+
+## Framework dev servers
+
+Three new dev servers extending the `DevServer` base class:
+
+### Vite dev server
+
+ESM-based module serving with on-the-fly esbuild transforms, HMR, `/@modules/` bare import resolution, and CSS-as-JS injection. Supports React, Vue, Svelte, SolidJS, and Astro.
+
+### SvelteKit dev server
+
+File-based routing with `+page.svelte`, `+layout.svelte`, `+server.ts`, and `+error.svelte` conventions. Route discovery and layout inheritance.
+
+### Remix dev server
+
+Flat file routing with dot-delimited nesting (`routes/dashboard.settings.tsx` maps to `/dashboard/settings`). Supports `_index.tsx`, layout routes, and `root.tsx`.
+
+## Shell improvements
+
+- Command history via `ShellHistory` with up/down navigation and a `history` command
+- Tab completion with `shell.complete(partial)`, matching commands, binaries, and file paths
+- Recursive globs like `**/*.ts` match files in all nested directories
+- Brace expansion for patterns like `*.{js,ts}` and `/{src,app}/*.tsx`
+- Background jobs with `echo hello &`, `jobs`, and `fg`
+
+## Source maps
+
+- `//# sourceURL=<filename>` added to every module wrapper so browser DevTools show correct filenames
+- `sourceMaps: true` option enables inline source maps from esbuild through the full transform pipeline
+
+## Worker isolation
+
+The `worker` option offloads esbuild-wasm transpilation to a Web Worker, preventing UI freezes during TypeScript/JSX compilation.
+
+```ts
+const container = boot({ worker: "auto" }); // use workers when available
+```
+
+## Resource limits and sandboxing
+
+Configurable limits for untrusted code environments:
+
+```ts
+const container = boot({
+  sandbox: {
+    limits: { maxMemoryMB: 256, maxFileCount: 10000 },
+    network: { allowedHosts: ["registry.npmjs.org"] },
+    fs: { allowedPaths: ["/app", "/node_modules"] },
+  },
+});
+```
+
+## Custom polyfill registration
+
+Override or extend built-in Node.js polyfills:
+
+```ts
+container.registerPolyfill("crypto", () => myCustomCrypto);
+container.registerPolyfills({ dns: () => myDns, tls: () => myTls });
+```
+
+## Lockfile-aware installation
+
+When a `package-lock.json` exists, `installFromPackageJson()` skips dependency resolution entirely and uses exact versions and tarball URLs from the lockfile. Combined with the package cache, this enables zero-network deterministic installs.
+
+## Error fix suggestions
+
+Error messages now include actionable suggestions:
+
+- `Cannot find module 'react'` → "Run: npm install react"
+- `React is not defined` → "Did you forget to import React?"
+- `Transpiler not initialized` → "Call await container.init() before running TypeScript files"
+- Sandbox errors → specific configuration hints
+
+## Performance metrics
+
+```ts
+const m = container.getMetrics();
+// { resolveCount, transpileTimeMs, vfsReadCount, cacheHitRate, commandCount, ... }
+```
+
+## Network request mocking
+
+Intercept and mock outgoing `fetch()` calls from executed code:
+
+```ts
+container.mockFetch("/api/users", { json: [{ name: "Alice" }] });
+container.onFetch(url => (url.includes("test") ? { json: {} } : null));
+```
+
+## Interactive stdin
+
+`Container.sendInput()` now pushes data to `process.stdin`, enabling readline-based tools like `inquirer` and `prompts`.
+
+## worker_threads polyfill
+
+Enhanced `worker_threads` polyfill with real `MessageChannel`/`MessagePort` pairs, `Worker` class with `postMessage`/`terminate`, `threadId`, and `isMainThread`.
+
+## Monorepo workspace support
+
+Discover and link workspace packages from `package.json` workspaces or `pnpm-workspace.yaml`:
+
+```ts
+import { discoverWorkspaces, linkWorkspaces } from "jiki";
+
+const workspaces = discoverWorkspaces(container.vfs, "/");
+linkWorkspaces(container.vfs, "/", workspaces);
+```
+
+## TypeScript type-checking
+
+Lightweight heuristic-based type checker that catches common errors without the full TypeScript compiler:
+
+```ts
+import { TypeChecker } from "jiki";
+
+const checker = new TypeChecker(container.vfs);
+const diagnostics = checker.checkAll("/src");
+```
+
+Detects: explicit `any` usage, unreachable code, missing return type annotations, and duplicate declarations.
+
+## Preview navigation fix
+
+Fixed a flash/flicker issue in the `BrowserWindow` component when clicking links in the preview iframe. Route changes now use `postMessage` to the iframe's internal router instead of rewriting `srcdoc`, avoiding DOM destruction and rebuild.
