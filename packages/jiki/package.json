@@ -7,6 +7,13 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "bugs": "https://github.com/prxm-labs/jiki/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prxm-labs/jiki.git",
+    "directory": "packages/jiki"
+  },
+  "homepage": "https://jiki.sh",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
