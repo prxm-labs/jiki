@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/demo.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/header.tsx","./src/components/lessonsidebar.tsx","./src/hooks/useshellcontainer.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/demo.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/header.tsx","./src/components/lessonsidebar.tsx","./src/hooks/useshellcontainer.ts"],"errors":true,"version":"5.9.3"}

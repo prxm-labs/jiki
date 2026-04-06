@@ -2,23 +2,24 @@
 import { footerProductLinks, footerResourceLinks } from "../data/navigation";
 ---
 
-<footer transition:animate="none" transition:name="site-footer" class="border-t border-zinc-800/50 bg-zinc-950">
+<footer
+  transition:animate="none"
+  transition:name="site-footer"
+  class="border-t border-zinc-800/50 bg-zinc-950">
   <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
     <div class="grid grid-cols-2 gap-8 md:grid-cols-3">
       <div>
         <h3
-          class="font-mono text-[10px] uppercase tracking-widest text-zinc-500"
-        >
+          class="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
           Product
         </h3>
         <ul class="mt-4 space-y-2">
           {
-            footerProductLinks.map((link) => (
+            footerProductLinks.map(link => (
               <li>
                 <a
                   href={link.href}
-                  class="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-                >
+                  class="text-sm text-zinc-400 transition-colors hover:text-zinc-100">
                   {link.label}
                 </a>
               </li>
@@ -29,20 +30,18 @@ import { footerProductLinks, footerResourceLinks } from "../data/navigation";
 
       <div>
         <h3
-          class="font-mono text-[10px] uppercase tracking-widest text-zinc-500"
-        >
+          class="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
           Resources
         </h3>
         <ul class="mt-4 space-y-2">
           {
-            footerResourceLinks.map((link) => (
+            footerResourceLinks.map(link => (
               <li>
                 <a
                   href={link.href}
                   target={link.external ? "_blank" : undefined}
                   rel={link.external ? "noopener noreferrer" : undefined}
-                  class="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-                >
+                  class="text-sm text-zinc-400 transition-colors hover:text-zinc-100">
                   {link.label}
                 </a>
               </li>
@@ -53,8 +52,7 @@ import { footerProductLinks, footerResourceLinks } from "../data/navigation";
 
       <div class="col-span-2 md:col-span-1">
         <h3
-          class="font-mono text-[10px] uppercase tracking-widest text-zinc-500"
-        >
+          class="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
           About
         </h3>
         <p class="mt-4 text-sm leading-[1.75] text-zinc-500">
@@ -65,19 +63,17 @@ import { footerProductLinks, footerResourceLinks } from "../data/navigation";
     </div>
 
     <div
-      class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-800/50 pt-8 sm:flex-row"
-    >
+      class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-800/50 pt-8 sm:flex-row">
       <p class="text-sm text-zinc-600">
         &copy; {new Date().getFullYear()} jiki. All rights reserved.
       </p>
       <p class="flex items-center gap-1 text-sm text-zinc-600">
-        Built with vibes by
+        Built by
         <a
           href="https://vorillaz.com"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-zinc-500 hover:text-zinc-400"
-        >
+          class="text-zinc-500 hover:text-zinc-400">
           vorillaz
         </a>
       </p>
