@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { boot, type Container } from "jiki";
-import type { TerminalLine } from 'jiki-ui';
+import { boot, type Container } from "@run0/jiki";
+import type { TerminalLine } from '@run0/jiki-ui';
 import type { ApiResponse } from "../components/ApiExplorer";
 
 const SERVER_CODE = `const { Hono } = require('hono');

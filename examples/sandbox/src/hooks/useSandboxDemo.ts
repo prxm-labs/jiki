@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { boot, type Container } from "jiki";
-import type { TerminalLine, FileEntry } from 'jiki-ui';
+import { boot, type Container } from "@run0/jiki";
+import type { TerminalLine, FileEntry } from '@run0/jiki-ui';
 
 const SAMPLE_FILES: Record<string, string> = {
   "/package.json": JSON.stringify({ name: "sandbox-demo", version: "1.0.0" }, null, 2),

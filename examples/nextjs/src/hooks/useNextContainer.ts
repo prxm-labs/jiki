@@ -7,9 +7,9 @@ import {
   ServerBridge,
   getServerBridge,
   type HMRUpdate,
-} from "jiki";
+} from "@run0/jiki";
 
-import type { TerminalLine } from 'jiki-ui';
+import type { TerminalLine } from '@run0/jiki-ui';
 export type { TerminalLine };
 
 export interface HMREvent {
@@ -19,7 +19,7 @@ export interface HMREvent {
   timestamp: number;
 }
 
-import type { FileEntry } from 'jiki-ui';
+import type { FileEntry } from '@run0/jiki-ui';
 export type { FileEntry };
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useShellContainer } from "./hooks/useShellContainer";
-import { FileExplorer, Terminal } from "jiki-ui";
+import { FileExplorer, Terminal } from "@run0/jiki-ui";
 import { LessonSidebar } from "./components/LessonSidebar";
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {

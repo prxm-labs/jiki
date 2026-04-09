@@ -8,7 +8,7 @@ import {
   CodeIcon,
   TerminalIcon,
   useMediaQuery,
-} from "jiki-ui";
+} from "@run0/jiki-ui";
 
 const ACCENT = "amber" as const;
 

@@ -15,8 +15,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "paths": {
-      "jiki": ["../../packages/jiki/src/index.ts"],
-      "jiki-ui": ["../../packages/jiki-ui/src/index.ts"]
+      "@run0/jiki": ["../../packages/jiki/src/index.ts"],
+      "@run0/jiki-ui": ["../../packages/jiki-ui/src/index.ts"]
     }
   },
   "include": ["src"]

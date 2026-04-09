@@ -11,7 +11,7 @@ import {
   CodeIcon,
   TerminalIcon,
   useMediaQuery,
-} from "jiki-ui";
+} from "@run0/jiki-ui";
 import { BuildConfigPanel } from "./components/BuildConfigPanel";
 import { BuildOutput } from "./components/BuildOutput";
 

@@ -11,8 +11,8 @@ import {
   PreviewIcon,
   FilesIcon,
   useMediaQuery,
-} from "jiki-ui";
-import type { InspectedElement } from "jiki-ui";
+} from "@run0/jiki-ui";
+import type { InspectedElement } from "@run0/jiki-ui";
 import { ApiKeyModal } from "./components/ApiKeyModal";
 
 const ACCENT = "orange" as const;

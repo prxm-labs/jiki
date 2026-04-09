@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { boot, InMemoryAdapter, type Container } from "jiki";
+import { boot, InMemoryAdapter, type Container } from "@run0/jiki";
 
-import type { TerminalLine, FileEntry } from 'jiki-ui';
+import type { TerminalLine, FileEntry } from '@run0/jiki-ui';
 export type { TerminalLine, FileEntry };
 
 

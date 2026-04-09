@@ -1,5 +1,5 @@
 import { usePluginDemo } from "./hooks/usePluginDemo";
-import { CodeEditor, Terminal, FileExplorer } from 'jiki-ui';
+import { CodeEditor, Terminal, FileExplorer } from '@run0/jiki-ui';
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {
   const { terminal, files, selectedFile, fileContent, isBooted, selectFile, saveFile, runCommand, clearTerminal } = usePluginDemo();

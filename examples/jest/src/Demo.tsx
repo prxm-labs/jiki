@@ -1,5 +1,5 @@
 import { useJestRunner } from './hooks/useJestRunner';
-import { CodeEditor, FileExplorer, Terminal } from 'jiki-ui';
+import { CodeEditor, FileExplorer, Terminal } from '@run0/jiki-ui';
 import { TestResults } from './components/TestResults';
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {

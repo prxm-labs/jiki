@@ -7,9 +7,9 @@
 <p align="center">Node.js in the browser.</p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/jiki"><img src="https://img.shields.io/npm/v/jiki.svg" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/jiki"><img src="https://img.shields.io/npm/dm/jiki.svg" alt="npm downloads" /></a>
-  <a href="https://github.com/vorillaz/web-containers-lite/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/jiki.svg" alt="license" /></a>
+  <a href="https://www.npmjs.com/package/@run0/jiki"><img src="https://img.shields.io/npm/v/@run0/jiki.svg" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@run0/jiki"><img src="https://img.shields.io/npm/dm/@run0/jiki.svg" alt="npm downloads" /></a>
+  <a href="https://github.com/vorillaz/web-containers-lite/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@run0/jiki.svg" alt="license" /></a>
 </p>
 
 ---
@@ -19,7 +19,7 @@ A sandboxed Node.js runtime that runs entirely client-side. Filesystem, shell, n
 ## A few lines is all it takes
 
 ```ts
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot();
 container.writeFile("/index.js", 'console.log("Hello from the browser!")');

@@ -7,7 +7,7 @@ import {
   PreviewIcon,
   TerminalIcon,
   useMediaQuery,
-} from "jiki-ui";
+} from "@run0/jiki-ui";
 import { ApiExplorer, type RouteDefinition } from "./components/ApiExplorer";
 
 const ROUTES: RouteDefinition[] = [

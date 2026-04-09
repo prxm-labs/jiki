@@ -6,7 +6,7 @@ First stable release with 30 examples, documentation website, and full integrati
 
 ## v0.0.1-beta-5 (2026-03-13)
 
-Plugin system, sandbox guard, performance metrics, network interceptor, TypeScript type checker, browser bundler, Container API, and React UI components (jiki-ui).
+Plugin system, sandbox guard, performance metrics, network interceptor, TypeScript type checker, browser bundler, Container API, and React UI components (@run0/jiki-ui).
 
 ## v0.0.1-beta-4 (2026-02-14)
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ContainerError } from "jiki";
+import type { ContainerError } from "@run0/jiki";
 
 interface Props {
   errors: ContainerError[];

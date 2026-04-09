@@ -1,4 +1,4 @@
-import type { Container } from "jiki";
+import type { Container } from "@run0/jiki";
 
 export interface Task {
   description: string;

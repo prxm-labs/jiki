@@ -6,10 +6,10 @@ import {
   isWorkspaceProtocol,
   type Container,
   type WorkspacePackage,
-} from "jiki";
+} from "@run0/jiki";
 
-export type { TerminalLine, FileEntry } from "jiki-ui";
-import type { TerminalLine, FileEntry } from "jiki-ui";
+export type { TerminalLine, FileEntry } from "@run0/jiki-ui";
+import type { TerminalLine, FileEntry } from "@run0/jiki-ui";
 
 // ---------------------------------------------------------------------------
 // Virtual monorepo: a realistic pnpm workspace with shared packages

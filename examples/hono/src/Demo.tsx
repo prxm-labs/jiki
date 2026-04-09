@@ -1,5 +1,5 @@
 import { useServerDemo } from './hooks/useServerDemo';
-import { Terminal } from 'jiki-ui';
+import { Terminal } from '@run0/jiki-ui';
 import { ApiExplorer, type RouteDefinition } from './components/ApiExplorer';
 
 const ROUTES: RouteDefinition[] = [

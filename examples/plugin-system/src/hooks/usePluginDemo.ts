@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { boot, type Container, type JikiPlugin } from "jiki";
-import type { TerminalLine, FileEntry } from 'jiki-ui';
+import { boot, type Container, type JikiPlugin } from "@run0/jiki";
+import type { TerminalLine, FileEntry } from '@run0/jiki-ui';
 
 const cssStubPlugin: JikiPlugin = {
   name: 'css-stub',

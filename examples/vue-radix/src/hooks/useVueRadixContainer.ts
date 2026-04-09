@@ -6,9 +6,9 @@ import {
   generateRequireScript,
   scanBareImports,
   extractPackageName,
-} from "jiki";
+} from "@run0/jiki";
 
-import type { TerminalLine, FileEntry } from 'jiki-ui';
+import type { TerminalLine, FileEntry } from '@run0/jiki-ui';
 export type { TerminalLine, FileEntry };
 
 

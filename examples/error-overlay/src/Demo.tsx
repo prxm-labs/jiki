@@ -1,5 +1,5 @@
 import { useErrorOverlayContainer } from "./hooks/useErrorOverlayContainer";
-import { CodeEditor, Terminal, BrowserWindow } from "jiki-ui";
+import { CodeEditor, Terminal, BrowserWindow } from "@run0/jiki-ui";
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {
   const {

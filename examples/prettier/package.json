@@ -12,8 +12,8 @@
     "prettier": "^3.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "jiki": "workspace:*",
-    "jiki-ui": "workspace:*"
+    "@run0/jiki": "workspace:*",
+    "@run0/jiki-ui": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

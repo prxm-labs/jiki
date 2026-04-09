@@ -1,5 +1,5 @@
 import { useCryptoContainer } from "./hooks/useCryptoContainer";
-import { CodeEditor, Terminal } from 'jiki-ui';
+import { CodeEditor, Terminal } from '@run0/jiki-ui';
 import { OutputPanel } from "./components/OutputPanel";
 
 const DEMO_FILES = ["hash-demo.js", "hmac-demo.js", "random-demo.js", "file-integrity.js"];

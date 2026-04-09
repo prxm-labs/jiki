@@ -1,5 +1,5 @@
 import { usePersistenceDemo } from "./hooks/usePersistenceDemo";
-import { CodeEditor, Terminal, FileExplorer } from 'jiki-ui';
+import { CodeEditor, Terminal, FileExplorer } from '@run0/jiki-ui';
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {
   const { terminal, files, selectedFile, fileContent, isBooted, entryCount, selectFile, saveFile, runCommand, clearTerminal } = usePersistenceDemo();

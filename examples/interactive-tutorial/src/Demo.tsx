@@ -1,5 +1,5 @@
 import { useTutorialContainer } from "./hooks/useTutorialContainer";
-import { CodeEditor, Terminal, FileExplorer } from 'jiki-ui';
+import { CodeEditor, Terminal, FileExplorer } from '@run0/jiki-ui';
 import { LessonList } from "./components/LessonList";
 import { InstructionPanel } from "./components/InstructionPanel";
 

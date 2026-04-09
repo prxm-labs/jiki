@@ -6,8 +6,8 @@ import {
   initTranspiler,
   transpile,
   errorOverlayScript,
-} from "jiki";
-import type { ChatMessage, FileEntry } from "jiki-ui";
+} from "@run0/jiki";
+import type { ChatMessage, FileEntry } from "@run0/jiki-ui";
 import {
   saveMessage,
   loadRecentMessages,

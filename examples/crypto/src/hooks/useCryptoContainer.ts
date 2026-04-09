@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { boot, type Container } from "jiki";
+import { boot, type Container } from "@run0/jiki";
 
-import type { TerminalLine } from 'jiki-ui';
+import type { TerminalLine } from '@run0/jiki-ui';
 export type { TerminalLine };
 
 export interface CryptoResult {

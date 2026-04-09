@@ -10,7 +10,7 @@ import {
   PreviewIcon,
   TerminalIcon,
   useMediaQuery,
-} from "jiki-ui";
+} from "@run0/jiki-ui";
 
 const ACCENT = "orange" as const;
 

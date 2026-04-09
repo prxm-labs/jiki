@@ -1,5 +1,5 @@
 {
-  "name": "jiki-ui",
+  "name": "@run0/jiki-ui",
   "version": "0.1.0",
   "description": "Shared React UI components for jiki examples — CodeEditor and Terminal.",
   "type": "module",

@@ -1,5 +1,5 @@
 import { usePrettierContainer } from "./hooks/usePrettierContainer";
-import { CodeEditor, FileExplorer, Terminal } from 'jiki-ui';
+import { CodeEditor, FileExplorer, Terminal } from '@run0/jiki-ui';
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {
   const {

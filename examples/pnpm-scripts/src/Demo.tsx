@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useContainer } from "./useContainer";
-import { Terminal } from "jiki-ui";
+import { Terminal } from "@run0/jiki-ui";
 
 const QUICK_ACTIONS = [
   { label: "lodash", pkg: "lodash" },

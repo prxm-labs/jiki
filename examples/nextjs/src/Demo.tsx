@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNextContainer, type RouterMode } from "./hooks/useNextContainer";
-import { BrowserWindow, CodeEditor, FileExplorer, Terminal } from "jiki-ui";
+import { BrowserWindow, CodeEditor, FileExplorer, Terminal } from "@run0/jiki-ui";
 import { HMRLog } from "./components/HMRLog";
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {

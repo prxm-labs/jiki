@@ -1,5 +1,5 @@
 import { useWorkspacesContainer } from './hooks/useWorkspacesContainer';
-import { CodeEditor, Terminal, FileExplorer } from 'jiki-ui';
+import { CodeEditor, Terminal, FileExplorer } from '@run0/jiki-ui';
 
 export function Demo({ showHeader = true }: { showHeader?: boolean }) {
   const {

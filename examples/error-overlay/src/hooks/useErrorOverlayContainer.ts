@@ -6,9 +6,9 @@ import {
   initTranspiler,
   transpile,
   errorOverlayScript,
-} from "jiki";
+} from "@run0/jiki";
 
-import type { TerminalLine } from 'jiki-ui';
+import type { TerminalLine } from '@run0/jiki-ui';
 export type { TerminalLine };
 
 const VIRTUAL_FILES: Record<string, string> = {

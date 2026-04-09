@@ -7,13 +7,13 @@ import {
   scanBareImports,
   extractPackageName,
   preprocessImports,
-} from "jiki";
+} from "@run0/jiki";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-import type { TerminalLine, FileEntry } from 'jiki-ui';
+import type { TerminalLine, FileEntry } from '@run0/jiki-ui';
 export type { TerminalLine, FileEntry };
 
 

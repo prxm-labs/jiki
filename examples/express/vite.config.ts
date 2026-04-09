@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       jiki: path.resolve(__dirname, "../../packages/jiki/src/index.ts"),
-      "jiki-ui": path.resolve(__dirname, "../../packages/jiki-ui/src/index.ts"),
+      "@run0/jiki-ui": path.resolve(__dirname, "../../packages/jiki-ui/src/index.ts"),
     },
   },
   server: {

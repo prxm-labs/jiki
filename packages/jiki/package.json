@@ -1,5 +1,5 @@
 {
-  "name": "jiki",
+  "name": "@run0/jiki",
   "version": "0.1.0",
   "description": "Lightweight browser-based Node.js runtime with virtual filesystem, npm support, and dev servers.",
   "type": "module",
