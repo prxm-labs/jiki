@@ -47,8 +47,8 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        jiki: path.resolve(__dirname, "../../packages/jiki/src/index.ts"),
-        "jiki-ui": path.resolve(
+        "@run0/jiki": path.resolve(__dirname, "../../packages/jiki/src/index.ts"),
+        "@run0/jiki-ui": path.resolve(
           __dirname,
           "../../packages/jiki-ui/src/index.ts",
         ),

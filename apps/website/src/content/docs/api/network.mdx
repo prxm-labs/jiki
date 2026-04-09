@@ -54,7 +54,7 @@ interface MockResponse {
 Converts a `MockResponse` to a fetch-compatible object:
 
 ```ts
-import { mockResponseToFetchResponse } from "jiki";
+import { mockResponseToFetchResponse } from "@run0/jiki";
 
 const resp = mockResponseToFetchResponse({ json: { ok: true } });
 await resp.json(); // { ok: true }

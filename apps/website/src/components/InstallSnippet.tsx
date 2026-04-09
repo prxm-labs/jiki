@@ -1,9 +1,9 @@
 import { useState } from "react";
 
 const commands = [
-  { label: "npm", command: "npm install jiki" },
-  { label: "pnpm", command: "pnpm add jiki" },
-  { label: "yarn", command: "yarn add jiki" },
+  { label: "npm", command: "npm install @run0/jiki" },
+  { label: "pnpm", command: "pnpm add @run0/jiki" },
+  { label: "yarn", command: "yarn add @run0/jiki" },
 ];
 
 export default function InstallSnippet() {

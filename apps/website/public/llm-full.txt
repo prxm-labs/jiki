@@ -33,7 +33,7 @@ jiki runs entirely in the browser. It uses esbuild-wasm for TypeScript/JSX trans
 jiki can be installed via the npm registry:
 
 ```bash
-npm install jiki
+npm install @run0/jiki
 ```
 
 ### Requirements
@@ -51,7 +51,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ["jiki"],
+    exclude: ["@run0/jiki"],
   },
   worker: {
     format: "es",
@@ -64,7 +64,7 @@ export default defineConfig({
 jiki uses a Service Worker to intercept HTTP requests and route them to virtual servers running in the browser:
 
 ```typescript
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 // The service worker is automatically registered when you boot the container
 const container = boot();
@@ -79,7 +79,7 @@ jiki includes TypeScript declarations by default. No `@types/` package is needed
 For the UI components (CodeEditor, Terminal, BrowserWindow, FileExplorer), install the companion package:
 
 ```bash
-npm install jiki-ui
+npm install @run0/jiki-ui
 ```
 
 These components are React-based and require React 19+.
@@ -93,7 +93,7 @@ These components are React-based and require React 19+.
 The `boot()` function creates a new container with a virtual filesystem, shell, and package manager:
 
 ```typescript
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot({
   cwd: "/",
@@ -158,7 +158,7 @@ const restored = Container.fromSnapshot(saved);
 ### Add a UI
 
 ```tsx
-import { CodeEditor, Terminal } from "jiki-ui";
+import { CodeEditor, Terminal } from "@run0/jiki-ui";
 
 function App() {
   return (
@@ -252,7 +252,7 @@ MemFS is jiki's in-memory filesystem with Node.js-compatible semantics. It suppo
 Because all file data lives in memory, reads and writes are fast. The API surface matches the standard Node.js `fs` module.
 
 ```ts
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = await boot();
 
@@ -394,7 +394,7 @@ Each container gets its own plugin registry, so plugins registered on one contai
 **Example:**
 
 ```ts
-import { boot, type JikiPlugin } from "jiki";
+import { boot, type JikiPlugin } from "@run0/jiki";
 
 const envPlugin: JikiPlugin = {
   name: "env-injector",
@@ -427,7 +427,7 @@ By default, jiki's virtual filesystem lives entirely in memory. The persistence 
 3. Calling `container.init()` loads all persisted entries back into memory.
 
 ```ts
-import { boot, IndexedDBAdapter } from "jiki";
+import { boot, IndexedDBAdapter } from "@run0/jiki";
 
 const adapter = new IndexedDBAdapter({ dbName: "my-project" });
 const container = boot({ persistence: adapter });
@@ -447,7 +447,7 @@ container.writeFile("/app/index.js", 'console.log("persisted!");');
 The package cache keeps previously-fetched data in memory so repeat installs are near-instant. Manifests are cached with a configurable TTL (default 1 hour). Tarballs are cached indefinitely (content-addressed).
 
 ```ts
-import { boot, PackageCache } from "jiki";
+import { boot, PackageCache } from "@run0/jiki";
 
 const cache = new PackageCache({
   manifestTtlMs: 5 * 60 * 1000,
@@ -497,7 +497,7 @@ Currently offloads esbuild-wasm transpilation only. Module resolution, code exec
 Creates a new jiki container.
 
 ```ts
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = await boot(options?: BootOptions);
 ```
@@ -709,7 +709,7 @@ await container.shell.spawn("npm", ["run", "dev"]);
 Serves files as ES modules with on-the-fly esbuild transpilation, CSS injection, and HMR updates.
 
 ```ts
-import { ViteDevServer } from "jiki";
+import { ViteDevServer } from "@run0/jiki";
 
 const server = new ViteDevServer(vfs, options);
 ```
@@ -750,7 +750,7 @@ server.on("hmr-update", update => {
 Extends ViteDevServer with SvelteKit's file-based routing.
 
 ```ts
-import { SvelteKitDevServer } from "jiki";
+import { SvelteKitDevServer } from "@run0/jiki";
 
 const server = new SvelteKitDevServer(vfs, {
   port: 5173,
@@ -780,7 +780,7 @@ const routes = server.discoverRoutes();
 Extends ViteDevServer with Remix's flat file routing.
 
 ```ts
-import { RemixDevServer } from "jiki";
+import { RemixDevServer } from "@run0/jiki";
 
 const server = new RemixDevServer(vfs, {
   port: 3000,
@@ -839,7 +839,7 @@ Structured error types for container operation failures.
 **Error fix suggestions:**
 
 ```ts
-import { parseError } from "jiki";
+import { parseError } from "@run0/jiki";
 
 const err = parseError("runtime", new Error("Cannot find module 'react'"));
 console.log(err.suggestions); // ["Run: npm install react"]
@@ -871,7 +871,7 @@ interface ContainerError {
 ```
 
 ```ts
-import { FileNotFoundError } from "jiki";
+import { FileNotFoundError } from "@run0/jiki";
 
 try {
   await container.readFile("/missing.txt");
@@ -962,7 +962,7 @@ Called after container is fully initialised: `() => void`
 **Register plugin after construction:**
 
 ```ts
-import { boot, registerPlugin } from "jiki";
+import { boot, registerPlugin } from "@run0/jiki";
 
 const container = boot();
 registerPlugin(container, myPlugin);
@@ -985,7 +985,7 @@ import {
   type OnTransformResult,
   type OnInstallCallback,
   type OnBootCallback,
-} from "jiki";
+} from "@run0/jiki";
 ```
 
 ### Persistence API
@@ -1017,7 +1017,7 @@ interface PersistedEntry {
 **`IndexedDBAdapter`:**
 
 ```ts
-import { IndexedDBAdapter } from "jiki";
+import { IndexedDBAdapter } from "@run0/jiki";
 
 const adapter = new IndexedDBAdapter({
   dbName: "jiki-vfs",      // default
@@ -1029,7 +1029,7 @@ const adapter = new IndexedDBAdapter({
 **`InMemoryAdapter`:**
 
 ```ts
-import { InMemoryAdapter } from "jiki";
+import { InMemoryAdapter } from "@run0/jiki";
 const adapter = new InMemoryAdapter();
 adapter.size; // number of stored entries
 ```
@@ -1051,7 +1051,7 @@ import {
   type PersistedEntry,
   type IndexedDBAdapterOptions,
   type MemFSOptions,
-} from "jiki";
+} from "@run0/jiki";
 ```
 
 ### Metrics
@@ -1128,7 +1128,7 @@ interface MockResponse {
 **Helper:**
 
 ```ts
-import { mockResponseToFetchResponse } from "jiki";
+import { mockResponseToFetchResponse } from "@run0/jiki";
 const resp = mockResponseToFetchResponse({ json: { ok: true } });
 await resp.json(); // { ok: true }
 ```
@@ -1138,7 +1138,7 @@ await resp.json(); // { ok: true }
 Monorepo workspace support.
 
 ```ts
-import { discoverWorkspaces, linkWorkspaces } from "jiki";
+import { discoverWorkspaces, linkWorkspaces } from "@run0/jiki";
 
 const workspaces = discoverWorkspaces(container.vfs, "/");
 // [{ name: '@app/utils', path: '/packages/utils', version: '1.0.0' }]
@@ -1150,7 +1150,7 @@ linkWorkspaces(container.vfs, "/", workspaces);
 **Workspace protocol resolution:**
 
 ```ts
-import { isWorkspaceProtocol, resolveWorkspaceDep } from "jiki";
+import { isWorkspaceProtocol, resolveWorkspaceDep } from "@run0/jiki";
 
 isWorkspaceProtocol("workspace:*"); // true
 resolveWorkspaceDep("@app/utils", workspaces);
@@ -1172,7 +1172,7 @@ interface WorkspacePackage {
 Heuristic-based type checking for TypeScript files in the VFS.
 
 ```ts
-import { boot, TypeChecker } from "jiki";
+import { boot, TypeChecker } from "@run0/jiki";
 
 const container = boot();
 container.writeFile("/src/app.ts", `
@@ -1251,7 +1251,7 @@ Pre-installing dependencies via a filesystem snapshot can cut the boot time from
 jiki's `ViteDevServer` serves files as ES modules with on-the-fly transpilation, CSS injection, and HMR updates. Works with React, Vue, Svelte, SolidJS, and vanilla JavaScript.
 
 ```ts
-import { boot, ViteDevServer } from "jiki";
+import { boot, ViteDevServer } from "@run0/jiki";
 
 const container = boot();
 
@@ -1384,7 +1384,7 @@ For `onResolve` and `onLoad`, the first plugin to return a result wins. For `onT
 **Register after boot:**
 
 ```ts
-import { boot, registerPlugin } from "jiki";
+import { boot, registerPlugin } from "@run0/jiki";
 const container = boot();
 registerPlugin(container, myPlugin);
 ```

@@ -10,7 +10,7 @@ The `boot()` function creates a new jiki container. It sets up the virtual files
 ## Signature
 
 ```ts
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = await boot(options?: BootOptions);
 ```
@@ -32,7 +32,7 @@ Returns a `Promise<Container>` that resolves when the container is ready.
 ## Example
 
 ```ts
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = await boot({
   cwd: "/app",

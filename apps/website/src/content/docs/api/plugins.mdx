@@ -143,7 +143,7 @@ Internal registry managing all hooks for a container. Exposed as `container.plug
 Register a plugin on an existing container after construction.
 
 ```ts
-import { boot, registerPlugin } from "jiki";
+import { boot, registerPlugin } from "@run0/jiki";
 
 const container = boot();
 registerPlugin(container, myPlugin);
@@ -166,5 +166,5 @@ import {
   type OnTransformResult,
   type OnInstallCallback,
   type OnBootCallback,
-} from "jiki";
+} from "@run0/jiki";
 ```

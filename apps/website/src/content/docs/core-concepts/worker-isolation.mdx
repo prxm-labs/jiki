@@ -10,7 +10,7 @@ By default, all jiki operations run on the main thread. The `worker` option offl
 ## Quick start
 
 ```ts
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot({ worker: true });
 await container.init(); // esbuild transpiler runs in a Web Worker

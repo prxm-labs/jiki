@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { boot, InMemoryAdapter, type Container } from "jiki";
+import { boot, InMemoryAdapter, type Container } from "@run0/jiki";
 
 const DEFAULT_CODE = `import chalk from 'chalk';
 import _ from 'lodash';

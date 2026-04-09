@@ -10,7 +10,7 @@ import InstallSnippet from "@components/InstallSnippet.tsx";
 jiki can be installed via the npm registry and used directly.
 ## Install
 
-<InstallSnippet package="jiki" client:visible />
+<InstallSnippet package="@run0/jiki" client:visible />
 
 ## Requirements
 
@@ -29,7 +29,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ["jiki"],
+    exclude: ["@run0/jiki"],
   },
   worker: {
     format: "es",
@@ -42,7 +42,7 @@ export default defineConfig({
 jiki uses a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers) to intercept HTTP requests and route them to virtual servers running in the browser. You need to register the service worker in your app:
 
 ```typescript
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 // The service worker is automatically registered
 // when you boot the container
@@ -58,7 +58,7 @@ jiki includes TypeScript declarations by default. No `@types/` package is needed
 For the UI components (CodeEditor, Terminal, BrowserWindow, FileExplorer), install the companion package:
 
 ```bash
-npm install jiki-ui
+npm install @run0/jiki-ui
 ```
 
 These components are React-based and require React 19+.

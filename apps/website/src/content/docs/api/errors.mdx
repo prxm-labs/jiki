@@ -25,7 +25,7 @@ Errors thrown by jiki extend a common `JikiError` base class with a `code` prope
 Parsed errors include an actionable `suggestions` array that helps users fix common mistakes:
 
 ```ts
-import { parseError } from "jiki";
+import { parseError } from "@run0/jiki";
 
 const err = parseError("runtime", new Error("Cannot find module 'react'"));
 console.log(err.suggestions);
@@ -60,7 +60,7 @@ interface ContainerError {
 ## Example
 
 ```ts
-import { FileNotFoundError } from "jiki";
+import { FileNotFoundError } from "@run0/jiki";
 
 try {
   await container.readFile("/missing.txt");

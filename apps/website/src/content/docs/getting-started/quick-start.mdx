@@ -12,7 +12,7 @@ This guide walks you through booting a container, writing files, running code, a
 The `boot()` function creates a new container with a virtual filesystem, shell, and package manager:
 
 ```typescript
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot({
   cwd: "/",
@@ -87,7 +87,7 @@ const restored = Container.fromSnapshot(saved);
 Use `jiki-ui` for pre-built React components:
 
 ```tsx
-import { CodeEditor, Terminal } from "jiki-ui";
+import { CodeEditor, Terminal } from "@run0/jiki-ui";
 
 function App() {
   return (

@@ -36,7 +36,7 @@ jiki gives you a Node.js-like environment in the browser with a rich set of feat
 jiki runs entirely in the browser. It uses esbuild-wasm for TypeScript/JSX transpilation, Service Workers to intercept fetch requests and route them to virtual HTTP servers, and Web Workers for isolated code execution. A custom module resolver implements the Node.js resolution algorithm so `require()` and `import` work as expected.
 
 ```typescript
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot();
 container.writeFile("/hello.js", 'console.log("Hello!")');

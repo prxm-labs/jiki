@@ -56,7 +56,7 @@ interface PersistedEntry {
 Browser-compatible adapter backed by IndexedDB.
 
 ```ts
-import { IndexedDBAdapter } from "jiki";
+import { IndexedDBAdapter } from "@run0/jiki";
 
 const adapter = new IndexedDBAdapter(options?: IndexedDBAdapterOptions);
 ```
@@ -74,7 +74,7 @@ const adapter = new IndexedDBAdapter(options?: IndexedDBAdapterOptions);
 In-memory adapter using a `Map`. For testing and non-browser environments.
 
 ```ts
-import { InMemoryAdapter } from "jiki";
+import { InMemoryAdapter } from "@run0/jiki";
 
 const adapter = new InMemoryAdapter();
 adapter.size; // number of stored entries
@@ -108,5 +108,5 @@ import {
   type PersistedEntry,
   type IndexedDBAdapterOptions,
   type MemFSOptions,
-} from "jiki";
+} from "@run0/jiki";
 ```

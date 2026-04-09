@@ -49,7 +49,7 @@ The virtual filesystem can now persist to IndexedDB, surviving page refreshes. W
 - `container.init()` restores persisted state on boot
 
 ```ts
-import { boot, IndexedDBAdapter } from "jiki";
+import { boot, IndexedDBAdapter } from "@run0/jiki";
 
 const container = boot({
   persistence: new IndexedDBAdapter({ dbName: "my-project" }),
@@ -169,7 +169,7 @@ Enhanced `worker_threads` polyfill with real `MessageChannel`/`MessagePort` pair
 Discover and link workspace packages from `package.json` workspaces or `pnpm-workspace.yaml`:
 
 ```ts
-import { discoverWorkspaces, linkWorkspaces } from "jiki";
+import { discoverWorkspaces, linkWorkspaces } from "@run0/jiki";
 
 const workspaces = discoverWorkspaces(container.vfs, "/");
 linkWorkspaces(container.vfs, "/", workspaces);
@@ -180,7 +180,7 @@ linkWorkspaces(container.vfs, "/", workspaces);
 Lightweight heuristic-based type checker that catches common errors without the full TypeScript compiler:
 
 ```ts
-import { TypeChecker } from "jiki";
+import { TypeChecker } from "@run0/jiki";
 
 const checker = new TypeChecker(container.vfs);
 const diagnostics = checker.checkAll("/src");

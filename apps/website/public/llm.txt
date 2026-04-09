@@ -18,7 +18,7 @@
 Execute JavaScript and TypeScript files in an in-memory Node.js-like environment. The kernel handles `require()`, `import`, and module resolution. TypeScript and JSX are transpiled on the fly via esbuild-wasm.
 
 ```js
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot();
 container.writeFile("/hello.ts", 'const msg: string = "Hello!"; console.log(msg);');
@@ -45,7 +45,7 @@ await container.run("node check.js");
 Run full framework dev environments in the browser. Vite serves files as ES modules with HMR. Next.js App Router, SvelteKit file-based routing, and Remix flat routes all work.
 
 ```js
-import { boot, ViteDevServer } from "jiki";
+import { boot, ViteDevServer } from "@run0/jiki";
 
 const container = boot();
 // Write React files...
@@ -89,7 +89,7 @@ await container.run("export NODE_ENV=production && node app.js");
 Save filesystem state to IndexedDB so files, installed packages, and user work survive page refreshes. Mutations are batched and flushed automatically.
 
 ```js
-import { boot, IndexedDBAdapter } from "jiki";
+import { boot, IndexedDBAdapter } from "@run0/jiki";
 
 const adapter = new IndexedDBAdapter({ dbName: "my-project" });
 const container = boot({ persistence: adapter });
@@ -172,7 +172,7 @@ Discover packages from `package.json` workspaces or `pnpm-workspace.yaml`, creat
 ## Quick Start
 
 ```js
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot({
   cwd: "/",
@@ -186,10 +186,10 @@ console.log(result.stdout); // "Hello from jiki!\n"
 
 ## UI Components
 
-The companion `jiki-ui` package provides React 19+ components: CodeEditor, Terminal, BrowserWindow, FileExplorer.
+The companion `@run0/jiki-ui` package provides React 19+ components: CodeEditor, Terminal, BrowserWindow, FileExplorer.
 
 ```bash
-npm install jiki-ui
+npm install @run0/jiki-ui
 ```
 
 ## API Reference

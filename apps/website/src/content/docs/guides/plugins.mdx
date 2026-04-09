@@ -16,7 +16,7 @@ The [Plugin System example](/examples/plugin-system) demonstrates virtual module
 The most common plugin pattern: resolve a custom specifier to a virtual path, then provide its contents via `onLoad`. No file needs to exist on the virtual filesystem.
 
 ```ts
-import { boot, type JikiPlugin } from "jiki";
+import { boot, type JikiPlugin } from "@run0/jiki";
 
 const configPlugin: JikiPlugin = {
   name: "virtual-config",
@@ -167,7 +167,7 @@ For `onResolve` and `onLoad`, the first plugin to return a result wins. For `onT
 If you need to add a plugin to an existing container:
 
 ```ts
-import { boot, registerPlugin } from "jiki";
+import { boot, registerPlugin } from "@run0/jiki";
 
 const container = boot();
 // ... later ...

@@ -16,7 +16,7 @@ By default, jiki's virtual filesystem lives entirely in memory, so every page re
 ## Quick start
 
 ```ts
-import { boot, IndexedDBAdapter } from "jiki";
+import { boot, IndexedDBAdapter } from "@run0/jiki";
 
 const adapter = new IndexedDBAdapter({ dbName: "my-project" });
 const container = boot({ persistence: adapter });
@@ -35,7 +35,7 @@ After a page refresh, the same code will restore `/app/index.js` from IndexedDB 
 The default browser-compatible adapter. Uses a single IndexedDB object store keyed by normalised path.
 
 ```ts
-import { IndexedDBAdapter } from "jiki";
+import { IndexedDBAdapter } from "@run0/jiki";
 
 const adapter = new IndexedDBAdapter({
   dbName: "my-project", // default: "jiki-vfs"
@@ -55,7 +55,7 @@ const adapter = new IndexedDBAdapter({
 Stores entries in a `Map`. Useful for testing and server-side environments where IndexedDB is unavailable.
 
 ```ts
-import { InMemoryAdapter } from "jiki";
+import { InMemoryAdapter } from "@run0/jiki";
 
 const adapter = new InMemoryAdapter();
 ```
@@ -65,7 +65,7 @@ const adapter = new InMemoryAdapter();
 Implement the `PersistenceAdapter` interface to use any storage backend (OPFS, localStorage, a remote server, etc.):
 
 ```ts
-import type { PersistenceAdapter, PersistedEntry } from "jiki";
+import type { PersistenceAdapter, PersistedEntry } from "@run0/jiki";
 
 class MyAdapter implements PersistenceAdapter {
   save(entry: PersistedEntry): void {

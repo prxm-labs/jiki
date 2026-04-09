@@ -22,7 +22,7 @@ Every `PackageManager` gets its own `PackageCache` instance by default. You can 
 The cache works automatically with no configuration needed:
 
 ```ts
-import { boot } from "jiki";
+import { boot } from "@run0/jiki";
 
 const container = boot();
 
@@ -36,7 +36,7 @@ await container.install("react-dom"); // react manifest is already cached
 ## Custom configuration
 
 ```ts
-import { boot, PackageCache } from "jiki";
+import { boot, PackageCache } from "@run0/jiki";
 
 const cache = new PackageCache({
   manifestTtlMs: 5 * 60 * 1000, // 5 minutes instead of 1 hour

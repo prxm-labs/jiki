@@ -36,7 +36,7 @@ const softwareLd = {
 
 const homepageJsonLd = [organizationLd, softwareLd];
 
-const demoCode = `import { boot } from 'jiki';
+const demoCode = `import { boot } from '@run0/jiki';
 
 // Boot a container with a virtual filesystem
 const container = boot({ cwd: '/' });
@@ -100,7 +100,7 @@ console.log(result.stdout);
             <div
               class="group inline-flex items-center gap-3 rounded-md bg-emerald-500/15 border border-emerald-500/30 px-5 py-2.5 font-mono text-sm tracking-wider transition-all hover:bg-emerald-500/25 hover:border-emerald-500/50">
               <span class="text-emerald-600">$</span>
-              <span class="text-emerald-400">npm install jiki</span>
+              <span class="text-emerald-400">npm i @run0/jiki</span>
               <button
                 id="hero-copy-btn"
                 type="button"

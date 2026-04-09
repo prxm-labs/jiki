@@ -10,7 +10,7 @@ Workspace support for monorepos. Discovers packages from `package.json` workspac
 ## Discovering workspaces
 
 ```ts
-import { discoverWorkspaces } from "jiki";
+import { discoverWorkspaces } from "@run0/jiki";
 
 const workspaces = discoverWorkspaces(container.vfs, "/");
 // [{ name: '@app/utils', path: '/packages/utils', version: '1.0.0' }]
@@ -26,7 +26,7 @@ Glob patterns supported: `packages/*`, `apps/**`
 ## Linking workspaces
 
 ```ts
-import { linkWorkspaces } from "jiki";
+import { linkWorkspaces } from "@run0/jiki";
 
 linkWorkspaces(container.vfs, "/", workspaces);
 // Creates symlinks: /node_modules/@app/utils → /packages/utils
@@ -35,7 +35,7 @@ linkWorkspaces(container.vfs, "/", workspaces);
 ## Resolving workspace: Protocol
 
 ```ts
-import { isWorkspaceProtocol, resolveWorkspaceDep } from "jiki";
+import { isWorkspaceProtocol, resolveWorkspaceDep } from "@run0/jiki";
 
 isWorkspaceProtocol("workspace:*"); // true
 isWorkspaceProtocol("^1.0.0"); // false
