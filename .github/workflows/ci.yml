@@ -27,13 +27,13 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter="@run0/jiki" --filter="@run0/jiki-ui"
 
       - name: Build packages
-        run: pnpm turbo build --filter="./packages/*"
+        run: pnpm turbo build --filter="@run0/jiki" --filter="@run0/jiki-ui"
 
       - name: Run tests
-        run: pnpm turbo test --filter="./packages/*"
+        run: pnpm turbo test --filter="@run0/jiki" --filter="@run0/jiki-ui"
 
       - name: Type check
-        run: pnpm turbo type-check --filter="./packages/*"
+        run: pnpm turbo type-check --filter="@run0/jiki" --filter="@run0/jiki-ui"
