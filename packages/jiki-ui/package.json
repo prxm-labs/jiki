@@ -30,6 +30,9 @@
     "src",
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "dependencies": {
     "shiki": "^3.0.0"

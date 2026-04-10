@@ -33,6 +33,9 @@
     "src",
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "scripts": {
     "build": "vite build && tsc --project tsconfig.build.json",
