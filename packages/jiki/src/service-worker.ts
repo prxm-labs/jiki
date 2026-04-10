@@ -7,7 +7,13 @@
  * in ServerBridge.initServiceWorker() (default: /__sw__.js).
  */
 
-declare const self: ServiceWorkerGlobalScope;
+// Service Worker global — typed as `any` because TypeScript's standard libs
+// don't include ServiceWorkerGlobalScope without a dedicated tsconfig.
+const sw = self as unknown as {
+  skipWaiting(): Promise<void>;
+  clients: { claim(): Promise<void>; matchAll(): Promise<Client[]> };
+  addEventListener(type: string, listener: (event: any) => void): void;
+};
 
 let mainPort: MessagePort | null = null;
 let requestId = 0;
@@ -29,15 +35,15 @@ function base64ToUint8(base64: string): Uint8Array {
   return bytes;
 }
 
-self.addEventListener("install", () => {
-  (self as unknown as { skipWaiting(): Promise<void> }).skipWaiting();
+sw.addEventListener("install", () => {
+  sw.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
-  event.waitUntil((self as unknown as { clients: Clients }).clients.claim());
+sw.addEventListener("activate", (event: { waitUntil(p: Promise<void>): void }) => {
+  event.waitUntil(sw.clients.claim());
 });
 
-self.addEventListener("message", (event: ExtendableMessageEvent) => {
+sw.addEventListener("message", (event: MessageEvent) => {
   if (event.data?.type === "init" && event.data.port) {
     mainPort = event.data.port as MessagePort;
     mainPort.onmessage = handleMainMessage;
@@ -62,7 +68,7 @@ function handleMainMessage(event: MessageEvent): void {
     const { statusCode, statusMessage, headers, bodyBase64 } = data;
     const body = bodyBase64 ? base64ToUint8(bodyBase64) : new Uint8Array(0);
     pending.resolve(
-      new Response(body, {
+      new Response(body as unknown as BodyInit, {
         status: statusCode,
         statusText: statusMessage,
         headers,
@@ -92,18 +98,21 @@ function handleMainMessage(event: MessageEvent): void {
   }
 }
 
-self.addEventListener("fetch", (event: FetchEvent) => {
+interface SWFetchEvent {
+  request: Request;
+  respondWith(response: Response | Promise<Response>): void;
+}
+
+sw.addEventListener("fetch", (event: SWFetchEvent) => {
   const url = new URL(event.request.url);
   if (!url.pathname.startsWith(VIRTUAL_PREFIX)) return;
 
   if (!mainPort) {
-    (self as unknown as { clients: Clients }).clients
-      .matchAll()
-      .then((clients: readonly Client[]) => {
-        for (const client of clients) {
-          client.postMessage({ type: "sw-needs-init" });
-        }
-      });
+    sw.clients.matchAll().then((clients: Client[]) => {
+      for (const client of clients) {
+        client.postMessage({ type: "sw-needs-init" });
+      }
+    });
     event.respondWith(
       new Response("Service Worker not connected", { status: 503 }),
     );
