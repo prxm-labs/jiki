@@ -1,0 +1,264 @@
+---
+import { docsNav } from "../data/navigation";
+
+const currentPath = Astro.url.pathname;
+
+const sections = docsNav.map((section) => {
+  const firstHref = section.items[0]?.href ?? "#";
+  const parts = firstHref.split("/").filter(Boolean);
+  const prefix = parts.length >= 2 ? `/${parts[0]}/${parts[1]}` : firstHref;
+  return {
+    title: section.title,
+    href: firstHref,
+    prefix,
+    items: section.items,
+  };
+});
+
+const activeSection = sections.find((s) => currentPath.startsWith(s.prefix));
+const activeSectionTitle = activeSection?.title ?? sections[0].title;
+---
+
+{/* Mobile-only docs navigation — sidebar handles desktop */}
+<nav
+  transition:persist
+  transition:animate="none"
+  class="sticky top-16 z-40 border-b border-zinc-800/50 bg-zinc-950/90 backdrop-blur-md lg:hidden"
+>
+  <button
+    id="docs-mobile-trigger"
+    class="flex w-full items-center justify-between px-4 py-2.5 sm:px-6"
+    aria-expanded="false"
+    aria-controls="docs-mobile-drawer"
+  >
+    <span class="flex items-center gap-2">
+      <span class="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
+        Docs
+      </span>
+      <svg class="h-3 w-3 text-zinc-600" viewBox="0 0 6 10" fill="none">
+        <path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span
+        id="docs-mobile-section-label"
+        class="font-mono text-[11px] uppercase tracking-widest text-accent"
+      >
+        {activeSectionTitle}
+      </span>
+    </span>
+    <svg
+      id="docs-mobile-chevron"
+      class="h-4 w-4 text-zinc-500 transition-transform duration-200"
+      viewBox="0 0 16 16"
+      fill="none"
+    >
+      <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+
+  {/* Drawer */}
+  <div
+    id="docs-mobile-drawer"
+    class="docs-mobile-drawer border-t border-zinc-800/40"
+  >
+    <div class="docs-mobile-drawer-inner">
+      <div class="max-h-[70vh] overflow-y-auto overscroll-contain px-4 pb-4 pt-2 sm:px-6">
+        {sections.map((section) => {
+          const isSectionActive = currentPath.startsWith(section.prefix);
+          return (
+            <div class="docs-mobile-section" data-section-prefix={section.prefix}>
+              <button
+                class="docs-mobile-section-toggle flex w-full items-center justify-between py-2"
+                data-section-prefix={section.prefix}
+                aria-expanded={isSectionActive ? "true" : "false"}
+              >
+                <span
+                  class:list={[
+                    "font-mono text-[11px] uppercase tracking-widest transition-colors",
+                    isSectionActive ? "text-accent" : "text-zinc-500",
+                  ]}
+                >
+                  {section.title}
+                </span>
+                <svg
+                  class:list={[
+                    "docs-mobile-section-arrow h-3.5 w-3.5 text-zinc-600 transition-transform duration-200",
+                    isSectionActive && "rotate-180",
+                  ]}
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+
+              <ul
+                class:list={[
+                  "docs-mobile-section-items",
+                  !isSectionActive && "is-collapsed",
+                ]}
+              >
+                <div class="docs-mobile-section-items-inner">
+                  {section.items.map((item) => {
+                    const isItemActive =
+                      currentPath === item.href ||
+                      currentPath === item.href + "/";
+                    return (
+                      <li>
+                        <a
+                          href={item.href}
+                          data-mobile-link
+                          {...(item.external
+                            ? { target: "_blank", rel: "noopener noreferrer" }
+                            : { "data-astro-prefetch": "load" })}
+                          class:list={[
+                            "block rounded-md px-3 py-2 text-[13px] transition-colors",
+                            isItemActive
+                              ? "bg-accent/10 text-accent font-medium"
+                              : "text-zinc-400 active:bg-zinc-800/50",
+                          ]}
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </div>
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</nav>
+
+{/* Backdrop overlay — mobile only */}
+<div id="docs-mobile-backdrop" class="docs-mobile-backdrop" />
+
+<script>
+  function initMobileDocsNav() {
+    const trigger = document.getElementById("docs-mobile-trigger");
+    const drawer = document.getElementById("docs-mobile-drawer");
+    const backdrop = document.getElementById("docs-mobile-backdrop");
+    const chevron = document.getElementById("docs-mobile-chevron");
+    if (!trigger || !drawer || !backdrop) return;
+    if (trigger.dataset.docsInit) return;
+    trigger.dataset.docsInit = "true";
+
+    let isOpen = false;
+
+    function openDrawer() {
+      isOpen = true;
+      drawer!.classList.add("is-open");
+      backdrop!.classList.add("is-visible");
+      chevron?.classList.add("rotate-180");
+      trigger!.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeDrawer() {
+      isOpen = false;
+      drawer!.classList.remove("is-open");
+      backdrop!.classList.remove("is-visible");
+      chevron?.classList.remove("rotate-180");
+      trigger!.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    }
+
+    trigger.addEventListener("click", () => {
+      isOpen ? closeDrawer() : openDrawer();
+    });
+
+    backdrop.addEventListener("click", closeDrawer);
+
+    drawer.querySelectorAll<HTMLAnchorElement>("[data-mobile-link]").forEach((a) => {
+      a.addEventListener("click", () => closeDrawer());
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen) closeDrawer();
+    });
+
+    // Section accordion toggles
+    drawer.querySelectorAll<HTMLButtonElement>(".docs-mobile-section-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const section = btn.closest(".docs-mobile-section");
+        const items = section?.querySelector(".docs-mobile-section-items");
+        const arrow = btn.querySelector(".docs-mobile-section-arrow");
+        if (!items) return;
+
+        const isCollapsed = items.classList.contains("is-collapsed");
+        if (isCollapsed) {
+          items.classList.remove("is-collapsed");
+          arrow?.classList.add("rotate-180");
+          btn.setAttribute("aria-expanded", "true");
+          const label = document.getElementById("docs-mobile-section-label");
+          if (label) {
+            label.textContent = btn.querySelector("span")?.textContent ?? "";
+          }
+        } else {
+          items.classList.add("is-collapsed");
+          arrow?.classList.remove("rotate-180");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+  }
+
+  function updateMobileNav() {
+    const path = window.location.pathname;
+
+    const label = document.getElementById("docs-mobile-section-label");
+    document.querySelectorAll<HTMLElement>(".docs-mobile-section").forEach((section) => {
+      const prefix = section.dataset.sectionPrefix ?? "";
+      const isSectionActive = path.startsWith(prefix);
+      const toggle = section.querySelector<HTMLButtonElement>(".docs-mobile-section-toggle");
+      const items = section.querySelector(".docs-mobile-section-items");
+      const arrow = section.querySelector(".docs-mobile-section-arrow");
+      const titleSpan = toggle?.querySelector("span");
+
+      if (isSectionActive) {
+        titleSpan?.classList.remove("text-zinc-500");
+        titleSpan?.classList.add("text-accent");
+        items?.classList.remove("is-collapsed");
+        arrow?.classList.add("rotate-180");
+        toggle?.setAttribute("aria-expanded", "true");
+        if (label && titleSpan) label.textContent = titleSpan.textContent;
+      } else {
+        titleSpan?.classList.remove("text-accent");
+        titleSpan?.classList.add("text-zinc-500");
+        items?.classList.add("is-collapsed");
+        arrow?.classList.remove("rotate-180");
+        toggle?.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.querySelectorAll<HTMLAnchorElement>("[data-mobile-link]").forEach((a) => {
+      const href = a.getAttribute("href") ?? "";
+      const isActive = path === href || path === href + "/";
+
+      a.classList.remove("bg-accent/10", "text-accent", "font-medium", "text-zinc-400", "active:bg-zinc-800/50");
+
+      if (isActive) {
+        a.classList.add("bg-accent/10", "text-accent", "font-medium");
+      } else {
+        a.classList.add("text-zinc-400", "active:bg-zinc-800/50");
+      }
+    });
+
+    // Close drawer after navigation
+    const drawer = document.getElementById("docs-mobile-drawer");
+    const backdrop = document.getElementById("docs-mobile-backdrop");
+    const chevron = document.getElementById("docs-mobile-chevron");
+    const trg = document.getElementById("docs-mobile-trigger");
+    drawer?.classList.remove("is-open");
+    backdrop?.classList.remove("is-visible");
+    chevron?.classList.remove("rotate-180");
+    trg?.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+  }
+
+  initMobileDocsNav();
+  document.addEventListener("astro:page-load", initMobileDocsNav);
+  document.addEventListener("astro:after-swap", updateMobileNav);
+</script>

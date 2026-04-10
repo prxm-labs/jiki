@@ -52,5 +52,33 @@ function Editor() {
 ## Demo
 
 import CodeEditorDemo from "../../../components/demos/CodeEditorDemo";
+import DemoTabs from "../../../components/demos/DemoTabs.astro";
 
-<CodeEditorDemo client:visible />
+<DemoTabs code={`import { useState } from "react";
+import { CodeEditor } from "@run0/jiki-ui";
+
+const INITIAL_CONTENT = \`function greet(name) {
+  return \\\`Hello, \\\${name}!\\\`;
+}
+
+console.log(greet("jiki"));
+\`;
+
+export default function CodeEditorDemo() {
+  const [content, setContent] = useState(INITIAL_CONTENT);
+
+  return (
+    <div style={{ height: 300 }}>
+      <CodeEditor
+        filename="index.js"
+        content={content}
+        onSave={(path, code) => {
+          setContent(code);
+          console.log("Saved", path);
+        }}
+      />
+    </div>
+  );
+}`}>
+  <CodeEditorDemo client:visible />
+</DemoTabs>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import Header from "../components/Header.astro";
+import DocsSecondaryNav from "../components/DocsSecondaryNav.astro";
 import Footer from "../components/Footer.astro";
 import DocsSidebar from "../components/DocsSidebar.astro";
 import TableOfContents from "../components/TableOfContents.astro";
@@ -71,6 +72,7 @@ const jsonLd = [breadcrumbLd, articleLd];
   type="article"
   jsonLd={jsonLd}>
   <Header />
+  <DocsSecondaryNav />
   <div class="mx-auto flex max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <DocsSidebar />
     <main class="min-w-0 flex-1 px-0 lg:px-8">

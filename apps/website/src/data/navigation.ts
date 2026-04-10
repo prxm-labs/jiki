@@ -103,7 +103,7 @@ export const docsNav: NavSection[] = [
   {
     title: "UI Components",
     items: [
-      { label: "Introduction", href: "/docs/ui/intro" },
+      { label: "Introduction", href: "/docs/ui" },
       { label: "CodeEditor", href: "/docs/ui/code-editor" },
       { label: "Terminal", href: "/docs/ui/terminal" },
       { label: "BrowserWindow", href: "/docs/ui/browser-window" },

@@ -1,0 +1,94 @@
+---
+import { Code } from 'astro:components';
+import type { ThemeRegistrationRaw } from 'shiki';
+import jikiTheme from '../../themes/jiki-dark.json';
+
+interface Props {
+  code: string;
+  lang?: string;
+}
+
+const { code, lang = 'tsx' } = Astro.props;
+const theme = jikiTheme as unknown as ThemeRegistrationRaw;
+---
+
+<div class="demo-tabs not-prose my-6 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
+  <!-- Tab bar -->
+  <div class="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/60 px-1">
+    <div class="flex">
+      <button
+        data-tab="preview"
+        class="demo-tab px-4 py-2 text-xs font-medium tracking-wide transition-colors border-b-2 border-emerald-500 text-emerald-400"
+      >
+        Preview
+      </button>
+      <button
+        data-tab="code"
+        class="demo-tab px-4 py-2 text-xs font-medium tracking-wide transition-colors border-b-2 border-transparent text-zinc-500 hover:text-zinc-300"
+      >
+        Code
+      </button>
+    </div>
+    <button
+      class="demo-copy-btn mr-2 hidden rounded px-2 py-1 text-xs text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
+    >
+      Copy
+    </button>
+  </div>
+
+  <!-- Preview panel -->
+  <div class="demo-panel p-4" data-panel="preview">
+    <slot />
+  </div>
+
+  <!-- Code panel -->
+  <div class="demo-panel hidden max-h-[28rem] overflow-auto" data-panel="code">
+    <Code code={code} lang={lang as any} theme={theme} />
+  </div>
+</div>
+
+<script>
+  function initDemoTabs() {
+    document.querySelectorAll<HTMLDivElement>('.demo-tabs').forEach((root) => {
+      if (root.dataset.init) return;
+      root.dataset.init = '1';
+
+      const tabs = root.querySelectorAll<HTMLButtonElement>('.demo-tab');
+      const panels = root.querySelectorAll<HTMLDivElement>('.demo-panel');
+      const copyBtn = root.querySelector<HTMLButtonElement>('.demo-copy-btn');
+      const codePanel = root.querySelector<HTMLDivElement>('[data-panel="code"]');
+      const codeEl = codePanel?.querySelector('pre');
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab!;
+
+          tabs.forEach((t) => {
+            const isActive = t.dataset.tab === target;
+            t.classList.toggle('border-emerald-500', isActive);
+            t.classList.toggle('text-emerald-400', isActive);
+            t.classList.toggle('border-transparent', !isActive);
+            t.classList.toggle('text-zinc-500', !isActive);
+          });
+
+          panels.forEach((p) => {
+            p.classList.toggle('hidden', p.dataset.panel !== target);
+          });
+
+          copyBtn?.classList.toggle('hidden', target !== 'code');
+        });
+      });
+
+      copyBtn?.addEventListener('click', () => {
+        const text = codeEl?.textContent ?? '';
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+        });
+      });
+    });
+  }
+
+  initDemoTabs();
+  document.addEventListener('astro:after-swap', initDemoTabs);
+</script>

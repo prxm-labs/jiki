@@ -106,6 +106,12 @@
     @apply top-12;
   }
 
+  /* Inside demo tabs, pre loses its own border/rounding */
+  .demo-tabs pre.astro-code {
+    @apply rounded-none !border-0;
+    margin: 0;
+  }
+
   /* ── Global enhancer wrapper (injected by BaseLayout script) ── */
   .code-block-enhanced {
     /* inherits group from the class; no extra styles needed */
@@ -135,6 +141,83 @@
       prose-pre:my-4 prose-pre:p-0 prose-pre:bg-transparent;
     max-width: 64rem;
   }
+}
+
+/* ── Docs secondary nav ─────────────────────────────────────────
+ * Horizontally scrollable section nav below the header.
+ * Mobile drawer with accordion sections.
+ * ─────────────────────────────────────────────────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Mobile docs drawer ─────────────────────────────────────── */
+.docs-mobile-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.docs-mobile-drawer.is-open {
+  grid-template-rows: 1fr;
+}
+
+.docs-mobile-drawer > .docs-mobile-drawer-inner {
+  overflow: hidden;
+}
+
+/* Section accordion items */
+.docs-mobile-section-items {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.docs-mobile-section-items.is-collapsed {
+  grid-template-rows: 0fr;
+}
+
+.docs-mobile-section-items > .docs-mobile-section-items-inner {
+  overflow: hidden;
+}
+
+/* Section dividers */
+.docs-mobile-section + .docs-mobile-section {
+  border-top: 1px solid rgb(39 39 42 / 0.4);
+}
+
+/* Backdrop overlay */
+.docs-mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.docs-mobile-backdrop.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Hide backdrop on desktop */
+@media (min-width: 1024px) {
+  .docs-mobile-backdrop {
+    display: none;
+  }
+}
+
+/* Chevron rotation utility */
+.rotate-180 {
+  transform: rotate(180deg);
 }
 
 /* ── Astro View Transitions ──────────────────────────────────────
