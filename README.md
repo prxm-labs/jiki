@@ -1,20 +1,17 @@
-<p align="center">
-  <img src="apps/website/public/favicon.svg" alt="Jiki" width="120" />
-</p>
+<div align="center">
+  <a href="https://jiki.sh">
+    <img src="apps/website/public/favicon.svg" alt="Jiki" width="120" />
+  </a>
 
-<h1 align="center">jiki</h1>
+<a href="https://jiki.sh"><img alt="jiki logo" src="https://img.shields.io/badge/MADE%20For%20the%20browser-000000.svg?style=for-the-badge"></a>
+<a href="https://www.npmjs.com/package/@run0/jiki"><img alt="NPM version" src="https://img.shields.io/npm/v/@run0/jiki.svg?style=for-the-badge&labelColor=000000"></a>
+<a href="https://github.com/run0/jiki/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@run0/jiki.svg?style=for-the-badge&labelColor=000000"></a>
 
-<p align="center">Node.js in the browser.</p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/@run0/jiki"><img src="https://img.shields.io/npm/v/@run0/jiki.svg" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/@run0/jiki"><img src="https://img.shields.io/npm/dm/@run0/jiki.svg" alt="npm downloads" /></a>
-  <a href="https://github.com/vorillaz/web-containers-lite/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@run0/jiki.svg" alt="license" /></a>
-</p>
+</div>
 
 ---
 
-A sandboxed Node.js runtime that runs entirely client-side. Filesystem, shell, npm / pnpm, and dev servers. No backend required.
+A sandboxed Node.js runtime that runs entirely client-side. Filesystem, shell, npm / pnpm, and dev servers. No backend required. 
 
 ## A few lines is all it takes
 
@@ -27,10 +24,25 @@ await container.run("node index.js");
 // → Hello from the browser!
 ```
 
+## Comes with UI batteries included
+
+```tsx
+import { AIChatPanel, CodeEditor } from "@run0/jiki-ui";
+
+const App = () => (    
+  <div>
+    <CodeEditor />
+    <AIChatPanel />
+  </div>
+);
+```
+
+
 ## Learn more
 
 - [Website](https://jiki.sh)
 - [Documentation](https://jiki.sh/docs)
+- [UI Documentation](https://jiki.sh/docs/ui)
 - [Examples](./examples)
 
 ## License
