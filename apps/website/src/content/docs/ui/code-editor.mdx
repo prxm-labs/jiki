@@ -1,0 +1,56 @@
+---
+title: "CodeEditor"
+description: "CodeEditor component API — a syntax-highlighted code editor with Shiki, line numbers, and keyboard shortcuts."
+section: "ui"
+order: 2
+---
+
+A syntax-highlighted code editor powered by [Shiki](https://shiki.matsu.io/). It supports line numbers, tab indentation, save shortcuts, and a dirty-state indicator.
+
+## Import
+
+```tsx
+import { CodeEditor } from "@run0/jiki-ui";
+```
+
+## Props
+
+| Prop           | Type                                       | Default     | Description                              |
+| -------------- | ------------------------------------------ | ----------- | ---------------------------------------- |
+| `filename`     | `string \| null`                           | —           | File path displayed in the tab bar       |
+| `content`      | `string`                                   | —           | File content to display and edit         |
+| `onSave`       | `(path: string, content: string) => void`  | —           | Called on <kbd>Ctrl+S</kbd> / <kbd>Cmd+S</kbd> |
+| `accentColor`  | `AccentColor`                              | `"emerald"` | Theme color for UI accents               |
+
+## Features
+
+- Syntax highlighting via a lazy-loaded Shiki singleton (`github-dark` theme)
+- Line numbers with synchronized scrolling
+- <kbd>Tab</kbd> inserts two spaces
+- <kbd>Ctrl+S</kbd> / <kbd>Cmd+S</kbd> triggers `onSave`
+- Amber dot indicator when the buffer has unsaved changes
+- Tab bar showing the current filename and detected language label
+- Status bar showing the total line count
+
+## Usage
+
+```tsx
+function Editor() {
+  const [file, setFile] = useState({ path: "index.js", content: "" });
+
+  return (
+    <CodeEditor
+      filename={file.path}
+      content={file.content}
+      onSave={(path, content) => container.writeFile(path, content)}
+      accentColor="blue"
+    />
+  );
+}
+```
+
+## Demo
+
+import CodeEditorDemo from "../../../components/demos/CodeEditorDemo";
+
+<CodeEditorDemo client:visible />

@@ -1,0 +1,77 @@
+---
+title: "MobileTabBar"
+description: "MobileTabBar component API — a bottom tab bar with animated indicator for mobile-responsive layouts."
+section: "ui"
+order: 8
+---
+
+A bottom tab bar for mobile layouts with an animated sliding indicator. Pairs well with `useMediaQuery` to swap between desktop panels and mobile tabs.
+
+## Import
+
+```tsx
+import { MobileTabBar, ChatIcon, PreviewIcon, CodeIcon, TerminalIcon, FilesIcon } from "@run0/jiki-ui";
+import type { TabItem } from "@run0/jiki-ui";
+```
+
+## Props
+
+| Prop           | Type                             | Default     | Description                    |
+| -------------- | -------------------------------- | ----------- | ------------------------------ |
+| `tabs`         | `TabItem[]`                      | —           | Tab items to display           |
+| `activeTab`    | `string`                         | —           | ID of the currently active tab |
+| `onTabChange`  | `(id: string) => void`          | —           | Called when a tab is tapped    |
+| `accentColor`  | `AccentColor`                    | `"emerald"` | Theme color for active state   |
+
+## TabItem
+
+```ts
+interface TabItem {
+  id: string;              // Unique tab identifier
+  label: string;           // Display label
+  icon?: React.ReactNode;  // Optional icon element
+}
+```
+
+## Icon Components
+
+The package exports five icon components for common tab types. Each accepts an optional `className` prop.
+
+| Icon             | Description         |
+| ---------------- | ------------------- |
+| `ChatIcon`       | Chat bubble         |
+| `PreviewIcon`    | Eye / preview       |
+| `CodeIcon`       | Code brackets       |
+| `TerminalIcon`   | Terminal prompt     |
+| `FilesIcon`      | Folder              |
+
+## Usage
+
+```tsx
+import { useMediaQuery } from "@run0/jiki-ui";
+
+const isMobile = useMediaQuery("(max-width: 768px)");
+
+const tabs: TabItem[] = [
+  { id: "chat", label: "Chat", icon: <ChatIcon /> },
+  { id: "code", label: "Code", icon: <CodeIcon /> },
+  { id: "preview", label: "Preview", icon: <PreviewIcon /> },
+  { id: "terminal", label: "Terminal", icon: <TerminalIcon /> },
+  { id: "files", label: "Files", icon: <FilesIcon /> },
+];
+
+{isMobile && (
+  <MobileTabBar
+    tabs={tabs}
+    activeTab={activeTab}
+    onTabChange={setActiveTab}
+    accentColor="violet"
+  />
+)}
+```
+
+## Demo
+
+import MobileTabBarDemo from "../../../components/demos/MobileTabBarDemo";
+
+<MobileTabBarDemo client:visible />

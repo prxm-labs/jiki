@@ -1,0 +1,44 @@
+---
+title: "PanelToggle"
+description: "PanelToggle component API — a thin collapsible divider for toggling side panels open and closed."
+section: "ui"
+order: 7
+---
+
+A thin divider button for toggling side panels. When the panel is collapsed, the label is displayed vertically; when expanded, a chevron appears on hover.
+
+## Import
+
+```tsx
+import { PanelToggle } from "@run0/jiki-ui";
+```
+
+## Props
+
+| Prop           | Type                    | Default     | Description                              |
+| -------------- | ----------------------- | ----------- | ---------------------------------------- |
+| `collapsed`    | `boolean`               | —           | Whether the panel is currently collapsed |
+| `onClick`      | `() => void`           | —           | Toggle callback                          |
+| `label`        | `string`                | —           | Label text (shown vertically when collapsed) |
+| `side`         | `"left" \| "right"`    | `"left"`    | Which side the panel is on               |
+| `accentColor`  | `AccentColor`           | `"emerald"` | Theme color for label and chevron        |
+
+## Usage
+
+```tsx
+const [collapsed, setCollapsed] = useState(false);
+
+<PanelToggle
+  collapsed={collapsed}
+  onClick={() => setCollapsed(!collapsed)}
+  label="Files"
+  side="left"
+  accentColor="blue"
+/>
+```
+
+## Demo
+
+import PanelToggleDemo from "../../../components/demos/PanelToggleDemo";
+
+<PanelToggleDemo client:visible />

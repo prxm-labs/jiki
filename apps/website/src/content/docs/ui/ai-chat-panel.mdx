@@ -1,0 +1,91 @@
+---
+title: "AIChatPanel"
+description: "AIChatPanel component API — a chat interface for AI-assisted coding with markdown rendering, file mentions, and streaming support."
+section: "ui"
+order: 6
+---
+
+A chat panel for AI-assisted coding workflows. It renders user and assistant messages with markdown and code block support, file `@` mentions with autocomplete, and a streaming indicator.
+
+## Import
+
+```tsx
+import { AIChatPanel } from "@run0/jiki-ui";
+import type { ChatMessage, InspectedElement } from "@run0/jiki-ui";
+```
+
+## Props
+
+| Prop                       | Type                                   | Default     | Description                                |
+| -------------------------- | -------------------------------------- | ----------- | ------------------------------------------ |
+| `messages`                 | `ChatMessage[]`                        | —           | Message history to display                 |
+| `onSendMessage`            | `(content: string) => void`           | —           | Called when the user sends a message        |
+| `isStreaming`              | `boolean`                              | —           | Show streaming indicator on last message    |
+| `accentColor`              | `AccentColor`                          | `"blue"`    | Theme color                                |
+| `title`                    | `string`                               | `"Chat"`    | Panel header title                         |
+| `modelLabel`               | `string`                               | —           | Model badge label (e.g. `"GPT-4o"`)       |
+| `onLoadMore`               | `() => void`                          | —           | Callback to load earlier messages           |
+| `hasMoreMessages`          | `boolean`                              | —           | Whether older messages are available        |
+| `filePaths`                | `string[]`                             | —           | File paths for `@` mention autocomplete    |
+| `inspectedElement`         | `InspectedElement \| null`            | —           | Inspected element context badge             |
+| `onClearInspectedElement`  | `() => void`                          | —           | Clear the inspected element context         |
+
+## ChatMessage
+
+```ts
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;        // Supports markdown with ```code blocks
+  timestamp: number;
+  isStreaming?: boolean;   // Show pulse dot during streaming
+}
+```
+
+## Features
+
+- User and assistant message bubbles with distinct styling
+- Markdown rendering with collapsible code blocks
+- Long messages are collapsible with a "Show more" toggle
+- `@` mention autocomplete filtered against `filePaths`
+- File mention rendering with a file icon
+- Streaming pulse dot indicator
+- Auto-scroll to bottom (respects manual scroll position)
+- Inspected element context badge from `BrowserWindow`
+- Auto-resizing textarea (max 200px)
+- `IntersectionObserver` for lazy-loading older messages
+- <kbd>Enter</kbd> to send, <kbd>Shift+Enter</kbd> for newline
+
+## Usage
+
+```tsx
+const [messages, setMessages] = useState<ChatMessage[]>([]);
+const [streaming, setStreaming] = useState(false);
+
+<AIChatPanel
+  messages={messages}
+  onSendMessage={async (content) => {
+    setMessages((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content, timestamp: Date.now() },
+    ]);
+    setStreaming(true);
+    const reply = await askModel(content);
+    setMessages((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "assistant", content: reply, timestamp: Date.now() },
+    ]);
+    setStreaming(false);
+  }}
+  isStreaming={streaming}
+  accentColor="violet"
+  modelLabel="Claude"
+  filePaths={["src/index.ts", "src/App.tsx", "package.json"]}
+/>
+```
+
+## Demo
+
+import AIChatPanelDemo from "../../../components/demos/AIChatPanelDemo";
+
+<AIChatPanelDemo client:visible />

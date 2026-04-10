@@ -1,0 +1,75 @@
+---
+title: "BrowserWindow"
+description: "BrowserWindow component API — browser chrome with navigation controls, address bar, and an optional element inspector."
+section: "ui"
+order: 4
+---
+
+A browser-style preview window with navigation controls, an address bar, and an optional element inspector. It renders content via `srcdoc` or an external preview URL.
+
+## Import
+
+```tsx
+import { BrowserWindow } from "@run0/jiki-ui";
+import type { InspectedElement } from "@run0/jiki-ui";
+```
+
+## Props
+
+| Prop                | Type                                       | Default          | Description                                      |
+| ------------------- | ------------------------------------------ | ---------------- | ------------------------------------------------ |
+| `htmlSrc`           | `string`                                   | —                | HTML source for the iframe `srcdoc`              |
+| `url`               | `string`                                   | —                | Current URL path shown in the address bar        |
+| `canGoBack`         | `boolean`                                  | —                | Enable the back button                           |
+| `canGoForward`      | `boolean`                                  | —                | Enable the forward button                        |
+| `onBack`            | `() => void`                               | —                | Back button callback                             |
+| `onForward`         | `() => void`                               | —                | Forward button callback                          |
+| `onRefresh`         | `() => void`                               | —                | Refresh button callback                          |
+| `onNavigate`        | `(path: string) => void`                   | —                | Called when the user submits a URL               |
+| `port`              | `number`                                   | `3000`           | Port number shown in the address bar             |
+| `title`             | `string`                                   | `"App Preview"`  | Window title                                     |
+| `previewUrl`        | `string`                                   | —                | External URL to load instead of `srcdoc`         |
+| `onInspectElement`  | `(element: InspectedElement) => void`      | —                | Called when the user inspects a DOM element       |
+
+## InspectedElement
+
+```ts
+interface InspectedElement {
+  tagName: string;       // HTML tag name (lowercase)
+  className: string;     // CSS class string
+  textContent: string;   // Text content (truncated to 200 chars)
+  outerHTML: string;     // Outer HTML (truncated to 500 chars)
+}
+```
+
+## Features
+
+- macOS-style browser chrome with traffic lights
+- Back, forward, and refresh navigation buttons
+- Address bar with URL parsing and <kbd>Enter</kbd> to navigate
+- Element inspector with crosshair cursor mode
+- Tracks `<title>` changes via `MutationObserver`
+- Supports both `srcdoc` and external preview URLs
+
+## Usage
+
+```tsx
+<BrowserWindow
+  htmlSrc={html}
+  url={currentPath}
+  canGoBack={history.length > 1}
+  canGoForward={false}
+  onBack={() => history.pop()}
+  onForward={() => {}}
+  onRefresh={() => reloadPreview()}
+  onNavigate={(path) => navigateTo(path)}
+  port={3000}
+  onInspectElement={(el) => console.log(el.tagName)}
+/>
+```
+
+## Demo
+
+import BrowserWindowDemo from "../../../components/demos/BrowserWindowDemo";
+
+<BrowserWindowDemo client:visible />

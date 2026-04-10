@@ -1,0 +1,74 @@
+---
+title: "Terminal"
+description: "Terminal component API — interactive command input with color-coded output, command history, and loading state."
+section: "ui"
+order: 3
+---
+
+An interactive terminal with command input, command history, and color-coded output lines. Supports a compact variant for tighter layouts.
+
+## Import
+
+```tsx
+import { Terminal } from "@run0/jiki-ui";
+import type { TerminalLine } from "@run0/jiki-ui";
+```
+
+## Props
+
+| Prop           | Type                                                      | Default       | Description                                |
+| -------------- | --------------------------------------------------------- | ------------- | ------------------------------------------ |
+| `lines`        | `TerminalLine[]`                                          | —             | Output lines to display                    |
+| `onCommand`    | `(cmd: string) => Promise<void>`                          | —             | Called when the user submits a command      |
+| `onClear`      | `() => void`                                              | —             | Called when clearing the terminal           |
+| `accentColor`  | `AccentColor`                                             | `"emerald"`   | Theme color                                |
+| `variant`      | `"default" \| "compact"`                                  | `"default"`   | Size variant                               |
+| `title`        | `string`                                                  | `"Terminal"`  | Header title text                          |
+| `lineStyles`   | `Partial<Record<TerminalLine["type"], string>>`           | —             | Custom CSS class overrides per line type    |
+
+## TerminalLine
+
+```ts
+interface TerminalLine {
+  id: number;
+  type: "command" | "stdout" | "stderr" | "info" | "success";
+  text: string;
+}
+```
+
+Each `type` maps to a default color: `command` uses the accent color, `stdout` is `zinc-300`, `stderr` is `red-400`, `info` is `blue-400` italic, and `success` is `emerald-400`. Override any of these with the `lineStyles` prop.
+
+## Features
+
+- Command history navigation with arrow keys
+- Built-in `clear` command
+- Loading spinner while a command is executing
+- macOS-style traffic-light header
+- Compact and default size variants
+
+## Usage
+
+```tsx
+const [lines, setLines] = useState<TerminalLine[]>([]);
+
+<Terminal
+  lines={lines}
+  onCommand={async (cmd) => {
+    const result = await container.run(cmd);
+    setLines((prev) => [
+      ...prev,
+      { id: Date.now(), type: "stdout", text: result.stdout },
+    ]);
+  }}
+  onClear={() => setLines([])}
+  accentColor="orange"
+  variant="compact"
+  title="Output"
+/>
+```
+
+## Demo
+
+import TerminalDemo from "../../../components/demos/TerminalDemo";
+
+<TerminalDemo client:visible />

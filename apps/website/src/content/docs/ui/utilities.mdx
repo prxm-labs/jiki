@@ -1,0 +1,135 @@
+---
+title: "Utilities"
+description: "Hooks, helper functions, and theme utilities exported by @run0/jiki-ui."
+section: "ui"
+order: 9
+---
+
+`@run0/jiki-ui` exports several hooks, helper functions, and theme utilities alongside its components.
+
+## useMediaQuery
+
+A React hook that tracks a CSS media query.
+
+```tsx
+import { useMediaQuery } from "@run0/jiki-ui";
+
+const isMobile = useMediaQuery("(max-width: 768px)");
+```
+
+| Parameter | Type     | Description               |
+| --------- | -------- | ------------------------- |
+| `query`   | `string` | CSS media query string    |
+
+**Returns:** `boolean` — whether the query currently matches.
+
+SSR-safe — returns `false` on the server. Subscribes to changes via `matchMedia`.
+
+## useShikiHighlighter
+
+A hook that applies Shiki syntax highlighting to a target DOM element. Used internally by `CodeEditor` but available for custom editors.
+
+```tsx
+import { useShikiHighlighter } from "@run0/jiki-ui";
+
+const ref = useRef<HTMLDivElement>(null);
+useShikiHighlighter(code, "index.ts", ref);
+```
+
+| Parameter   | Type                              | Description                       |
+| ----------- | --------------------------------- | --------------------------------- |
+| `code`      | `string`                          | Source code to highlight          |
+| `filename`  | `string \| null`                  | Filename for language detection   |
+| `targetRef` | `React.RefObject<HTMLDivElement>` | DOM element to render into        |
+
+Uses a shared Shiki singleton with the `github-dark` theme. Updates are debounced at 30ms.
+
+## getLanguageLabel
+
+Returns a human-readable language name from a filename.
+
+```ts
+import { getLanguageLabel } from "@run0/jiki-ui";
+
+getLanguageLabel("App.tsx");  // "TSX"
+getLanguageLabel("style.css"); // "CSS"
+```
+
+Supported extensions: `.js`, `.mjs`, `.cjs`, `.jsx`, `.ts`, `.mts`, `.cts`, `.tsx`, `.json`, `.md`, `.html`, `.css`, `.vue`, `.svelte`, `.astro`, `.yaml`, `.yml`, `.toml`, `.sh`. Falls back to `"Plain Text"`.
+
+## getShikiLang
+
+Maps a filename to a Shiki language identifier for syntax highlighting.
+
+```ts
+import { getShikiLang } from "@run0/jiki-ui";
+
+getShikiLang("server.ts"); // "typescript"
+getShikiLang(null);         // "plaintext"
+```
+
+## Theme Functions
+
+Theme functions return Tailwind CSS class strings for styling components with a given `AccentColor`.
+
+### getEditorTheme
+
+```ts
+import { getEditorTheme } from "@run0/jiki-ui";
+
+const theme = getEditorTheme("blue");
+// theme.saveButtonActive — save button classes when dirty
+// theme.caret            — caret color class
+// theme.selection         — selection background class
+```
+
+### getTerminalTheme
+
+```ts
+import { getTerminalTheme } from "@run0/jiki-ui";
+
+const theme = getTerminalTheme("violet");
+// theme.commandStyle — command text style
+// theme.promptColor  — $ prompt color
+// theme.spinnerBorder — loading spinner border color
+// theme.inputCaret   — input caret color
+```
+
+### getFileExplorerTheme
+
+```ts
+import { getFileExplorerTheme } from "@run0/jiki-ui";
+
+const theme = getFileExplorerTheme("orange");
+// theme.selected — selected file highlight style
+```
+
+### getChatTheme
+
+```ts
+import { getChatTheme } from "@run0/jiki-ui";
+
+const theme = getChatTheme("blue");
+// theme.userBubble       — user message bubble classes
+// theme.assistantBubble  — assistant message bubble classes
+// theme.sendButton       — send button enabled classes
+// theme.sendButtonDisabled — send button disabled classes
+// theme.streamingDot     — streaming pulse dot color
+// theme.inputCaret       — input caret color
+// theme.modelBadge       — model label badge classes
+```
+
+### getLineStyles
+
+Returns default line-type CSS classes, optionally merged with custom overrides.
+
+```ts
+import { getLineStyles } from "@run0/jiki-ui";
+
+const styles = getLineStyles("emerald", { info: "text-emerald-400 italic" });
+// styles.command — accent-colored
+// styles.stdout  — zinc-300
+// styles.stderr  — red-400
+// styles.info    — overridden to "text-emerald-400 italic"
+// styles.success — emerald-400
+```

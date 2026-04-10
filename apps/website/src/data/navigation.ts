@@ -101,6 +101,20 @@ export const docsNav: NavSection[] = [
     ],
   },
   {
+    title: "UI Components",
+    items: [
+      { label: "Introduction", href: "/docs/ui/intro" },
+      { label: "CodeEditor", href: "/docs/ui/code-editor" },
+      { label: "Terminal", href: "/docs/ui/terminal" },
+      { label: "BrowserWindow", href: "/docs/ui/browser-window" },
+      { label: "FileExplorer", href: "/docs/ui/file-explorer" },
+      { label: "AIChatPanel", href: "/docs/ui/ai-chat-panel" },
+      { label: "PanelToggle", href: "/docs/ui/panel-toggle" },
+      { label: "MobileTabBar", href: "/docs/ui/mobile-tab-bar" },
+      { label: "Utilities", href: "/docs/ui/utilities" },
+    ],
+  },
+  {
     title: "Guides",
     items: [
       { label: "React App", href: "/docs/guides/react-app" },

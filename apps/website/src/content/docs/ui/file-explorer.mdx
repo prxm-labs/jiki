@@ -1,0 +1,75 @@
+---
+title: "FileExplorer"
+description: "FileExplorer component API — a recursive file tree with color-coded icons, expand/collapse, and file selection."
+section: "ui"
+order: 5
+---
+
+A recursive file tree with color-coded file icons, expandable directories, and file selection highlighting. Supports a compact variant for sidebar use.
+
+## Import
+
+```tsx
+import { FileExplorer } from "@run0/jiki-ui";
+import type { FileEntry } from "@run0/jiki-ui";
+```
+
+## Props
+
+| Prop            | Type                          | Default     | Description                        |
+| --------------- | ----------------------------- | ----------- | ---------------------------------- |
+| `files`         | `FileEntry[]`                 | —           | File tree structure                |
+| `selectedFile`  | `string \| null`              | —           | Path of the currently selected file|
+| `onSelect`      | `(path: string) => void`     | —           | Called when a file is clicked      |
+| `accentColor`   | `AccentColor`                 | `"emerald"` | Theme color for selection highlight|
+| `variant`       | `"default" \| "compact"`     | `"default"` | Size variant                       |
+
+## FileEntry
+
+```ts
+interface FileEntry {
+  name: string;            // File or directory name
+  path: string;            // Full file path
+  isDir: boolean;          // Whether this entry is a directory
+  children?: FileEntry[];  // Child entries (directories only)
+}
+```
+
+## Features
+
+- Recursive tree view with expand/collapse on directories
+- Color-coded file icons by extension (`.js` yellow, `.ts` blue, `.tsx` cyan, `.json` amber, `.html` orange, `.css` pink, `.md` blue, `.vue` emerald, `.svelte` orange, `.astro` orange, and more)
+- Folder icons in amber
+- Selected file highlighting with accent color
+- Compact and default size variants
+
+## Usage
+
+```tsx
+const files: FileEntry[] = [
+  {
+    name: "src",
+    path: "src",
+    isDir: true,
+    children: [
+      { name: "index.ts", path: "src/index.ts", isDir: false },
+      { name: "App.tsx", path: "src/App.tsx", isDir: false },
+    ],
+  },
+  { name: "package.json", path: "package.json", isDir: false },
+];
+
+<FileExplorer
+  files={files}
+  selectedFile="src/App.tsx"
+  onSelect={(path) => openFile(path)}
+  accentColor="blue"
+  variant="compact"
+/>
+```
+
+## Demo
+
+import FileExplorerDemo from "../../../components/demos/FileExplorerDemo";
+
+<FileExplorerDemo client:visible />

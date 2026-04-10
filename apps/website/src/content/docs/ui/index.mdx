@@ -1,0 +1,58 @@
+---
+title: "UI Components"
+description: "Introduction to @run0/jiki-ui — shared React components for building interactive coding environments with jiki."
+section: "ui"
+order: 1
+---
+
+`@run0/jiki-ui` is a companion React component library for jiki. It provides ready-made UI building blocks — a code editor, terminal, file explorer, browser preview, and more — so you can assemble interactive coding environments without starting from scratch.
+
+## Installation
+
+```bash
+npm install @run0/jiki-ui
+```
+
+`@run0/jiki-ui` requires React 19+ as a peer dependency.
+
+## Components
+
+| Component                                    | Description                                     |
+| -------------------------------------------- | ----------------------------------------------- |
+| [`CodeEditor`](/docs/ui/code-editor)         | Syntax-highlighted editor with Shiki            |
+| [`Terminal`](/docs/ui/terminal)               | Command input and color-coded output            |
+| [`BrowserWindow`](/docs/ui/browser-window)    | Browser chrome with navigation and preview      |
+| [`FileExplorer`](/docs/ui/file-explorer)      | Recursive file tree with icons                  |
+| [`AIChatPanel`](/docs/ui/ai-chat-panel)       | Chat interface for AI-assisted coding           |
+| [`PanelToggle`](/docs/ui/panel-toggle)        | Collapsible panel divider                       |
+| [`MobileTabBar`](/docs/ui/mobile-tab-bar)     | Tab navigation for mobile layouts               |
+
+## Utilities
+
+Hooks, helpers, and theme functions are documented on the [Utilities](/docs/ui/utilities) page.
+
+## Theming
+
+Every component accepts an optional `accentColor` prop to control its color scheme. The available colors are:
+
+```ts
+type AccentColor = "emerald" | "violet" | "orange" | "blue" | "pink" | "green" | "amber";
+```
+
+Most components default to `"emerald"`. Pass a different color to match your application's look:
+
+```tsx
+<Terminal lines={lines} onClear={handleClear} accentColor="violet" />
+```
+
+## Variants
+
+`Terminal` and `FileExplorer` support a `variant` prop with `"default"` and `"compact"` options. Use `"compact"` for tighter layouts where multiple panels share the screen.
+
+```tsx
+<FileExplorer files={tree} selectedFile={path} onSelect={setPath} variant="compact" />
+```
+
+:::tip[See it in action]
+Check out the [interactive tutorial](/examples/interactive-tutorial), [Next.js](/examples/nextjs), and [AI coding](/examples/claude-coding) examples to see these components composed into full IDE-like layouts.
+:::
