@@ -1,10 +1,13 @@
 ---
+import { ogImageUrlFor } from '../lib/og/url.ts';
+
 interface Props {
   title: string;
   description: string;
   canonical?: string;
   type?: 'website' | 'article';
   noindex?: boolean;
+  ogImage?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -13,10 +16,12 @@ const {
   description,
   type = 'website',
   noindex = false,
+  ogImage,
   jsonLd,
 } = Astro.props;
 
 const canonical = Astro.props.canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+const resolvedOgImage = ogImage ?? ogImageUrlFor(Astro.url.pathname, Astro.site);
 ---
 
 <link rel="canonical" href={canonical} />
@@ -30,11 +35,18 @@ const canonical = Astro.props.canonical ?? new URL(Astro.url.pathname, Astro.sit
 <meta property="og:url" content={canonical} />
 <meta property="og:site_name" content="jiki" />
 <meta property="og:locale" content="en_US" />
+<meta property="og:image" content={resolvedOgImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:alt" content={title} />
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={resolvedOgImage} />
+<meta name="twitter:image:alt" content={title} />
 
 <!-- JSON-LD Structured Data -->
 {jsonLd && (
