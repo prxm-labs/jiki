@@ -5,7 +5,7 @@
 
 <a href="https://jiki.sh"><img alt="jiki logo" src="https://img.shields.io/badge/MADE%20For%20the%20browser-000000.svg?style=for-the-badge"></a>
 <a href="https://www.npmjs.com/package/@run0/jiki"><img alt="NPM version" src="https://img.shields.io/npm/v/@run0/jiki.svg?style=for-the-badge&labelColor=000000"></a>
-<a href="https://github.com/run0/jiki/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@run0/jiki.svg?style=for-the-badge&labelColor=000000"></a>
+<a href="https://github.com/prxm-labs/jiki/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@run0/jiki.svg?style=for-the-badge&labelColor=000000"></a>
 <a href="https://jiki.sh/docs"><img alt="jiki logo" src="https://img.shields.io/badge/docs-000000.svg?style=for-the-badge"></a>
 
 </div>
